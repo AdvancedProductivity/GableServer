@@ -1,4 +1,4 @@
-package org.advancedproductivity.gable.gableserver;
+package org.advancedproductivity.gable;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
