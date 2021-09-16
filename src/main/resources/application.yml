@@ -8,7 +8,7 @@ spring:
       max-request-size: 30MB
       max-file-size: 25MB
 server:
-  port: 8080
+  port: 2109
 logging:
   file:
     name: /data/log/GableServer.log
