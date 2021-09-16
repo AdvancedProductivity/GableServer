@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: EtowerSelenium
+  jmx:
+    enabled: true
+  servlet:
+    multipart:
+      max-request-size: 30MB
+      max-file-size: 25MB
+server:
+  port: 8080
+logging:
+  file:
+    name: /data/log/GableServer.log
+  pattern:
+    file: '%d{yyyy-MM-dd HH:mm:ss.SSS} %5p ${PID} --- [%15.15t] %-40.40(%logger{36}:%-3.3L) : %m%n%wEx'
+    console: '%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID}){magenta} %clr(---){faint} %clr([%15.15t]){faint} %green(%-40.40(%logger{36}:%-3.3L)){cyan} %clr(:){faint} %m%n%wEx'
+
+local:
+  filepath: /data/testZ/
