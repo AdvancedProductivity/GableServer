@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"  xmlns:shiro="www.thymeleaf.org/thymeleaf-extras-shiro">
+<head>
+    <title th:if="${type.equals('add')}">Add tow number</title>
+    <title th:if="${type.equals('subtract')}">Subtract tow number</title>
+    <title th:if="${type.equals('multiply')}">Multiply tow number</title>
+    <title th:if="${type.equals('divide')}">Divide tow number</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" type="text/css" href="https://www.layuicdn.com/layui/css/layui.css" />
+</head>
+
+<body>
+<script src="https://www.layuicdn.com/layui/layui.js"></script>
+<!--您的Layui代码start-->
+<div style="padding: 60px">
+    <ul class="layui-nav" lay-filter="">
+        <li class="layui-nav-item" th:classappend="${type.equals('add') ? 'layui-this':''}"><a href="/page/test/add">Add</a></li>
+        <li class="layui-nav-item" th:classappend="${type.equals('subtract') ? 'layui-this':''}"><a href="/page/test/subtract">Subtract</a></li>
+        <li class="layui-nav-item" th:classappend="${type.equals('multiply') ? 'layui-this':''}"><a href="/page/test/multiply">Multiply</a></li>
+        <li class="layui-nav-item" th:classappend="${type.equals('divide') ? 'layui-this':''}"><a href="/page/test/divide">Divide</a></li>
+    </ul>
+    <div style="padding: 100px">
+        <form class="layui-form" action="">
+            <div class="layui-form-item">
+                <div class="layui-input-inline">
+                    <input id="aVar" type="number" name="aVar" required lay-verify="required" placeholder="a" autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid layui-word-aux" th:if="${type.equals('add')}">&nbsp;&nbsp;+&nbsp;&nbsp;</div>
+                <div class="layui-form-mid layui-word-aux" th:if="${type.equals('subtract')}">&nbsp;&nbsp;-&nbsp;&nbsp;</div>
+                <div class="layui-form-mid layui-word-aux" th:if="${type.equals('multiply')}">&nbsp;&nbsp;*&nbsp;&nbsp;</div>
+                <div class="layui-form-mid layui-word-aux" th:if="${type.equals('divide')}">&nbsp;&nbsp;/&nbsp;&nbsp;</div>
+                <div class="layui-input-inline">
+                    <input id="bVar" type="number" name="bVar" required lay-verify="required" placeholder="b" autocomplete="off" class="layui-input">
+                </div>
+                <div class="layui-form-mid layui-word-aux">=</div>
+                <div class="layui-form-mid layui-word-aux" id="result">?</div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="formDemo">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript" th:inline="javascript">
+    var type = [[${type}]];
+    layui.use(['form', 'element', 'jquery'], function () {
+        var form = layui.form;
+        var element = layui.element;
+        var $ = layui.$;
+        form.on('submit(formDemo)', function (data) {
+            var requestApi = '';
+            if (type == 'add') {
+                requestApi = '/api/test/add';
+            } else if (type == 'subtract') {
+                requestApi = '/api/test/subtract';
+            } else if (type == 'multiply') {
+                requestApi = '/api/test/multiply';
+            } else if (type == 'divide') {
+                requestApi = '/api/test/divide';
+            }
+            console.log('zzq see ' + requestApi);
+            console.log('zzq see ' + type);
+            console.log('zzq see ', data.field);
+            $.ajax({
+                type: 'POST',
+                url: requestApi + '?a=' + data.field.aVar + '&b=' + data.field.bVar,
+                success: function (data) {
+                    console.log(data)
+                    $('#result').text(data)
+                }
+            })
+            return false;
+        });
+    });
+</script>
+</body>
+
+</html>
