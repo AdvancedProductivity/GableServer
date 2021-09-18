@@ -1,10 +1,14 @@
 package org.advancedproductivity.gable.framework.config;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.advancedproductivity.gable.web.entity.Result;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,18 +32,48 @@ public class GableConfig {
             }else {
                 config = (ObjectNode) mapper.readTree(file);
             }
-            checkNecesseryFile();
+            checkNecessaryFile();
+            saveConfigToFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void saveConfigToFile() {
+        try {
+            String jarPath = SystemUtils.getUserDir().getAbsolutePath();
+            File file = FileUtils.getFile(jarPath, "config.json");
             FileUtils.write(file, config.toPrettyString(), Charset.defaultCharset());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static void checkNecesseryFile() {
+    private static void checkNecessaryFile() {
         File persistenceFilePath = FileUtils.getFile(getGablePath() );
         if (!persistenceFilePath.exists()) {
             persistenceFilePath.mkdir();
         }
+    }
+
+    public static ObjectNode getConfig() {
+        if (config == null) {
+            return null;
+        }
+        return config.deepCopy();
+    }
+
+    public static void updateConfig(ObjectNode config) {
+        GableConfig.config = config;
+        checkNecessaryFile();
+        saveConfigToFile();
+    }
+
+    public static String checkRequired(ObjectNode config) {
+        if (!config.path(PERSISTENCE).isTextual()) {
+            return PERSISTENCE;
+        }
+        return null;
     }
 
     private static ObjectNode generateDefaultConfig(String jarPath, ObjectMapper mapper) {
