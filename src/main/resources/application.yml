@@ -7,6 +7,8 @@ spring:
     multipart:
       max-request-size: 30MB
       max-file-size: 25MB
+  messages:
+    basename: i18n/messages
 server:
   port: 2109
 logging:

@@ -4,8 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -60,4 +63,13 @@ public class ApiTestController {
         result.set("receive", json);
         return result;
     }
+
+    @Resource
+    private MessageSource messageSource;
+
+    @GetMapping("/language")
+    public String language() {
+        return messageSource.getMessage("language", null, LocaleContextHolder.getLocale());
+    }
+
 }
