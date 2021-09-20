@@ -4,8 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.advancedproductivity.gable.framework.config.GableConfig;
 import org.advancedproductivity.gable.framework.config.UserDataType;
 import org.advancedproductivity.gable.framework.groovy.GroovyType;
+import org.advancedproductivity.gable.framework.urils.GableFileUtils;
 import org.advancedproductivity.gable.web.service.GroovyScriptService;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -20,36 +22,16 @@ import java.nio.charset.StandardCharsets;
 public class GroovyScriptServiceImpl implements GroovyScriptService {
     @Override
     public String getSampleScript(String namespace) {
-        File file = FileUtils.getFile(GableConfig.getGablePath(), namespace, UserDataType.GROOVY, GroovyType.SAMPLE_TYPE);
-        String content;
-        if (!file.exists()) {
-            content = "def a = 10\nassert a == 100";
-            log.info("generate default groovy code for {}", namespace);
-            try {
-                FileUtils.write(file, content, StandardCharsets.UTF_8);
-            } catch (IOException e) {
-                log.error("save sample groovy code error", e);
-            }
-        }else {
-            try {
-                content = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
-            } catch (IOException e) {
-                log.error("read sample groovy code error", e);
-                content = "read sample groovy code error" + e.getMessage();
-            }
+        String scriptContent = GableFileUtils.readFileAsString(GableConfig.getGablePath(), namespace, UserDataType.GROOVY, GroovyType.SAMPLE_TYPE);
+        if (StringUtils.isEmpty(scriptContent)) {
+            scriptContent = "def a = 10\nassert a == 100";
+            GableFileUtils.saveFile(scriptContent, GableConfig.getGablePath(), namespace, UserDataType.GROOVY, GroovyType.SAMPLE_TYPE);
         }
-        return content;
+        return scriptContent;
     }
 
     @Override
     public boolean saveSampleScript(String namespace, String scriptContent) {
-        File file = FileUtils.getFile(GableConfig.getGablePath(), namespace, UserDataType.GROOVY, GroovyType.SAMPLE_TYPE);
-        try {
-            FileUtils.write(file, scriptContent, StandardCharsets.UTF_8);
-            return true;
-        } catch (IOException e) {
-            log.error("save sample script failed", e);
-        }
-        return false;
+        return GableFileUtils.saveFile(scriptContent, GableConfig.getGablePath(), namespace, UserDataType.GROOVY, GroovyType.SAMPLE_TYPE);
     }
 }

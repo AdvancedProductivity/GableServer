@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.advancedproductivity.gable.framework.urils.GableFileUtils;
 import org.advancedproductivity.gable.web.entity.Result;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -20,37 +21,22 @@ import java.nio.charset.Charset;
 public class GableConfig {
     private static ObjectNode config = null;
     public static final String PERSISTENCE = "operationDir";
+    public static final String CONFIG_FILE_NAME = "config.json";
 
     public static void initConfig(){
-        ObjectMapper mapper = new ObjectMapper();
-        String jarPath = SystemUtils.getUserDir().getAbsolutePath();
-        System.out.println("jar path is: " + jarPath);
-        File file = FileUtils.getFile(jarPath, "config.json");
-        try {
-            if (!file.exists()) {
-                config = generateDefaultConfig(jarPath, mapper);
-            }else {
-                config = (ObjectNode) mapper.readTree(file);
-            }
-            checkNecessaryFile();
-            saveConfigToFile();
-        } catch (IOException e) {
-            e.printStackTrace();
+        String jarPath = getConfigPath();
+        final JsonNode configJsonNode = GableFileUtils.readFileAsJson(jarPath, CONFIG_FILE_NAME);
+        if (configJsonNode == null || !configJsonNode.isObject()) {
+            config = generateDefaultConfig(jarPath, new ObjectMapper());
+            GableFileUtils.saveFile(config.toPrettyString(), jarPath, CONFIG_FILE_NAME);
+        } else {
+            config = (ObjectNode) configJsonNode;
         }
-    }
-
-    private static void saveConfigToFile() {
-        try {
-            String jarPath = SystemUtils.getUserDir().getAbsolutePath();
-            File file = FileUtils.getFile(jarPath, "config.json");
-            FileUtils.write(file, config.toPrettyString(), Charset.defaultCharset());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        checkNecessaryFile();
     }
 
     private static void checkNecessaryFile() {
-        File persistenceFilePath = FileUtils.getFile(getGablePath() );
+        File persistenceFilePath = new File(getGablePath());
         if (!persistenceFilePath.exists()) {
             persistenceFilePath.mkdirs();
         }
@@ -66,7 +52,7 @@ public class GableConfig {
     public static void updateConfig(ObjectNode config) {
         GableConfig.config = config;
         checkNecessaryFile();
-        saveConfigToFile();
+        GableFileUtils.saveFile(config.toPrettyString(), getConfigPath(), CONFIG_FILE_NAME);
     }
 
     public static String checkRequired(ObjectNode config) {
@@ -92,5 +78,9 @@ public class GableConfig {
 
     public static String getGablePath(){
         return getAsString(PERSISTENCE);
+    }
+
+    private static String getConfigPath(){
+        return SystemUtils.getUserDir().getAbsolutePath();
     }
 }
