@@ -10,6 +10,7 @@ import org.advancedproductivity.gable.framework.runner.RunnerHolder;
 import org.advancedproductivity.gable.framework.runner.TestAction;
 import org.advancedproductivity.gable.framework.urils.GableFileUtils;
 import org.advancedproductivity.gable.web.entity.Result;
+import org.advancedproductivity.gable.web.service.HistoryService;
 import org.advancedproductivity.gable.web.service.UserService;
 import org.advancedproductivity.gable.web.service.impl.MenuServiceImpl;
 import org.springframework.context.MessageSource;
@@ -36,6 +37,9 @@ public class UnitController {
     @Resource
     private ObjectMapper objectMapper;
 
+    @Resource
+    private HistoryService historyService;
+
     @GetMapping
     private Result get(@RequestParam String uuid) {
         String userId = userService.getUserId(request);
@@ -57,8 +61,14 @@ public class UnitController {
         if (testAction == null) {
             return Result.error("unknown test type: " + type);
         }
+        ObjectNode history = objectMapper.createObjectNode();
         ObjectNode out = objectMapper.createObjectNode();
         testAction.execute(in, out);
+        history.set("in", in);
+        history.set("out", out);
+        history.put("recordTime", System.currentTimeMillis());
+        int historyId = historyService.recordUnitTest(userService.getUserId(request), uuid, history.toPrettyString());
+        out.put("historyId", historyId);
         return Result.success().setData(out);
     }
 }

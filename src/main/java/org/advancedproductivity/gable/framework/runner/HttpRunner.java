@@ -1,7 +1,6 @@
 package org.advancedproductivity.gable.framework.runner;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
@@ -37,14 +36,14 @@ public class HttpRunner implements TestAction {
         }else if (StringUtils.equals(method, HttpMethodType.DELETE.name())){
             builder.method(method, null);
         }else if (StringUtils.equals(method, HttpMethodType.POST.name())){
-            RequestBody body = parserHttpBody(in);
+            RequestBody body = parserHttpBody(in.path(ConfigField.HTTP_BODY));
             if (body == null) {
                 response.put("error", "unknown http body" + in.path(ConfigField.HTTP_BODY_TYPE).asText());
                 return;
             }
             builder.method(method, body);
         }else if (StringUtils.equals(method, HttpMethodType.PUT.name())){
-            RequestBody body = parserHttpBody(in);
+            RequestBody body = parserHttpBody(in.path(ConfigField.HTTP_BODY));
             if (body == null) {
                 response.put("error", "unknown http body" + in.path(ConfigField.HTTP_BODY_TYPE).asText());
                 return;
@@ -73,6 +72,7 @@ public class HttpRunner implements TestAction {
             handleHeaders(res.headers(), response);
         } catch (IOException e) {
             log.error("error happens while execute http request", e);
+            response.put("error", e.getMessage());
         }
     }
 
