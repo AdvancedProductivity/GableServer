@@ -39,7 +39,7 @@ public interface MenuService {
      * @param groupUuid new test belong to group
      * @return new test uuid
      */
-    String addUnit(ArrayNode userUnitMenus, String unitName, String groupUuid, String type);
+    String addUnit(ArrayNode userUnitMenus, String unitName, String groupUuid, String type, String nameSpace);
 
     /**
      * update user menu

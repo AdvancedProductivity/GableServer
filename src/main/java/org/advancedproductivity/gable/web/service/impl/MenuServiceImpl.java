@@ -5,11 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import org.advancedproductivity.gable.framework.config.ConfigField;
 import org.advancedproductivity.gable.framework.config.GableConfig;
 import org.advancedproductivity.gable.framework.config.UserDataType;
 import org.advancedproductivity.gable.framework.core.HttpMethodType;
 import org.advancedproductivity.gable.framework.core.TestType;
 import org.advancedproductivity.gable.framework.urils.GableFileUtils;
+import org.advancedproductivity.gable.framework.urils.TestConfigGenerate;
 import org.advancedproductivity.gable.web.service.MenuService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -58,10 +60,9 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    public String addUnit(ArrayNode userUnitMenus, String unitName, String groupUuid, String type) {
+    public String addUnit(ArrayNode userUnitMenus, String unitName, String groupUuid, String type, String nameSpace) {
         for (JsonNode item : userUnitMenus) {
             if (StringUtils.equals(item.path("uuid").asText(), groupUuid)) {
-                log.info("find and add");
                 String uuid = UUID.randomUUID().toString();
                 ObjectNode newUnit = objectMapper.createObjectNode();
                 newUnit.put("uuid", uuid);
@@ -72,6 +73,14 @@ public class MenuServiceImpl implements MenuService {
                 }
                 ArrayNode units = (ArrayNode) item.path("units");
                 units.add(newUnit);
+                // generate default uuid config
+                ObjectNode newConfig = TestConfigGenerate.httpGenerate(HttpMethodType.GET, uuid, objectMapper);
+                GableFileUtils.saveFile(newConfig.toPrettyString(),
+                        GableConfig.getGablePath(),
+                        nameSpace,
+                        UserDataType.UNIT,
+                        uuid,
+                        ConfigField.CONFIG_DEFINE_FILE_NAME);
                 return uuid;
             }
         }
