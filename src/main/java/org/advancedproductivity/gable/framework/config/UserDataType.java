@@ -5,4 +5,5 @@ package org.advancedproductivity.gable.framework.config;
  */
 public interface UserDataType {
     String GROOVY = "groovy";
+    String UNIT = "unit";
 }

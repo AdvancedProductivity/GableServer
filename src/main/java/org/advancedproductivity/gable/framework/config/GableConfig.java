@@ -4,8 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.extern.slf4j.Slf4j;
+import org.advancedproductivity.gable.framework.groovy.GroovyType;
 import org.advancedproductivity.gable.framework.urils.GableFileUtils;
 import org.advancedproductivity.gable.web.entity.Result;
+import org.advancedproductivity.gable.web.service.MenuService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.springframework.context.MessageSource;
@@ -14,13 +17,16 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author zzq
  */
+@Slf4j
 public class GableConfig {
     private static ObjectNode config = null;
     public static final String PERSISTENCE = "operationDir";
+    public static final String PUBLIC_PATH = "public";
     public static final String CONFIG_FILE_NAME = "config.json";
 
     public static void initConfig(){
@@ -39,6 +45,14 @@ public class GableConfig {
         File persistenceFilePath = new File(getGablePath());
         if (!persistenceFilePath.exists()) {
             persistenceFilePath.mkdirs();
+        }
+        File publicPath = FileUtils.getFile(getGablePath(), PUBLIC_PATH, UserDataType.UNIT);
+        if (!publicPath.exists()) {
+            publicPath.mkdirs();
+        }
+        File publicUnitMenu = FileUtils.getFile(getGablePath(), PUBLIC_PATH, UserDataType.UNIT, MenuService.UnitMenuFileName);
+        if (!publicUnitMenu.exists()) {
+            GableFileUtils.saveFile("[]",getGablePath(), PUBLIC_PATH, UserDataType.UNIT, MenuService.UnitMenuFileName);
         }
     }
 

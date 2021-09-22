@@ -30,10 +30,10 @@ public class SampleCodeRunController {
     private UserService userService;
 
     @Resource
-    private GroovyScriptService groovyScriptService;
+    private MessageSource messageSource;
 
     @Resource
-    private MessageSource messageSource;
+    private GroovyScriptService groovyScriptService;
 
     @Resource
     private ObjectMapper objectMapper;
