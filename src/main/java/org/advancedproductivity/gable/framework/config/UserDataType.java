@@ -7,4 +7,5 @@ public interface UserDataType {
     String GROOVY = "groovy";
     String UNIT = "unit";
     String HISTORY = "history";
+    String ENV = "env";
 }

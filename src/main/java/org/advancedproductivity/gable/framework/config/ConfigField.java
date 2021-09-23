@@ -24,4 +24,6 @@ public interface ConfigField {
     String HTTP_AUTH = "auth";
     String HTTP_AUTH_TYPE = "type";
 
+    String ENV_TYPE = "typeName";
+    String ENV_NAME = "name";
 }
