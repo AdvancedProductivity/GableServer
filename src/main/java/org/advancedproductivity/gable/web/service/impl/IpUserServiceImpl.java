@@ -1,5 +1,6 @@
 package org.advancedproductivity.gable.web.service.impl;
 
+import org.advancedproductivity.gable.framework.config.GableConfig;
 import org.advancedproductivity.gable.web.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,14 @@ public class IpUserServiceImpl implements UserService {
         }
         ip = request.getRemoteAddr();
         return ip;
+    }
+
+    @Override
+    public String getUserId(Boolean isPublic, HttpServletRequest request) {
+        if (isPublic != null && isPublic) {
+            return GableConfig.PUBLIC_PATH;
+        }
+        return getUserId(request);
     }
 
 }

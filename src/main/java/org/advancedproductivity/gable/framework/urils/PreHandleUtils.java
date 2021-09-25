@@ -1,5 +1,6 @@
 package org.advancedproductivity.gable.framework.urils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.*;
@@ -23,12 +24,17 @@ public class PreHandleUtils {
     public static Pattern ASSERT_JSON_PATTERN = Pattern.compile("\\((.*?)\\)");
 
     public static void main(String[] args) {
+        String s1 = "{\n" +
+                "    \"/body/content/0/addressLine1\": \"{{random(letter,10)}}\"\n" +
+                "}";
+        s1 = StringUtils.remove(s1, " ");
         ObjectMapper objectMapper = new ObjectMapper();
-        ObjectNode mapperObjectNode = objectMapper.createObjectNode();
-        mapperObjectNode.put("asd", "sad");
-        mapperObjectNode.put("t", "{{static(TestZzq) + random(numberStr,6) +static(_) + dateTime(yyyyMMddHHmmss)}}");
-        preHandleInJson(mapperObjectNode, objectMapper.createObjectNode(), objectMapper.createObjectNode());
-        System.out.println(mapperObjectNode.toPrettyString());
+        try {
+            JsonNode node = objectMapper.readTree(s1);
+            System.out.println(node.toPrettyString());
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void preHandleInJson(JsonNode in, ObjectNode instance, ObjectNode global) {

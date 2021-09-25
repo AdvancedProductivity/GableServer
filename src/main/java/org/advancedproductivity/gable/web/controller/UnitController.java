@@ -12,9 +12,11 @@ import org.advancedproductivity.gable.framework.runner.TestAction;
 import org.advancedproductivity.gable.framework.urils.GableFileUtils;
 import org.advancedproductivity.gable.framework.urils.PreHandleUtils;
 import org.advancedproductivity.gable.web.entity.Result;
+import org.advancedproductivity.gable.web.service.CaseService;
 import org.advancedproductivity.gable.web.service.HistoryService;
 import org.advancedproductivity.gable.web.service.UserService;
 import org.advancedproductivity.gable.web.service.impl.MenuServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,8 +44,14 @@ public class UnitController {
     @Resource
     private HistoryService historyService;
 
+    @Resource
+    private CaseService caseService;
+
     @GetMapping
-    private Result get(@RequestParam String uuid, @RequestParam(required = false) Boolean isPublic) {
+    private Result get(@RequestParam String uuid,
+                       @RequestParam(required = false) String caseId,
+                       @RequestParam(required = false) Integer caseVersion,
+                       @RequestParam(required = false) Boolean isPublic) {
         if (isPublic == null) {
             isPublic = false;
         }
@@ -51,16 +59,21 @@ public class UnitController {
         if (!isPublic) {
             userId = userService.getUserId(request);
         }
-        JsonNode node = GableFileUtils.readFileAsJson(GableConfig.getGablePath(),
+        JsonNode in = GableFileUtils.readFileAsJson(GableConfig.getGablePath(),
                 userId,
                 UserDataType.UNIT,
                 uuid,
                 ConfigField.CONFIG_DEFINE_FILE_NAME);
-        if (node == null) {
+        if (in == null) {
             return Result.error("not find");
-        } else {
-            return Result.success().setData(node);
         }
+        if (!StringUtils.isEmpty(caseId) && caseVersion != null) {
+            ObjectNode caseDetail = caseService.getCase(userId, uuid, caseVersion, caseId);
+            if (caseDetail != null) {
+                caseService.handleCase(in.path("config"), caseDetail);
+            }
+        }
+        return Result.success().setData(in);
     }
 
     @PostMapping("/run")

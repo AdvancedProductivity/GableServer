@@ -1,9 +1,13 @@
 package org.advancedproductivity.gable.web.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.extern.slf4j.Slf4j;
+import org.advancedproductivity.gable.framework.config.CaseField;
 import org.advancedproductivity.gable.framework.config.GableConfig;
 import org.advancedproductivity.gable.framework.config.UserDataType;
 import org.advancedproductivity.gable.framework.urils.GableFileUtils;
@@ -20,6 +24,7 @@ import java.util.Iterator;
  * @author zzq
  */
 @Service
+@Slf4j
 public class CaseServiceImpl implements CaseService {
     private static final String CASE_FILE_NAME = "case.json";
 
@@ -55,12 +60,23 @@ public class CaseServiceImpl implements CaseService {
         for (int i = 0; i < cases.size(); i++) {
             ObjectNode item = (ObjectNode) cases.get(i);
             String id = item.path("id").asText();
-            if (StringUtils.isEmpty(id)) {
-                id = item.path("用例编号").asText();
-            }
             ObjectNode caseContent = objectMapper.createObjectNode();
-            caseContent.set("diff", item.remove("diff"));
-            caseContent.set("jsonSchema", item.remove("jsonSchema"));
+            JsonNode diffNode = item.remove(CaseField.DIFF);
+            if (diffNode.isTextual()) {
+                String diffStr = diffNode.asText();
+                diffStr = StringUtils.remove(diffStr, " ");
+                caseContent.put(CaseField.DIFF, diffStr);
+            }else {
+                caseContent.set(CaseField.DIFF, diffNode);
+            }
+            JsonNode jsonSchemaNodes = item.remove(CaseField.JSON_SCHEMA);
+            if (jsonSchemaNodes.isTextual()) {
+                String jsonSchemaStr = jsonSchemaNodes.asText();
+                jsonSchemaStr = StringUtils.remove(jsonSchemaStr, " ");
+                caseContent.put(CaseField.DIFF, jsonSchemaStr);
+            }else {
+                caseContent.set(CaseField.DIFF, jsonSchemaNodes);
+            }
             GableFileUtils.saveFile(caseContent.toPrettyString(), GableConfig.getGablePath(), nameSpace, UserDataType.UNIT, uuid,
                     UserDataType.CASE, version + "", id + ".json");
         }
@@ -71,5 +87,44 @@ public class CaseServiceImpl implements CaseService {
         caseInfo.put("version", version);
         GableFileUtils.saveFile(caseInfo.toPrettyString(), GableConfig.getGablePath(), nameSpace, UserDataType.UNIT, uuid, CASE_FILE_NAME);
         return caseInfo;
+    }
+
+    @Override
+    public ObjectNode getCase(String nameSpace, String uuid, Integer version, String caseId) {
+        return (ObjectNode) GableFileUtils.readFileAsJson(GableConfig.getGablePath(), nameSpace, UserDataType.UNIT, uuid, UserDataType.CASE, version + "", caseId + ".json");
+    }
+
+    @Override
+    public boolean updateCase(String nameSpace, String uuid, Integer version, String caseId, ObjectNode diffAndValidate) {
+        return GableFileUtils.saveFile(diffAndValidate.toPrettyString(), GableConfig.getGablePath(), nameSpace, UserDataType.UNIT, uuid,
+                UserDataType.CASE, version + "", caseId + ".json");
+    }
+
+    @Override
+    public void handleCase(JsonNode in, ObjectNode caseDetail) {
+        JsonNode diffHandle = caseDetail.path(CaseField.DIFF);
+        if (diffHandle.isTextual()) {
+            try {
+                diffHandle = objectMapper.readTree(diffHandle.asText());
+            } catch (Exception e) {
+                log.error("error happens while handle case ", e);
+            }
+        }
+        Iterator<String> fieldNames = diffHandle.fieldNames();
+        while (fieldNames.hasNext()) {
+            String key = fieldNames.next();
+            if (!StringUtils.startsWith(key, "/")) {
+                continue;
+            }
+            String rootNodeKey = StringUtils.substringBeforeLast(key, "/");
+            String aimField = StringUtils.substringAfterLast(key, "/");
+            if (StringUtils.isEmpty(rootNodeKey) || StringUtils.isEmpty(aimField)) {
+                continue;
+            }
+            JsonNode at = in.at(rootNodeKey);
+            if (at.isObject()) {
+                ((ObjectNode) at).set(aimField, diffHandle.path(key));
+            }
+        }
     }
 }

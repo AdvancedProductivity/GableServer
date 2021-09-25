@@ -19,4 +19,10 @@ public interface CaseService {
     JsonNode getAllCase(String nameSpace, String testUuid);
 
     ObjectNode saveCases(ArrayNode cases, String nameSpace, String uuid);
+
+    ObjectNode getCase(String nameSpace, String uuid, Integer version, String caseId);
+
+    boolean updateCase(String nameSpace, String uuid, Integer version, String caseId, ObjectNode diffAndValidate);
+
+    void handleCase(JsonNode in, ObjectNode caseDetail);
 }

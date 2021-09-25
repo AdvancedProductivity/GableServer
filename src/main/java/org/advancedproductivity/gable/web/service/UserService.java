@@ -16,4 +16,6 @@ public interface UserService {
      * @return id
      * */
     String getUserId(HttpServletRequest request);
+
+    String getUserId(Boolean isPublic,HttpServletRequest request);
 }
