@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.advancedproductivity.gable.framework.config.CaseField;
 import org.advancedproductivity.gable.framework.config.GableConfig;
 import org.advancedproductivity.gable.framework.config.UserDataType;
+import org.advancedproductivity.gable.framework.config.ValidateField;
 import org.advancedproductivity.gable.framework.urils.GableFileUtils;
 import org.advancedproductivity.gable.web.service.CaseService;
 import org.apache.commons.io.FileUtils;
@@ -62,20 +63,20 @@ public class CaseServiceImpl implements CaseService {
             String id = item.path("id").asText();
             ObjectNode caseContent = objectMapper.createObjectNode();
             JsonNode diffNode = item.remove(CaseField.DIFF);
-            if (diffNode.isTextual()) {
+            if (diffNode != null && diffNode.isTextual()) {
                 String diffStr = diffNode.asText();
                 diffStr = StringUtils.remove(diffStr, " ");
                 caseContent.put(CaseField.DIFF, diffStr);
-            }else {
+            } else {
                 caseContent.set(CaseField.DIFF, diffNode);
             }
             JsonNode jsonSchemaNodes = item.remove(CaseField.JSON_SCHEMA);
-            if (jsonSchemaNodes.isTextual()) {
+            if (jsonSchemaNodes != null && jsonSchemaNodes.isTextual()) {
                 String jsonSchemaStr = jsonSchemaNodes.asText();
                 jsonSchemaStr = StringUtils.remove(jsonSchemaStr, " ");
-                caseContent.put(CaseField.DIFF, jsonSchemaStr);
-            }else {
-                caseContent.set(CaseField.DIFF, jsonSchemaNodes);
+                caseContent.put(CaseField.JSON_SCHEMA, jsonSchemaStr);
+            } else {
+                caseContent.set(CaseField.JSON_SCHEMA, jsonSchemaNodes);
             }
             GableFileUtils.saveFile(caseContent.toPrettyString(), GableConfig.getGablePath(), nameSpace, UserDataType.UNIT, uuid,
                     UserDataType.CASE, version + "", id + ".json");
@@ -102,6 +103,26 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public void handleCase(JsonNode in, ObjectNode caseDetail) {
+        handlePreHandle(in, caseDetail);
+        handleJsonSchema(in, caseDetail);
+    }
+
+    private void handleJsonSchema(JsonNode in, ObjectNode caseDetail) {
+        JsonNode jsonNode = caseDetail.path(CaseField.JSON_SCHEMA);
+        if (jsonNode.isMissingNode() || jsonNode.isNull()) {
+            return;
+        }
+        ObjectNode validateNode = null;
+        if (in.has(ValidateField.VALIDATE)) {
+            validateNode = (ObjectNode) in.path(ValidateField.VALIDATE);
+        } else {
+            validateNode = objectMapper.createObjectNode();
+        }
+        validateNode.set(ValidateField.JSON_SCHEMA, jsonNode);
+        ((ObjectNode) in).set(ValidateField.VALIDATE, validateNode);
+    }
+
+    private void handlePreHandle(JsonNode in, ObjectNode caseDetail) {
         JsonNode diffHandle = caseDetail.path(CaseField.DIFF);
         if (diffHandle.isTextual()) {
             try {

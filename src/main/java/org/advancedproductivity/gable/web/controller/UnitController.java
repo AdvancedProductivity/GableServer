@@ -2,10 +2,15 @@ package org.advancedproductivity.gable.web.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SpecVersion;
+import com.networknt.schema.SpecVersionDetector;
 import org.advancedproductivity.gable.framework.config.ConfigField;
 import org.advancedproductivity.gable.framework.config.GableConfig;
 import org.advancedproductivity.gable.framework.config.UserDataType;
+import org.advancedproductivity.gable.framework.config.ValidateField;
 import org.advancedproductivity.gable.framework.core.GlobalVar;
 import org.advancedproductivity.gable.framework.runner.RunnerHolder;
 import org.advancedproductivity.gable.framework.runner.TestAction;
@@ -14,6 +19,7 @@ import org.advancedproductivity.gable.framework.urils.PreHandleUtils;
 import org.advancedproductivity.gable.web.entity.Result;
 import org.advancedproductivity.gable.web.service.CaseService;
 import org.advancedproductivity.gable.web.service.HistoryService;
+import org.advancedproductivity.gable.web.service.JsonSchemaService;
 import org.advancedproductivity.gable.web.service.UserService;
 import org.advancedproductivity.gable.web.service.impl.MenuServiceImpl;
 import org.apache.commons.lang3.StringUtils;
@@ -76,6 +82,10 @@ public class UnitController {
         return Result.success().setData(in);
     }
 
+
+    @Resource
+    private JsonSchemaService jsonSchemaService;
+
     @PostMapping("/run")
     private Result run(@RequestBody ObjectNode data, @RequestParam String uuid, @RequestParam String type
             , @RequestParam(required = false) Boolean isPublic) {
@@ -90,6 +100,17 @@ public class UnitController {
         ObjectNode history = objectMapper.createObjectNode();
         ObjectNode out = objectMapper.createObjectNode();
         testAction.execute(in, out, instance, global);
+        // validate json schema
+        ArrayNode jsonSchemaError = jsonSchemaService.validate(in, out, type, objectMapper);
+        ObjectNode validateResult = objectMapper.createObjectNode();
+        if (jsonSchemaError.size() == 0) {
+            validateResult.put(ValidateField.RESULT, true);
+        }else {
+            validateResult.put(ValidateField.RESULT, false);
+        }
+        validateResult.set(ValidateField.JSON_SCHEMA, jsonSchemaError);
+        out.set(ValidateField.VALIDATE, validateResult);
+
         history.set("in", in);
         history.set("out", out);
         history.set("instance", instance);
