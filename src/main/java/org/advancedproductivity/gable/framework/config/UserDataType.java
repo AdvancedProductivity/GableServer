@@ -9,4 +9,5 @@ public interface UserDataType {
     String HISTORY = "history";
     String ENV = "env";
     String CASE = "case";
+    String INTEGRATE = "integrate";
 }

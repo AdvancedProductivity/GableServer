@@ -53,6 +53,45 @@ public class UnitController {
     @Resource
     private CaseService caseService;
 
+    @GetMapping("/history")
+    private Result getHistory(@RequestParam String uuid, @RequestParam Integer historyId,
+                              @RequestParam(required = false) Boolean isPublic) {
+        String userId = userId = userService.getUserId(isPublic, request);
+        JsonNode node = GableFileUtils.readFileAsJson(GableConfig.getGablePath(), userId, UserDataType.UNIT,
+                uuid,
+                UserDataType.HISTORY,
+                historyId + ".json");
+        return Result.success().setData(node);
+    }
+
+    @PutMapping()
+    private Result update(@RequestParam String uuid, @RequestBody JsonNode newConfig) {
+        String userId  = userService.getUserId(null, request);
+        JsonNode node = GableFileUtils.readFileAsJson(GableConfig.getGablePath(), userId, UserDataType.UNIT,
+                uuid,
+                ConfigField.CONFIG_DEFINE_FILE_NAME);
+        if (node == null || !node.isObject()) {
+            return Result.error();
+        }
+        int version = node.path(ConfigField.VERSION).asInt();
+        GableFileUtils.saveFile(node.toPrettyString(),
+                GableConfig.getGablePath(),
+                userId,
+                UserDataType.UNIT,
+                uuid,
+                ConfigField.VERSION,
+                version + ".json");
+        ((ObjectNode) node).put(ConfigField.VERSION, version + 1)
+                .set(ConfigField.DETAIL, newConfig);
+        GableFileUtils.saveFile(node.toPrettyString(),
+                GableConfig.getGablePath(),
+                userId,
+                UserDataType.UNIT,
+                uuid,
+                ConfigField.CONFIG_DEFINE_FILE_NAME);
+        return Result.success().setData(node);
+    }
+
     @GetMapping
     private Result get(@RequestParam String uuid,
                        @RequestParam(required = false) String caseId,

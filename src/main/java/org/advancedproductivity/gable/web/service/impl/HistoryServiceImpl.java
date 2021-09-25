@@ -38,4 +38,25 @@ public class HistoryServiceImpl implements HistoryService {
         GableFileUtils.saveFile(content, GableConfig.getGablePath(), nameSpace, UserDataType.UNIT, uuid, UserDataType.HISTORY, id + ".json");
         return id;
     }
+
+    @Override
+    public int recordIntegrateTest(String nameSpace, String uuid, String content) {
+        AtomicInteger atomicInteger = RECORDER.get(uuid);
+        int id = 0;
+        if (atomicInteger == null) {
+            File hisPath = FileUtils.getFile(GableConfig.getGablePath(), nameSpace, UserDataType.INTEGRATE, uuid, UserDataType.HISTORY);
+            if (hisPath.exists()) {
+                String[] list = hisPath.list();
+                if (list != null) {
+                    id = list.length;
+                }
+            }
+            atomicInteger = new AtomicInteger(id);
+            RECORDER.put(uuid, atomicInteger);
+        } else {
+            id = atomicInteger.incrementAndGet();
+        }
+        GableFileUtils.saveFile(content, GableConfig.getGablePath(), nameSpace, UserDataType.INTEGRATE, uuid, UserDataType.HISTORY, id + ".json");
+        return id;
+    }
 }
