@@ -19,7 +19,7 @@ public class GableFileUtils {
     public static boolean saveFile(final String content, final String... names) {
         try {
             File file = FileUtils.getFile(names);
-            FileUtils.write(file, content, Charset.defaultCharset());
+            FileUtils.write(file, content, StandardCharsets.UTF_8);
             return true;
         } catch (IOException e) {
             log.error("error happens while write str to file: {}", Arrays.toString(names), e);
