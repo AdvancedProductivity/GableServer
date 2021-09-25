@@ -1,0 +1,72 @@
+{
+  "PAGES": {
+    "HOME": {
+      "TITLE": "App works !",
+      "GO_TO_DETAIL": "Go to Detail"
+    },
+    "DETAIL": {
+      "TITLE": "Detail page !",
+      "BACK_TO_HOME": "Back to Home"
+    },
+    "SETTING": {
+      "TITLE": "Setting",
+      "LANGUAGE": "language",
+      "HOST_SETTING": "Host",
+      "GABLE_CONFIG": "Gable Config",
+      "ENV_CONFIG": "Env Config"
+    },
+    "PLAY_GROUND": {
+      "TITLE": "Play Ground",
+      "SAMPLE_GROOVY": "Groovy Demo Code"
+    },
+    "UNIT": {
+      "TITLE": "Unit Test"
+    },
+    "INTEGRATE": {
+      "TITLE": "Integrate Test"
+    },
+    "COMMON": {
+      "CONFIG_MODIFY": "Confirm",
+      "LANGS": {
+        "en-US": "English",
+        "zh-CN": "中文"
+      }
+    }
+  },
+  "TIPS": {
+    "INPUT_HOST": "Please enter gable backend api host",
+    "GROUP_NAME": "Please enter new group name",
+    "TEST_NAME": "Please enter new test name",
+    "TEST_TYPE": "Please select test type",
+    "GROUP_TYPE": "Please select group type",
+    "GROUP": "Group",
+    "TYPE": "Test Type",
+    "UNIT_NAME": "Unit NAME",
+    "ENV_NAME": "Please enter env name"
+  },
+  "RUN": "run",
+  "CASE": "Case",
+  "ADD_CASE": "Add Case",
+  "RUN_TYPE": "Run",
+  "IN": "In",
+  "OUT": "Out",
+  "SHOW_RESULT": "show result",
+  "MODIFY_SUCCESS": "modify success",
+  "MODIFY_ERROR": "modify failed",
+  "INVALID_JSON_STR": "the json string is invalid",
+  "ADD_GROUP_OR_UNIT": "add group or add unit test",
+  "COPY": "copy",
+  "COPY_TO_OTHER": "copy to other group",
+  "ADD_GROUP": "Add Group",
+  "ADD_TEST": "Add Test",
+  "ADD": "add",
+  "SAVE": "save",
+  "CONFIG": "Confirm",
+  "DETAIL": "Detail",
+  "UPDATE": "Update",
+  "TITLE": "Title",
+  "ADD_INTEGRATE": "Add Integrate Test",
+  "UPLOAD": "Upload Excel",
+  "OPERATION": "Operation",
+  "ADD_ENV": "add env"
+}

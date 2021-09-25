@@ -1,0 +1,72 @@
+{
+  "PAGES": {
+    "HOME": {
+      "TITLE": "App works !",
+      "GO_TO_DETAIL": "Go to Detail"
+    },
+    "DETAIL": {
+      "TITLE": "Detail page !",
+      "BACK_TO_HOME": "Back to Home"
+    },
+    "SETTING": {
+      "TITLE": "设置",
+      "LANGUAGE": "语言",
+      "HOST_SETTING": "主机地址",
+      "GABLE_CONFIG": "服务端设置",
+      "ENV_CONFIG": "环境配置"
+    },
+    "PLAY_GROUND": {
+      "TITLE": "演练场",
+      "SAMPLE_GROOVY": "Groovy Demo代码"
+    },
+    "UNIT": {
+      "TITLE": "单元测试"
+    },
+    "INTEGRATE": {
+      "TITLE": "集成测试"
+    },
+    "COMMON": {
+      "CONFIG_MODIFY": "确认",
+      "LANGS": {
+        "en-US": "English",
+        "zh-CN": "中文"
+      }
+    }
+  },
+  "TIPS": {
+    "INPUT_HOST": "请输入向Gable服务发送api请求的地址",
+    "GROUP_NAME": "请输入新的组名",
+    "TEST_NAME": "请输入新的测试名称",
+    "TEST_TYPE": "请选择测试类型",
+    "GROUP_TYPE": "请选择测试组",
+    "GROUP": "组",
+    "TYPE": "测试类型",
+    "UNIT_NAME": "测试名称",
+    "ENV_NAME": "请输入环境名称"
+  },
+  "RUN": "运行",
+  "CASE": "测试用例",
+  "ADD_CASE": "添加用例",
+  "RUN_TYPE": "运行",
+  "IN": "输入",
+  "OUT": "输出",
+  "SHOW_RESULT": "查看结果",
+  "MODIFY_SUCCESS": "修改成功",
+  "MODIFY_ERROR": "修改失败",
+  "INVALID_JSON_STR": "json字符串不合法",
+  "ADD_GROUP_OR_UNIT": "添加分组或者添加单元测试",
+  "COPY": "复制一份",
+  "COPY_TO_OTHER": "复制到其它组",
+  "ADD_GROUP": "添加组",
+  "ADD_TEST": "添加测试",
+  "SAVE": "保存",
+  "ADD": "添加",
+  "CONFIG": "确认",
+  "UPLOAD": "上传表格",
+  "DETAIL": "详情",
+  "TITLE": "标题",
+  "ADD_INTEGRATE": "添加集成测试",
+  "UPDATE": "更新",
+  "OPERATION": "操作",
+  "ADD_ENV": "添加环境"
+}
