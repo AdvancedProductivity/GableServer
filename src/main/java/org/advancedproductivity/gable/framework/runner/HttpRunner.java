@@ -155,7 +155,7 @@ public class HttpRunner implements TestAction {
         }
     }
 
-    private String parserToUrlPath(JsonNode in) {
+    public static String parserToUrlPath(JsonNode in) {
         String protocol = in.path(ConfigField.HTTP_PROTOCOL).asText();
         String host = in.path(ConfigField.HTTP_HOST).asText();
         int port = in.path(ConfigField.HTTP_PORT).asInt();
@@ -178,7 +178,7 @@ public class HttpRunner implements TestAction {
         return protocol + "://" + host + ":" + port + path + queryStr;
     }
 
-    private String mapKeyValue(JsonNode queries) {
+    private static String mapKeyValue(JsonNode queries) {
         int index = 0;
         String queryStr = "";
         for (int i = 0; i < queries.size(); i++) {
