@@ -1,10 +1,13 @@
 package org.advancedproductivity.gable.framework.runner;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+import org.advancedproductivity.gable.framework.auth.AuthHandler;
+import org.advancedproductivity.gable.framework.auth.AuthHolder;
 import org.advancedproductivity.gable.framework.config.ConfigField;
 import org.advancedproductivity.gable.framework.config.HttpResponseField;
 import org.advancedproductivity.gable.framework.core.HttpBodyType;
@@ -22,8 +25,16 @@ import java.util.Iterator;
 @Slf4j
 public class HttpRunner implements TestAction {
     private static final int DEFAULT_HTTP_PORT = 80;
+    private static final ObjectMapper mapper = new ObjectMapper();
     @Override
-    public void execute(JsonNode in, JsonNode out) {
+    public void execute(JsonNode in, JsonNode out, ObjectNode instance, ObjectNode global) {
+        // handle auth
+        AuthHandler authHandler = AuthHolder.HOLDER.get(
+                in.path(ConfigField.HTTP_AUTH)
+                .path(ConfigField.HTTP_AUTH_TYPE).asText());
+        if (authHandler != null) {
+            authHandler.handle(in, instance, global);
+        }
         ObjectNode response = (ObjectNode) out;
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .readTimeout(Duration.ZERO)
@@ -33,23 +44,23 @@ public class HttpRunner implements TestAction {
         String method = in.path(ConfigField.HTTP_METHOD).asText();
         if (StringUtils.equals(method, HttpMethodType.GET.name())) {
             builder.method(method, null);
-        }else if (StringUtils.equals(method, HttpMethodType.DELETE.name())){
+        } else if (StringUtils.equals(method, HttpMethodType.DELETE.name())) {
             builder.method(method, null);
-        }else if (StringUtils.equals(method, HttpMethodType.POST.name())){
+        } else if (StringUtils.equals(method, HttpMethodType.POST.name())) {
             RequestBody body = parserHttpBody(in.path(ConfigField.HTTP_BODY));
             if (body == null) {
                 response.put("error", "unknown http body" + in.path(ConfigField.HTTP_BODY_TYPE).asText());
                 return;
             }
             builder.method(method, body);
-        }else if (StringUtils.equals(method, HttpMethodType.PUT.name())){
+        } else if (StringUtils.equals(method, HttpMethodType.PUT.name())) {
             RequestBody body = parserHttpBody(in.path(ConfigField.HTTP_BODY));
             if (body == null) {
                 response.put("error", "unknown http body" + in.path(ConfigField.HTTP_BODY_TYPE).asText());
                 return;
             }
             builder.method(method, body);
-        }else {
+        } else {
             response.put("error", "unknown http method" + method);
             return;
         }
@@ -64,11 +75,14 @@ public class HttpRunner implements TestAction {
             response.put(HttpResponseField.END_AT, endAt);
             response.put(HttpResponseField.TIME_TAKES, (endAt - startAt));
             ResponseBody body = res.body();
-            if (res.isSuccessful()) {
+            String bodyType = body.contentType().toString();
+            response.put(HttpResponseField.CONTENT_TYPE, bodyType);
+            if (StringUtils.contains(bodyType, "json")) {
+                response.set(HttpResponseField.CONTENT, mapper.readTree(body.string()));
+            }else {
                 response.put(HttpResponseField.CONTENT, body.string());
-                response.put(HttpResponseField.CONTENT_TYPE, body.contentType().toString());
-                response.put(HttpResponseField.SIZE, body.contentLength());
             }
+            response.put(HttpResponseField.SIZE, body.contentLength());
             handleHeaders(res.headers(), response);
         } catch (IOException e) {
             log.error("error happens while execute http request", e);
@@ -149,8 +163,10 @@ public class HttpRunner implements TestAction {
             JsonNode item = path.get(i);
             boolean disabled = item.path("disabled").asBoolean();
             if (!disabled) {
-                builder.addHeader(item.path("key").asText(),
-                        item.path("value").asText());
+                String key = item.path("key").asText();
+                String value = item.path("value").asText();
+                log.info("http add header: {} is {}", key, value);
+                builder.addHeader(key, value);
             }
         }
     }

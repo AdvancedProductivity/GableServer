@@ -13,8 +13,10 @@ public interface TestAction {
      * execute unit test
      * @param in in param
      * @param out out param
+     * @param instance instance var
+     * @param global global var
      * */
-    void execute(JsonNode in, JsonNode out);
+    void execute(JsonNode in, JsonNode out, ObjectNode instance, ObjectNode global);
 
     /**
      * implement by sub class
