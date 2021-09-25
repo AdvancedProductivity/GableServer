@@ -8,4 +8,5 @@ public interface UserDataType {
     String UNIT = "unit";
     String HISTORY = "history";
     String ENV = "env";
+    String CASE = "case";
 }

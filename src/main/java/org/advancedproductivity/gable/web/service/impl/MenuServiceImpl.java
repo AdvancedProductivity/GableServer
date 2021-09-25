@@ -44,7 +44,6 @@ public class MenuServiceImpl implements MenuService {
     public ArrayNode getPublicUnitMenus() {
         JsonNode node = GableFileUtils.readFileAsJson(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.UNIT, UnitMenuFileName);
         if (node == null) {
-            return objectMapper.createArrayNode();
         }
         return (ArrayNode)node;
     }

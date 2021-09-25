@@ -41,8 +41,14 @@ public class UnitController {
     private HistoryService historyService;
 
     @GetMapping
-    private Result get(@RequestParam String uuid) {
-        String userId = userService.getUserId(request);
+    private Result get(@RequestParam String uuid, @RequestParam(required = false) Boolean isPublic) {
+        if (isPublic == null) {
+            isPublic = false;
+        }
+        String userId = GableConfig.PUBLIC_PATH;
+        if (!isPublic) {
+            userId = userService.getUserId(request);
+        }
         JsonNode node = GableFileUtils.readFileAsJson(GableConfig.getGablePath(),
                 userId,
                 UserDataType.UNIT,
@@ -50,13 +56,14 @@ public class UnitController {
                 ConfigField.CONFIG_DEFINE_FILE_NAME);
         if (node == null) {
             return Result.error("not find");
-        }else {
+        } else {
             return Result.success().setData(node);
         }
     }
 
     @PostMapping("/run")
-    private Result run(@RequestBody ObjectNode in, @RequestParam String uuid, @RequestParam String type) {
+    private Result run(@RequestBody ObjectNode in, @RequestParam String uuid, @RequestParam String type
+            , @RequestParam(required = false) Boolean isPublic) {
         TestAction testAction = RunnerHolder.HOLDER.get(type);
         if (testAction == null) {
             return Result.error("unknown test type: " + type);
@@ -67,7 +74,14 @@ public class UnitController {
         history.set("in", in);
         history.set("out", out);
         history.put("recordTime", System.currentTimeMillis());
-        int historyId = historyService.recordUnitTest(userService.getUserId(request), uuid, history.toPrettyString());
+        if (isPublic == null) {
+            isPublic = false;
+        }
+        String userId = GableConfig.PUBLIC_PATH;
+        if (!isPublic) {
+            userId = userService.getUserId(request);
+        }
+        int historyId = historyService.recordUnitTest(userId, uuid, history.toPrettyString());
         out.put("historyId", historyId);
         return Result.success().setData(out);
     }
