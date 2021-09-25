@@ -31,7 +31,6 @@ public class PreHandleUtils {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             JsonNode node = objectMapper.readTree(s1);
-            System.out.println(node.toPrettyString());
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -92,7 +91,6 @@ public class PreHandleUtils {
     }
 
     private static String preHandle(String var, ObjectNode instance, ObjectNode global) {
-        System.out.println("preHandle: " + var);
         var = var.trim();
         if (!StringUtils.startsWith(var, "{{")) {
             return var;
@@ -161,7 +159,6 @@ public class PreHandleUtils {
                 for (int i = 0; i < args.length; i++) {
                     args[i] = StringUtils.trim(args[i]);
                 }
-                System.out.println(Arrays.toString(args));
                 if (StringUtils.equals(args[0], "boolean")) {
                     return String.valueOf(RandomUtils.nextBoolean());
                 } else if (StringUtils.isNumeric(args[1]) && StringUtils.length(args[1]) < 4) {

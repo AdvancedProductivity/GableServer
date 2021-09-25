@@ -25,7 +25,6 @@ public class ExcelUtils {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        System.out.println(node.toPrettyString());
 //        String fileName = "C:\\Users\\Administrator\\Desktop\\test3.xlsx";
 //        try {
 //            ArrayNode read = read(fileName, 0, FileUtils.openInputStream(FileUtils.getFile(fileName)));
@@ -85,7 +84,6 @@ public class ExcelUtils {
         for (int i = 1; i < rownum; i++) {
             Row tmp = sheet.getRow(i);
             if (tmp == null) {
-                System.err.println("null row " + i);
                 continue;
             }
             ObjectNode item = mapper.createObjectNode();
