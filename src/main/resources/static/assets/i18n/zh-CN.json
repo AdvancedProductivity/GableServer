@@ -53,6 +53,7 @@
   "SHOW_RESULT": "查看结果",
   "MODIFY_SUCCESS": "修改成功",
   "MODIFY_ERROR": "修改失败",
+  "MODIFY": "修改",
   "INVALID_JSON_STR": "json字符串不合法",
   "ADD_GROUP_OR_UNIT": "添加分组或者添加单元测试",
   "COPY": "复制一份",

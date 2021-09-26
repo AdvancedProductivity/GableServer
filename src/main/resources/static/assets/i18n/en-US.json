@@ -51,6 +51,7 @@
   "IN": "In",
   "OUT": "Out",
   "SHOW_RESULT": "show result",
+  "MODIFY": "modify",
   "MODIFY_SUCCESS": "modify success",
   "MODIFY_ERROR": "modify failed",
   "INVALID_JSON_STR": "the json string is invalid",
