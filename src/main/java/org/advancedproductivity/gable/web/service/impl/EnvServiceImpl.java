@@ -9,7 +9,7 @@ import org.advancedproductivity.gable.framework.config.ConfigField;
 import org.advancedproductivity.gable.framework.config.GableConfig;
 import org.advancedproductivity.gable.framework.config.UserDataType;
 import org.advancedproductivity.gable.framework.core.TestType;
-import org.advancedproductivity.gable.framework.urils.GableFileUtils;
+import org.advancedproductivity.gable.framework.utils.GableFileUtils;
 import org.advancedproductivity.gable.web.service.EnvService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;

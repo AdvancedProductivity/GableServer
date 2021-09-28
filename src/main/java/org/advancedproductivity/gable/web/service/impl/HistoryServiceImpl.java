@@ -2,7 +2,7 @@ package org.advancedproductivity.gable.web.service.impl;
 
 import org.advancedproductivity.gable.framework.config.GableConfig;
 import org.advancedproductivity.gable.framework.config.UserDataType;
-import org.advancedproductivity.gable.framework.urils.GableFileUtils;
+import org.advancedproductivity.gable.framework.utils.GableFileUtils;
 import org.advancedproductivity.gable.web.service.HistoryService;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;

@@ -1,10 +1,7 @@
 package org.advancedproductivity.gable.web.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.advancedproductivity.gable.framework.core.HttpMethodType;
-import org.advancedproductivity.gable.framework.urils.TestConfigGenerate;
 import org.advancedproductivity.gable.web.entity.Result;
 import org.advancedproductivity.gable.web.service.UserService;
 import org.advancedproductivity.gable.web.service.impl.MenuServiceImpl;
