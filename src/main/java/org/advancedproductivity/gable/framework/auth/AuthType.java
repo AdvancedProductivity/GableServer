@@ -5,4 +5,5 @@ package org.advancedproductivity.gable.framework.auth;
  */
 
 public enum AuthType {
+    WALL_TECH
 }
