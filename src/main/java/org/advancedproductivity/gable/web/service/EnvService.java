@@ -18,4 +18,9 @@ public interface EnvService {
     boolean addEnv(String type, String name, ObjectNode config);
 
     boolean updateEnv(String uuid, String name, ObjectNode config);
+
+    /**
+     * handle unit test config json by env config
+     * */
+    void handleConfig(JsonNode in, JsonNode envConfig);
 }

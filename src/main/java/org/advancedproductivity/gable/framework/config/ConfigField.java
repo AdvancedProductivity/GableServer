@@ -27,4 +27,6 @@ public interface ConfigField {
 
     String ENV_TYPE = "typeName";
     String ENV_NAME = "name";
+
+    String IS_UNMODIFY = "isUnmodify";
 }

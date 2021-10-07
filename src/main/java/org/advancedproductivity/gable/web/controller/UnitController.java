@@ -14,10 +14,7 @@ import org.advancedproductivity.gable.framework.runner.TestAction;
 import org.advancedproductivity.gable.framework.utils.GableFileUtils;
 import org.advancedproductivity.gable.framework.utils.PreHandleUtils;
 import org.advancedproductivity.gable.web.entity.Result;
-import org.advancedproductivity.gable.web.service.CaseService;
-import org.advancedproductivity.gable.web.service.HistoryService;
-import org.advancedproductivity.gable.web.service.JsonSchemaService;
-import org.advancedproductivity.gable.web.service.UserService;
+import org.advancedproductivity.gable.web.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.web.bind.annotation.*;
@@ -48,6 +45,9 @@ public class UnitController {
 
     @Resource
     private CaseService caseService;
+
+    @Resource
+    private EnvService envService;
 
     @GetMapping("/history")
     private Result getHistory(@RequestParam String uuid, @RequestParam Integer historyId,
@@ -92,7 +92,8 @@ public class UnitController {
     private Result get(@RequestParam String uuid,
                        @RequestParam(required = false) String caseId,
                        @RequestParam(required = false) Integer caseVersion,
-                       @RequestParam(required = false) Boolean isPublic) {
+                       @RequestParam(required = false) Boolean isPublic,
+                       @RequestParam(required = false) String env) {
         if (isPublic == null) {
             isPublic = false;
         }
@@ -112,6 +113,12 @@ public class UnitController {
             ObjectNode caseDetail = caseService.getCase(userId, uuid, caseVersion, caseId);
             if (caseDetail != null) {
                 caseService.handleCase(in.path("config"), caseDetail);
+            }
+        }
+        if (!StringUtils.isEmpty(env)) {
+            JsonNode envConfig = envService.getEnv(env);
+            if (envConfig != null && !envConfig.isMissingNode()) {
+                envService.handleConfig(in, envConfig);
             }
         }
         return Result.success().setData(in);

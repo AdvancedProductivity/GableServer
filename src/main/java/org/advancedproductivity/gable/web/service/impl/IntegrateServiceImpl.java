@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.advancedproductivity.gable.framework.config.GableConfig;
+import org.advancedproductivity.gable.framework.config.IntegrateField;
 import org.advancedproductivity.gable.framework.config.UserDataType;
 import org.advancedproductivity.gable.framework.utils.GableFileUtils;
 import org.advancedproductivity.gable.web.service.IntegrateService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -42,8 +44,9 @@ public class IntegrateServiceImpl implements IntegrateService {
         GableFileUtils.saveFile(records.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.INTEGRATE, uuid, "define.json");
         JsonNode node = GableFileUtils.readFileAsJson(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, INTEGRATE_TEST_FILE);
         ObjectNode integrateItem = objectMapper.createObjectNode();
-        integrateItem.put("uuid", uuid);
-        integrateItem.put("name", name);
+        integrateItem.put(IntegrateField.UUID, uuid);
+        integrateItem.put(IntegrateField.NAME, name);
+        integrateItem.set(IntegrateField.TAG, objectMapper.createArrayNode());
         if (node == null) {
             node = objectMapper.createArrayNode().add(integrateItem);
         }else {
@@ -56,5 +59,40 @@ public class IntegrateServiceImpl implements IntegrateService {
     @Override
     public JsonNode getOne(String uuid) {
         return GableFileUtils.readFileAsJson(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.INTEGRATE, uuid, "define.json");
+    }
+
+    @Override
+    public boolean addTag(String tagName, String uuid) {
+        JsonNode allTests = GableFileUtils.readFileAsJson(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, INTEGRATE_TEST_FILE);
+        if (allTests == null) {
+            return false;
+        }
+        for (int i = 0; i < allTests.size(); i++) {
+            JsonNode node = allTests.get(i);
+            if (!node.isObject()) {
+                continue;
+            }
+            ObjectNode item = (ObjectNode) node;
+            if (!StringUtils.equals(item.path(IntegrateField.UUID).asText(), uuid)) {
+                continue;
+            }
+            JsonNode tags = item.path(IntegrateField.TAG);
+            if (!tags.isArray()) {
+                ArrayNode newTags = objectMapper.createArrayNode();
+                newTags.add(tagName);
+                item.set(IntegrateField.TAG, newTags);
+            }else {
+                ArrayNode newTags = (ArrayNode) tags;
+                for (JsonNode newTag : newTags) {
+                    if (StringUtils.equals(newTag.asText(), tagName)) {
+                        return false;
+                    }
+                }
+                newTags.add(tagName);
+            }
+            GableFileUtils.saveFile(allTests.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, INTEGRATE_TEST_FILE);
+            return true;
+        }
+        return false;
     }
 }

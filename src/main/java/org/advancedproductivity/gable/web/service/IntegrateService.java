@@ -14,4 +14,6 @@ public interface IntegrateService {
 
     JsonNode getOne(String uuid);
 
+    boolean addTag(String tagName, String uuid);
+
 }

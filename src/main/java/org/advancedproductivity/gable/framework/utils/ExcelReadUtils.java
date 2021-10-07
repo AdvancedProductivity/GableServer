@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExcelUtils {
+public class ExcelReadUtils {
 
     public static void main(String[] args) {
         String s = "{\n\t\"operationDir\": \"/config/Persistence\"\n}";

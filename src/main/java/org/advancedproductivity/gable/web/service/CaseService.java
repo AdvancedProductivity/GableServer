@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.advancedproductivity.gable.web.entity.Result;
 
+import javax.servlet.ServletOutputStream;
+
 /**
  * @author zzq
  */
@@ -25,4 +27,6 @@ public interface CaseService {
     boolean updateCase(String nameSpace, String uuid, Integer version, String caseId, ObjectNode diffAndValidate);
 
     void handleCase(JsonNode in, ObjectNode caseDetail);
+
+    void saveToExcel(ServletOutputStream out, JsonNode allCase);
 }
