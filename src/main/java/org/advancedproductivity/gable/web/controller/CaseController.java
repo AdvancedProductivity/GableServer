@@ -140,7 +140,7 @@ public class CaseController {
                     String diffStr = diffJson.asText();
                     if (StringUtils.isEmpty(diffStr)) {
                         item.set(CaseField.DIFF, NullNode.getInstance());
-                    }else {
+                    } else {
                         try {
                             item.set(CaseField.DIFF, objectMapper.readTree(diffStr));
                         } catch (Exception e) {
@@ -148,6 +148,8 @@ public class CaseController {
                             item.set(CaseField.DIFF, NullNode.getInstance());
                         }
                     }
+                } else {
+                    item.set(CaseField.DIFF, NullNode.getInstance());
                 }
                 JsonNode jsonSchemaJson = caseDetail.path(CaseField.JSON_SCHEMA);
                 if (jsonSchemaJson.isObject()) {
@@ -164,6 +166,8 @@ public class CaseController {
                             item.set(CaseField.JSON_SCHEMA, NullNode.getInstance());
                         }
                     }
+                } else {
+                    item.set(CaseField.JSON_SCHEMA, NullNode.getInstance());
                 }
             }
         }
