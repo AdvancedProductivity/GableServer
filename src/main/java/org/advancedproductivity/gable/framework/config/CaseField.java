@@ -11,4 +11,6 @@ public interface CaseField {
     String VERSION = "version";
     String ID = "id";
     String TITLE = "title";
+    String ALL_FIELD = "allField";
+    String IN = "in";
 }

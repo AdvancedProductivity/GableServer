@@ -11,18 +11,46 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class ExcelReadUtils {
 
+    static class Holder{
+        Date date;
+
+        public Holder(Date date) {
+            this.date = date;
+        }
+    }
     public static void main(String[] args) {
-        String s = "{\n\t\"operationDir\": \"/config/Persistence\"\n}";
-        JsonNode node = null;
+
+//        String s = "{\n\t\"operationDir\": \"/config/Persistence\"\n}";
+//        JsonNode node = null;
+//        try {
+//            node = new ObjectMapper().readTree(s);
+//        } catch (JsonProcessingException e) {
+//            e.printStackTrace();
+//        }
+        List<Holder> list = new ArrayList<>();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         try {
-            node = new ObjectMapper().readTree(s);
-        } catch (JsonProcessingException e) {
+            list.add(new Holder(format.parse("2021-05-10")));
+            list.add(new Holder(format.parse("2021-06-10")));
+            list.add(new Holder(format.parse("2021-04-10")));
+
+            Collections.sort(list, new Comparator<Holder>() {
+                @Override
+                public int compare(Holder o1, Holder o2) {
+                    return Long.compare(o1.date.getTime(), o2.date.getTime());
+                }
+            });
+        } catch (ParseException e) {
             e.printStackTrace();
+        }
+        for (Holder holder : list) {
+            System.out.println(format.format(holder.date));
         }
 //        String fileName = "C:\\Users\\Administrator\\Desktop\\test3.xlsx";
 //        try {
@@ -35,7 +63,6 @@ public class ExcelReadUtils {
     }
     private static String XLS = ".xls";
     private static String XLSX =".xlsx";
-
     public static ArrayNode read(String fileName, String sheetName, InputStream is) throws Exception {
         Workbook workbook = null;
         if (org.apache.commons.lang3.StringUtils.endsWith(fileName, XLS)) {

@@ -3,6 +3,7 @@ package org.advancedproductivity.gable.web.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.advancedproductivity.gable.framework.config.CaseField;
@@ -10,6 +11,7 @@ import org.advancedproductivity.gable.framework.utils.ExcelReadUtils;
 import org.advancedproductivity.gable.web.entity.Result;
 import org.advancedproductivity.gable.web.service.CaseService;
 import org.advancedproductivity.gable.web.service.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -104,6 +106,78 @@ public class CaseController {
         }
     }
 
+    @GetMapping("exportAsJson")
+    public void exportAsJson(@RequestParam String uuid, @RequestParam(required = false) Boolean isPublic,
+                       HttpServletResponse response) {
+        String userId = userService.getUserId(isPublic, request);
+        JsonNode allCase = caseService.getAllCase(userId, uuid);
+        JsonNode header = allCase.path(CaseField.HEADERS);
+        if (header.isArray()) {
+            ArrayNode headers = (ArrayNode) header;
+            headers.add(CaseField.DIFF);
+            headers.add(CaseField.JSON_SCHEMA);
+        }
+        JsonNode items = allCase.path(CaseField.RECORD);
+        int version = allCase.path(CaseField.VERSION).asInt();
+        if (items.isArray() && items.size() > 0) {
+            ArrayNode details = (ArrayNode) items;
+            for (int i = 0; i < details.size(); i++) {
+                JsonNode d = details.path(i);
+                if (!d.isObject()) {
+                    log.error("find un expected json type in case array {}", d.getNodeType());
+                    continue;
+                }
+                ObjectNode item = (ObjectNode) d;
+                String caseId = item.path(CaseField.ID).asText();
+                ObjectNode caseDetail = caseService.getCase(userId, uuid, version, caseId);
+                if (caseDetail == null) {
+                    log.error("case not find {} {} {} {}", userId, uuid, version, caseId);
+                }
+                JsonNode diffJson = caseDetail.path(CaseField.DIFF);
+                if (diffJson.isObject()) {
+                    item.set(CaseField.DIFF, diffJson);
+                } else if (diffJson.isTextual()) {
+                    String diffStr = diffJson.asText();
+                    if (StringUtils.isEmpty(diffStr)) {
+                        item.set(CaseField.DIFF, NullNode.getInstance());
+                    }else {
+                        try {
+                            item.set(CaseField.DIFF, objectMapper.readTree(diffStr));
+                        } catch (Exception e) {
+                            log.error("parser json error", e);
+                            item.set(CaseField.DIFF, NullNode.getInstance());
+                        }
+                    }
+                }
+                JsonNode jsonSchemaJson = caseDetail.path(CaseField.JSON_SCHEMA);
+                if (jsonSchemaJson.isObject()) {
+                    item.put(CaseField.JSON_SCHEMA, jsonSchemaJson);
+                } else if (jsonSchemaJson.isTextual()) {
+                    String jsonSchemaStr = jsonSchemaJson.asText();
+                    if (StringUtils.isEmpty(jsonSchemaStr)) {
+                        item.set(CaseField.JSON_SCHEMA, NullNode.getInstance());
+                    }else {
+                        try {
+                            item.set(CaseField.JSON_SCHEMA, objectMapper.readTree(jsonSchemaStr));
+                        } catch (Exception e) {
+                            log.error("parser json error", e);
+                            item.set(CaseField.JSON_SCHEMA, NullNode.getInstance());
+                        }
+                    }
+                }
+            }
+        }
+        response.setHeader("Content-type", "application/file");
+        response.setHeader("Content-Disposition", "attachment; filename=Case_" + version + ".json");
+        try {
+            ServletOutputStream out = response.getOutputStream();
+            out.write(allCase.toPrettyString().getBytes(StandardCharsets.UTF_8));
+            out.close();
+        } catch (Exception e) {
+            log.error("error happens while export case excel", e);
+        }
+    }
+
     @GetMapping("/item")
     public Result get(@RequestParam String uuid,
                       @RequestParam String caseId,
@@ -140,7 +214,16 @@ public class CaseController {
             , @RequestParam(required = false) Boolean isPublic) {
         try {
             String userId = userService.getUserId(isPublic, request);
-            ArrayNode cases = ExcelReadUtils.read(file.getOriginalFilename(), 0, file.getInputStream());
+            String type = file.getOriginalFilename();
+            ArrayNode cases = null;
+            if (StringUtils.endsWith(type, "xls") || StringUtils.endsWith(type, "xlsx")) {
+                cases = ExcelReadUtils.read(file.getOriginalFilename(), 0, file.getInputStream());
+            } else if (StringUtils.endsWith(type, "json")) {
+                cases = (ArrayNode) objectMapper.readTree(file.getInputStream()).path(CaseField.RECORD);
+            }
+            if (cases == null) {
+                return Result.error("file type cannot analysis: " + type);
+            }
             return Result.success().setData(caseService.saveCases(cases, userId, uuid));
         } catch (Exception e) {
             log.error("error happens while read excel", e);

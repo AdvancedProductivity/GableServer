@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.advancedproductivity.gable.framework.config.ConfigField;
-import org.advancedproductivity.gable.framework.config.GableConfig;
-import org.advancedproductivity.gable.framework.config.UserDataType;
-import org.advancedproductivity.gable.framework.config.ValidateField;
+import org.advancedproductivity.gable.framework.config.*;
 import org.advancedproductivity.gable.framework.core.GlobalVar;
 import org.advancedproductivity.gable.framework.runner.RunnerHolder;
 import org.advancedproductivity.gable.framework.runner.TestAction;
@@ -122,6 +119,39 @@ public class UnitController {
             }
         }
         return Result.success().setData(in);
+    }
+
+    @Resource
+    private JsonService jsonService;
+
+    @GetMapping("/allField")
+    private Result allField(@RequestParam String uuid,
+                       @RequestParam(required = false) String caseId,
+                       @RequestParam(required = false) Boolean isPublic,
+                       @RequestParam(required = false) String env) {
+        if (isPublic == null) {
+            isPublic = false;
+        }
+        String userId = GableConfig.PUBLIC_PATH;
+        if (!isPublic) {
+            userId = userService.getUserId(request);
+        }
+        JsonNode in = GableFileUtils.readFileAsJson(GableConfig.getGablePath(),
+                userId,
+                UserDataType.UNIT,
+                uuid,
+                ConfigField.CONFIG_DEFINE_FILE_NAME);
+        ObjectNode data = objectMapper.createObjectNode();
+        if (in == null) {
+            data.put("error", "config not find");
+            return Result.success(data);
+        }
+        JsonNode inNode = in.path(ConfigField.DETAIL);
+        jsonService.traverFields(inNode, data, "");
+        ObjectNode result = objectMapper.createObjectNode();
+        result.set(CaseField.ALL_FIELD, data);
+        result.set(CaseField.IN, inNode);
+        return Result.success().setData(result);
     }
 
 
