@@ -16,4 +16,5 @@ public interface IntegrateService {
 
     boolean addTag(String tagName, String uuid);
 
+    boolean updateIntegrate(ArrayNode records, String uuid);
 }

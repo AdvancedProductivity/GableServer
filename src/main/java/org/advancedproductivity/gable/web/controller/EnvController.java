@@ -30,7 +30,7 @@ public class EnvController {
 
     @PostMapping()
     public Result add(@RequestParam String type, @RequestParam String name, @RequestBody ObjectNode config) {
-        boolean b = envService.addEnv(type, name, config);
+        boolean b = envService.addEnv(name, config);
         return Result.success(envService.getEnvConfigMenu());
     }
 

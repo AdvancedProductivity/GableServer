@@ -39,8 +39,22 @@ public class IntegrateServiceImpl implements IntegrateService {
 
     @Override
     public String addIntegrate(ArrayNode records, String name) {
-        records.toPrettyString();
         String uuid = UUID.randomUUID().toString();
+        for (JsonNode record : records) {
+            if (StringUtils.equals(record.path("type").asText(), "STEP")) {
+                JsonNode codeNode = record.path("code");
+                if (codeNode.isMissingNode() || codeNode.isNull()) {
+                    continue;
+                }
+                String code = codeNode.asText();
+                String stepUuid = record.path("uuid").asText();
+                if (StringUtils.isEmpty(stepUuid)) {
+                    stepUuid = "public_" + UUID.randomUUID().toString();
+                    ((ObjectNode) record).put("uuid", stepUuid);
+                }
+                GableFileUtils.saveFile(code, GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.GROOVY, stepUuid + ".groovy");
+            }
+        }
         GableFileUtils.saveFile(records.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.INTEGRATE, uuid, "define.json");
         JsonNode node = GableFileUtils.readFileAsJson(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, INTEGRATE_TEST_FILE);
         ObjectNode integrateItem = objectMapper.createObjectNode();
@@ -54,6 +68,27 @@ public class IntegrateServiceImpl implements IntegrateService {
         }
         GableFileUtils.saveFile(node.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, INTEGRATE_TEST_FILE);
         return uuid;
+    }
+
+    @Override
+    public boolean updateIntegrate(ArrayNode records, String uuid) {
+        for (JsonNode record : records) {
+            if (StringUtils.equals(record.path("type").asText(), "STEP")) {
+                JsonNode codeNode = record.path("code");
+                if (codeNode.isMissingNode() || codeNode.isNull()) {
+                    continue;
+                }
+                String code = codeNode.asText();
+                String stepUuid = record.path("uuid").asText();
+                if (StringUtils.isEmpty(stepUuid)) {
+                    stepUuid = "public_" + UUID.randomUUID().toString();
+                    ((ObjectNode) record).put("uuid", stepUuid);
+                }
+                GableFileUtils.saveFile(code, GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.GROOVY, stepUuid + ".groovy");
+            }
+        }
+        GableFileUtils.saveFile(records.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.INTEGRATE, uuid, "define.json");
+        return true;
     }
 
     @Override

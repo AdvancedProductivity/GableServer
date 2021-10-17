@@ -45,7 +45,7 @@ public class CaseController {
         String userId = userService.getUserId(isPublic, request);
         JsonNode allCase = caseService.getAllCase(userId, uuid);
         if (allCase == null) {
-            return Result.error();
+            return Result.success().setData(objectMapper.createArrayNode());
         }
         return Result.success().setData(allCase);
     }

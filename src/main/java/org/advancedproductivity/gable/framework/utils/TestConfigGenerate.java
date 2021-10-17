@@ -37,4 +37,11 @@ public class TestConfigGenerate {
                 .set(ConfigField.DETAIL, detail);
         return config;
     }
+
+    public static ObjectNode groovyGenerate(ObjectMapper objectMapper,String uuid) {
+        return objectMapper.createObjectNode().put(ConfigField.UUID, uuid)
+                .put(ConfigField.TEST_TYPE, TestType.GROOVY_SCRIPT.name())
+                .put(ConfigField.VERSION, 1)
+                .set(ConfigField.DETAIL, objectMapper.createObjectNode());
+    }
 }

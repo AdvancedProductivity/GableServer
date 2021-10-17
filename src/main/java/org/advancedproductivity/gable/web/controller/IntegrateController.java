@@ -48,6 +48,12 @@ public class IntegrateController {
         return Result.success();
     }
 
+    @PostMapping
+    public Result updateIntegrate(@RequestBody ArrayNode records,@RequestParam String uuid) {
+        integrateService.updateIntegrate(records, uuid);
+        return Result.success();
+    }
+
     @Resource
     private HistoryService historyService;
 

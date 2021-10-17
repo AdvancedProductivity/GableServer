@@ -15,7 +15,7 @@ public interface EnvService {
 
     JsonNode getEnv(String uuid);
 
-    boolean addEnv(String type, String name, ObjectNode config);
+    boolean addEnv(String name, ObjectNode config);
 
     boolean updateEnv(String uuid, String name, ObjectNode config);
 

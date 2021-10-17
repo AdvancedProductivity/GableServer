@@ -13,4 +13,7 @@ public interface CaseField {
     String TITLE = "title";
     String ALL_FIELD = "allField";
     String IN = "in";
+    String DIFF_REPLACE = "replace";
+    String DIFF_ADD = "add";
+    String DIFF_REMOVE = "remove";
 }

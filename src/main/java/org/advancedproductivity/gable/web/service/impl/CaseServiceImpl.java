@@ -10,6 +10,7 @@ import org.advancedproductivity.gable.framework.config.GableConfig;
 import org.advancedproductivity.gable.framework.config.UserDataType;
 import org.advancedproductivity.gable.framework.config.ValidateField;
 import org.advancedproductivity.gable.framework.utils.GableFileUtils;
+import org.advancedproductivity.gable.framework.utils.JsonDiffUtils;
 import org.advancedproductivity.gable.web.service.CaseService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -107,7 +108,7 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public void handleCase(JsonNode in, ObjectNode caseDetail) {
-        handlePreHandle(in, caseDetail);
+        handleDiff(in, caseDetail);
         handleJsonSchema(in, caseDetail);
     }
 
@@ -175,30 +176,15 @@ public class CaseServiceImpl implements CaseService {
         ((ObjectNode) in).set(ValidateField.VALIDATE, validateNode);
     }
 
-    private void handlePreHandle(JsonNode in, ObjectNode caseDetail) {
-        JsonNode diffHandle = caseDetail.path(CaseField.DIFF);
-        if (diffHandle.isTextual()) {
+    private void handleDiff(JsonNode in, ObjectNode caseDetail) {
+        JsonNode diffDefine = caseDetail.path(CaseField.DIFF);
+        if (diffDefine.isTextual()) {
             try {
-                diffHandle = objectMapper.readTree(diffHandle.asText());
+                diffDefine = objectMapper.readTree(diffDefine.asText());
             } catch (Exception e) {
                 log.error("error happens while handle case ", e);
             }
         }
-        Iterator<String> fieldNames = diffHandle.fieldNames();
-        while (fieldNames.hasNext()) {
-            String key = fieldNames.next();
-            if (!StringUtils.startsWith(key, "/")) {
-                continue;
-            }
-            String rootNodeKey = StringUtils.substringBeforeLast(key, "/");
-            String aimField = StringUtils.substringAfterLast(key, "/");
-            if (StringUtils.isEmpty(rootNodeKey) || StringUtils.isEmpty(aimField)) {
-                continue;
-            }
-            JsonNode at = in.at(rootNodeKey);
-            if (at.isObject()) {
-                ((ObjectNode) at).set(aimField, diffHandle.path(key));
-            }
-        }
+        JsonDiffUtils.doDiffHandle(in, diffDefine);
     }
 }

@@ -5,12 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.advancedproductivity.gable.framework.config.ConfigField;
-import org.advancedproductivity.gable.framework.config.GableConfig;
-import org.advancedproductivity.gable.framework.config.HttpEnvField;
-import org.advancedproductivity.gable.framework.config.UserDataType;
+import org.advancedproductivity.gable.framework.config.*;
 import org.advancedproductivity.gable.framework.core.TestType;
 import org.advancedproductivity.gable.framework.utils.GableFileUtils;
+import org.advancedproductivity.gable.framework.utils.JsonDiffUtils;
 import org.advancedproductivity.gable.web.service.EnvService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -38,13 +36,17 @@ public class EnvServiceImpl implements EnvService {
         }
         envs = GableFileUtils.readFileAsJson(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, ENV_FILE_NAME);
         if (envs == null) {
-            envs = objectMapper.createArrayNode().add(
-                    objectMapper.createObjectNode().put("typeName", TestType.HTTP.name())
-                            .set("configs", objectMapper.createArrayNode())
-            );
+            envs  = objectMapper.createArrayNode();
             GableFileUtils.saveFile(envs.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, ENV_FILE_NAME);
+            ENV_HOLDER.put(ALL_ENV, envs);
+            ObjectNode demo = objectMapper.createObjectNode();
+            demo.set(CaseField.DIFF_REPLACE, objectMapper.createObjectNode());
+            demo.set(CaseField.DIFF_ADD, objectMapper.createObjectNode());
+            demo.set(CaseField.DIFF_REMOVE, objectMapper.createObjectNode());
+            addEnv("demoGenerate", demo);
+        }else {
+            ENV_HOLDER.put(ALL_ENV, envs);
         }
-        ENV_HOLDER.put(ALL_ENV, envs);
         return envs;
     }
 
@@ -63,40 +65,30 @@ public class EnvServiceImpl implements EnvService {
     }
 
     @Override
-    public boolean addEnv(String type, String name, ObjectNode config) {
-        JsonNode envConfigMenu = getEnvConfigMenu();
-        for (int i = 0; i < envConfigMenu.size(); i++) {
-            JsonNode envGroup = envConfigMenu.get(i);
-            if (StringUtils.equals(envGroup.path(ConfigField.ENV_TYPE).asText(), type)) {
-                ArrayNode configs = (ArrayNode) envGroup.path("configs");
-                String uuid = UUID.randomUUID().toString();
-                ObjectNode newConfig = config.objectNode();
-                newConfig.put(ConfigField.UUID, uuid);
-                newConfig.put(ConfigField.ENV_NAME, name);
-                configs.add(newConfig);
-                GableFileUtils.saveFile(envConfigMenu.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, ENV_FILE_NAME);
-                GableFileUtils.saveFile(config.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.ENV, uuid + ".json");
-                ENV_HOLDER.put(uuid, config);
-                return true;
-            }
-        }
-        return false;
+    public boolean addEnv(String name, ObjectNode config) {
+        ArrayNode configs = (ArrayNode) getEnvConfigMenu();
+        String uuid = UUID.randomUUID().toString();
+        ObjectNode newConfig = config.objectNode();
+        newConfig.put(ConfigField.UUID, uuid);
+        newConfig.put(ConfigField.ENV_NAME, name);
+        configs.add(newConfig);
+        GableFileUtils.saveFile(configs.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, ENV_FILE_NAME);
+        GableFileUtils.saveFile(config.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.ENV, uuid + ".json");
+        ENV_HOLDER.put(uuid, config);
+        return true;
     }
 
     @Override
     public boolean updateEnv(String uuid, String name, ObjectNode config) {
-        JsonNode envConfigMenu = getEnvConfigMenu();
-        for (int i = 0; i < envConfigMenu.size(); i++) {
-            ArrayNode detailConfig = (ArrayNode) envConfigMenu.get(i).path("configs");
-            for (int i1 = 0; i1 < detailConfig.size(); i1++) {
-                ObjectNode conf = (ObjectNode) detailConfig.get(i1);
-                if (StringUtils.equals(conf.path(ConfigField.UUID).asText(), uuid)) {
-                    conf.put(ConfigField.ENV_NAME, name);
-                    GableFileUtils.saveFile(envConfigMenu.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, ENV_FILE_NAME);
-                    GableFileUtils.saveFile(config.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.ENV, uuid + ".json");
-                    ENV_HOLDER.put(uuid, config);
-                    return true;
-                }
+        ArrayNode detailConfig = (ArrayNode) getEnvConfigMenu();
+        for (int i1 = 0; i1 < detailConfig.size(); i1++) {
+            ObjectNode conf = (ObjectNode) detailConfig.get(i1);
+            if (StringUtils.equals(conf.path(ConfigField.UUID).asText(), uuid)) {
+                conf.put(ConfigField.ENV_NAME, name);
+                GableFileUtils.saveFile(detailConfig.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, ENV_FILE_NAME);
+                GableFileUtils.saveFile(config.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.ENV, uuid + ".json");
+                ENV_HOLDER.put(uuid, config);
+                return true;
             }
         }
         return false;
@@ -140,12 +132,8 @@ public class EnvServiceImpl implements EnvService {
         if (!(in instanceof ObjectNode) || !(envConfig instanceof ObjectNode)) {
             return;
         }
-        ObjectNode config = (ObjectNode) in;
-        ObjectNode env = (ObjectNode) envConfig;
-        config.put(ConfigField.IS_UNMODIFY, true);
-        if (StringUtils.equals(TestType.HTTP.name(), config.path(ConfigField.TEST_TYPE).asText())) {
-            handleAsHttp(config.path(ConfigField.DETAIL), env);
-        }
+        JsonDiffUtils.doDiffHandle(in, envConfig);
+        ((ObjectNode)in).put(ConfigField.IS_UNMODIFY, true);
     }
 
     private void handleAsHttp(JsonNode detailConfig, ObjectNode env) {

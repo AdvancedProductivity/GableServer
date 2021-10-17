@@ -1,5 +1,6 @@
 package org.advancedproductivity.gable.web.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -41,10 +42,14 @@ public interface MenuService {
      */
     String addUnit(ArrayNode userUnitMenus, String unitName, String groupUuid, String type, String nameSpace);
 
+    String pushUnit(ArrayNode userUnitMenus, String unitName, String groupUuid, JsonNode config, String nameSpace, String originUuid);
+
     /**
      * update user menu
      * @param newMenu menu wait for update
      * @param nameSpace maybe userId,Ip...
      * */
     void updateUserMenu(ArrayNode newMenu,String nameSpace);
+
+    void sync(String from, String to, String nameSpace);
 }

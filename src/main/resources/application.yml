@@ -10,7 +10,7 @@ spring:
   messages:
     basename: i18n/messages
 server:
-  port: 2109
+  port: 2110
 logging:
   file:
     name: /data/log/GableServer.log

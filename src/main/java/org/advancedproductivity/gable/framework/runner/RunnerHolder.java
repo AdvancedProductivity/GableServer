@@ -13,6 +13,8 @@ public class RunnerHolder {
 
     static {
         HttpRunner httpRunner = new HttpRunner();
+        GroovyCodeRunner groovyCodeRunner = new GroovyCodeRunner();
         HOLDER.put(httpRunner.getTestType().name(), httpRunner);
+        HOLDER.put(groovyCodeRunner.getTestType().name(), groovyCodeRunner);
     }
 }

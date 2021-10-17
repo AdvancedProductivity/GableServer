@@ -13,10 +13,13 @@ import org.advancedproductivity.gable.framework.core.TestType;
 import org.advancedproductivity.gable.framework.utils.GableFileUtils;
 import org.advancedproductivity.gable.framework.utils.TestConfigGenerate;
 import org.advancedproductivity.gable.web.service.MenuService;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.UUID;
 
 /**
@@ -33,6 +36,11 @@ public class MenuServiceImpl implements MenuService {
         JsonNode node = GableFileUtils.readFileAsJson(GableConfig.getGablePath(), nameSpace, UserDataType.UNIT, UnitMenuFileName);
         if (node == null) {
             ArrayNode menu = objectMapper.createArrayNode();
+            String uuid = UUID.randomUUID().toString();
+            TestConfigGenerate.httpGenerate(HttpMethodType.GET, uuid, objectMapper);
+            ObjectNode groups = addGroup("Demo Group");
+            menu.add(groups);
+            addUnit(menu, "Demo Http Test", groups.path("uuid").asText(), TestType.HTTP.name(), nameSpace);
             GableFileUtils.saveFile(menu.toPrettyString(), GableConfig.getGablePath(), nameSpace, UserDataType.UNIT, UnitMenuFileName);
             return menu;
         }
@@ -43,6 +51,8 @@ public class MenuServiceImpl implements MenuService {
     public ArrayNode getPublicUnitMenus() {
         JsonNode node = GableFileUtils.readFileAsJson(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.UNIT, UnitMenuFileName);
         if (node == null) {
+            ArrayNode menu = objectMapper.createArrayNode();
+            GableFileUtils.saveFile(menu.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.UNIT, UnitMenuFileName);
         }
         return (ArrayNode)node;
     }
@@ -66,13 +76,19 @@ public class MenuServiceImpl implements MenuService {
                 newUnit.put("uuid", uuid);
                 newUnit.put("unitName", unitName);
                 newUnit.put("type", type);
+                ObjectNode newConfig = null;
                 if (StringUtils.equals(type, TestType.HTTP.name())) {
                     newUnit.put("memo", HttpMethodType.GET.name());
+                    newConfig = TestConfigGenerate.httpGenerate(HttpMethodType.GET, uuid, objectMapper);
+                } else if (StringUtils.equals(type, TestType.GROOVY_SCRIPT.name())) {
+                    newConfig = TestConfigGenerate.groovyGenerate(objectMapper, uuid);
+                    newUnit.put("code", "");
+                } else {
+                    continue;
                 }
                 ArrayNode units = (ArrayNode) item.path("units");
                 units.add(newUnit);
                 // generate default uuid config
-                ObjectNode newConfig = TestConfigGenerate.httpGenerate(HttpMethodType.GET, uuid, objectMapper);
                 GableFileUtils.saveFile(newConfig.toPrettyString(),
                         GableConfig.getGablePath(),
                         nameSpace,
@@ -86,7 +102,97 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
+    public String pushUnit(ArrayNode userUnitMenus, String unitName, String groupUuid, JsonNode config, String nameSpace, String originUuid) {
+        for (JsonNode item : userUnitMenus) {
+            if (StringUtils.equals(item.path("uuid").asText(), groupUuid)) {
+                String uuid = "public_" + UUID.randomUUID().toString();
+                log.info("push to new Uuid: {}", uuid);
+                ((ObjectNode) config).put("uuid", uuid);
+                ObjectNode newUnit = objectMapper.createObjectNode();
+                newUnit.put("uuid", uuid);
+                newUnit.put("unitName", unitName);
+                String type = config.path("type").asText();
+                newUnit.put("type", type);
+                if (StringUtils.equals(TestType.GROOVY_SCRIPT.name(), type)) {
+                    File file = FileUtils.getFile(GableConfig.getGablePath(), nameSpace, UserDataType.GROOVY, originUuid + ".groovy");
+                    if (file.exists()) {
+                        try {
+                            File destFile = FileUtils.getFile(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH,
+                                    UserDataType.GROOVY, uuid + ".groovy");
+                            FileOutputStream fileOutputStream = FileUtils.openOutputStream(destFile);
+                            FileUtils.copyFile(file, fileOutputStream);
+                            fileOutputStream.close();
+                        } catch (Exception e) {
+                            log.error("write file error", e);
+                        }
+                    }
+                }
+                ArrayNode units = (ArrayNode) item.path("units");
+                units.add(newUnit);
+                // generate default uuid config
+                GableFileUtils.saveFile(config.toPrettyString(),
+                        GableConfig.getGablePath(),
+                        GableConfig.PUBLIC_PATH,
+                        UserDataType.UNIT,
+                        uuid,
+                        ConfigField.CONFIG_DEFINE_FILE_NAME);
+                ((ObjectNode) config).put("uuid", originUuid).put("from", uuid);
+                GableFileUtils.saveFile(config.toPrettyString(),
+                        GableConfig.getGablePath(),
+                        nameSpace,
+                        UserDataType.UNIT,
+                        originUuid,
+                        ConfigField.CONFIG_DEFINE_FILE_NAME);
+                GableFileUtils.saveFile(userUnitMenus.toPrettyString(),
+                        GableConfig.getGablePath(),
+                        GableConfig.PUBLIC_PATH,
+                        UserDataType.UNIT,
+                        UnitMenuFileName);
+                return uuid;
+            }
+        }
+        return null;
+    }
+
+    @Override
     public void updateUserMenu(ArrayNode newMenu,String nameSpace) {
         GableFileUtils.saveFile(newMenu.toPrettyString(), GableConfig.getGablePath(), nameSpace, UserDataType.UNIT, UnitMenuFileName);
+    }
+
+    @Override
+    public void sync(String from, String to, String userId) {
+        File fromConfigFile = FileUtils.getFile(GableConfig.getGablePath(), userId, UserDataType.UNIT,
+                from,
+                ConfigField.CONFIG_DEFINE_FILE_NAME);
+        File toConfigFile = FileUtils.getFile(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.UNIT,
+                to,
+                ConfigField.CONFIG_DEFINE_FILE_NAME);
+        if (!fromConfigFile.exists()) {
+            log.info("from config file not find");
+        } else if (!toConfigFile.exists()) {
+            log.info("to config file not find");
+        } else {
+            try {
+                FileUtils.copyFile(fromConfigFile, toConfigFile);
+            } catch (Exception e) {
+                log.error("update file error", e);
+            }
+        }
+        File fromGroovyFile = FileUtils.getFile(GableConfig.getGablePath(), userId, UserDataType.GROOVY,
+                from + ".groovy");
+        File toGroovyFile = FileUtils.getFile(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.GROOVY,
+                to + ".groovy");
+
+        if (!fromGroovyFile.exists()) {
+            log.info("from groovy file not find");
+        } else if (!fromGroovyFile.exists()) {
+            log.info("to groovy file not find");
+        } else {
+            try {
+                FileUtils.copyFile(fromGroovyFile, toGroovyFile);
+            } catch (Exception e) {
+                log.error("update file error", e);
+            }
+        }
     }
 }

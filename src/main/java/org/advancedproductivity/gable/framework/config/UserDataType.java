@@ -6,6 +6,7 @@ package org.advancedproductivity.gable.framework.config;
 public interface UserDataType {
     String GROOVY = "groovy";
     String UNIT = "unit";
+    String GROOVY_HIS = "groovy_his";
     String HISTORY = "history";
     String ENV = "env";
     String CASE = "case";

@@ -2,9 +2,11 @@ package org.advancedproductivity.gable.web.controller;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.advancedproductivity.gable.framework.config.GableConfig;
 import org.advancedproductivity.gable.web.entity.Result;
 import org.advancedproductivity.gable.web.service.UserService;
 import org.advancedproductivity.gable.web.service.impl.MenuServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,15 +44,23 @@ public class MenuController {
     }
 
     @PostMapping("/group")
-    public Result addGroup(@RequestBody String groupName) {
-        String userId = userService.getUserId(request);
-        ArrayNode userUnitMenus = menuService.getUserUnitMenus(userId);
-        ObjectNode newGroup = menuService.addGroup(groupName);
-        userUnitMenus.add(newGroup);
-        menuService.updateUserMenu(userUnitMenus, userId);
+    public Result addGroup(@RequestBody String groupName, @RequestParam String type) {
         Result success = Result.success();
         ObjectNode jsonNodes = success.objectNode();
-        jsonNodes.set("user", userUnitMenus);
+        if (StringUtils.equals(type, "public")) {
+            ArrayNode userUnitMenus = menuService.getPublicUnitMenus();
+            ObjectNode newGroup = menuService.addGroup(groupName);
+            userUnitMenus.add(newGroup);
+            menuService.updateUserMenu(userUnitMenus, GableConfig.PUBLIC_PATH);
+            jsonNodes.set("public", userUnitMenus);
+        }else {
+            String userId = userService.getUserId(request);
+            ArrayNode userUnitMenus = menuService.getUserUnitMenus(userId);
+            ObjectNode newGroup = menuService.addGroup(groupName);
+            userUnitMenus.add(newGroup);
+            menuService.updateUserMenu(userUnitMenus, userId);
+            jsonNodes.set("user", userUnitMenus);
+        }
         return success.setData(jsonNodes);
     }
 
