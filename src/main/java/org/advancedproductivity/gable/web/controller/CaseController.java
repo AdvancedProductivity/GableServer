@@ -55,6 +55,9 @@ public class CaseController {
                        HttpServletResponse response) {
         String userId = userService.getUserId(isPublic, request);
         JsonNode allCase = caseService.getAllCase(userId, uuid);
+        if (allCase == null) {
+            allCase = caseService.generateDemoCase();
+        }
         JsonNode header = allCase.path(CaseField.HEADERS);
         if (header.isArray()) {
             ArrayNode headers = (ArrayNode) header;
@@ -76,6 +79,9 @@ public class CaseController {
                 ObjectNode caseDetail = caseService.getCase(userId, uuid, version, caseId);
                 if (caseDetail == null) {
                     log.error("case not find {} {} {} {}", userId, uuid, version, caseId);
+                    item.set(CaseField.DIFF, objectMapper.createObjectNode());
+                    item.set(CaseField.JSON_SCHEMA, objectMapper.createObjectNode());
+                    continue;
                 }
                 JsonNode diffJson = caseDetail.path(CaseField.DIFF);
                 String diffStr = "";
@@ -111,6 +117,9 @@ public class CaseController {
                        HttpServletResponse response) {
         String userId = userService.getUserId(isPublic, request);
         JsonNode allCase = caseService.getAllCase(userId, uuid);
+        if (allCase == null) {
+            allCase = caseService.generateDemoCase();
+        }
         JsonNode header = allCase.path(CaseField.HEADERS);
         if (header.isArray()) {
             ArrayNode headers = (ArrayNode) header;
@@ -132,6 +141,9 @@ public class CaseController {
                 ObjectNode caseDetail = caseService.getCase(userId, uuid, version, caseId);
                 if (caseDetail == null) {
                     log.error("case not find {} {} {} {}", userId, uuid, version, caseId);
+                    item.set(CaseField.DIFF, objectMapper.createObjectNode());
+                    item.set(CaseField.JSON_SCHEMA, objectMapper.createObjectNode());
+                    continue;
                 }
                 JsonNode diffJson = caseDetail.path(CaseField.DIFF);
                 if (diffJson.isObject()) {

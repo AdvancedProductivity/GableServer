@@ -3,6 +3,7 @@ package org.advancedproductivity.gable.web.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersionDetector;
@@ -41,6 +42,11 @@ public class JsonSchemaController {
 
     @PostMapping
     public Result generate(@RequestBody JsonNode in, @RequestParam String type) {
+        if (in.isObject()) {
+            ObjectNode o = ((ObjectNode) in);
+            o.remove("validate");
+            o.remove("historyId");
+        }
         if (StringUtils.equals(TestType.HTTP.name(), type)) {
             JsonNode body = in.path(HttpResponseField.CONTENT);
             if (body.isMissingNode() || body.isNull()) {

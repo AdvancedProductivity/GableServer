@@ -39,14 +39,20 @@ public class JsonSchemaServiceImpl implements JsonSchemaService {
         if (jsonSchemaNode.isTextual()) {
             try {
                 JsonNode node = objectMapper.readTree(jsonSchemaNode.asText());
-                JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersionDetector.detect(node));
-                schema = factory.getSchema(node);
+                if (!node.isEmpty()) {
+                    JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersionDetector.detect(node));
+                    schema = factory.getSchema(node);
+                }
             } catch (Exception e) {
                 log.error("error happens while parser json schema string", e);
             }
-        } else if (jsonSchemaNode.isObject()) {
-            JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersionDetector.detect(jsonSchemaNode));
-            schema = factory.getSchema(jsonSchemaNode);
+        } else if (jsonSchemaNode.isObject() && !jsonSchemaNode.isEmpty()) {
+            try {
+                JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersionDetector.detect(jsonSchemaNode));
+                schema = factory.getSchema(jsonSchemaNode);
+            } catch (Exception e) {
+                log.error("parser json schema error", e);
+            }
         }
         if (schema != null) {
             Set<ValidationMessage> validate = schema.validate(waitForValidate);

@@ -42,6 +42,17 @@ public class CaseServiceImpl implements CaseService {
         return GableFileUtils.readFileAsJson(GableConfig.getGablePath(), nameSpace, UserDataType.UNIT, testUuid, CASE_FILE_NAME);
     }
 
+    @Override
+    public JsonNode generateDemoCase() {
+        ObjectNode root = objectMapper.createObjectNode();
+        root.set(CaseField.HEADERS, objectMapper.createArrayNode().add("id").add("title"));
+        root.set(CaseField.RECORD, objectMapper.createArrayNode()
+                .add(objectMapper.createObjectNode().put("id", "case_1").put("title", "title_A"))
+                .add(objectMapper.createObjectNode().put("id", "case_2").put("title", "title_B"))
+        );
+        return root;
+    }
+
     public ArrayNode getHeaders(JsonNode node) {
         ArrayNode headers = objectMapper.createArrayNode();
         if (node != null && !node.isMissingNode()) {

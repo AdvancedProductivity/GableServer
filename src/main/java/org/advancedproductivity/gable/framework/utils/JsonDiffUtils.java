@@ -39,11 +39,17 @@ public class JsonDiffUtils {
             }
             String rootNodeKey = StringUtils.substringBeforeLast(key, "/");
             String aimField = StringUtils.substringAfterLast(key, "/");
-            if (StringUtils.isEmpty(rootNodeKey) || StringUtils.isEmpty(aimField)) {
+            if (StringUtils.isEmpty(aimField)) {
                 continue;
             }
-            JsonNode at = in.at(rootNodeKey);
-            if (at.isObject()) {
+            JsonNode at = null;
+            if (StringUtils.isEmpty(rootNodeKey)) {
+                at = in;
+            }else {
+                at = in.at(rootNodeKey);
+            }
+            if (at == null) {
+            } else if (at.isObject()) {
                 ((ObjectNode) at).remove(aimField);
             } else if (at.isArray()) {
                 if (StringUtils.isNumeric(aimField)) {
@@ -62,16 +68,22 @@ public class JsonDiffUtils {
             }
             String rootNodeKey = StringUtils.substringBeforeLast(key, "/");
             String aimField = StringUtils.substringAfterLast(key, "/");
-            if (StringUtils.isEmpty(rootNodeKey) || StringUtils.isEmpty(aimField)) {
+            if (StringUtils.isEmpty(aimField)) {
                 continue;
             }
-            JsonNode at = in.at(rootNodeKey);
-            if (at.isObject()) {
+            JsonNode at = null;
+            if (StringUtils.isEmpty(rootNodeKey)) {
+                at = in;
+            }else {
+                at = in.at(rootNodeKey);
+            }
+            if (at == null) {
+            } else if (at.isObject()) {
                 ((ObjectNode) at).set(aimField, waifForADD.path(key));
             } else if (at.isArray()) {
                 if (StringUtils.isNumeric(aimField)) {
                     ((ArrayNode) at).set(Integer.parseInt(aimField), waifForADD.path(key));
-                }else {
+                } else {
                     ((ArrayNode) at).add(waifForADD.path(key));
                 }
             }
@@ -87,11 +99,16 @@ public class JsonDiffUtils {
             }
             String rootNodeKey = StringUtils.substringBeforeLast(key, "/");
             String aimField = StringUtils.substringAfterLast(key, "/");
-            if (StringUtils.isEmpty(rootNodeKey) || StringUtils.isEmpty(aimField)) {
+            if (StringUtils.isEmpty(aimField)) {
                 continue;
             }
-            JsonNode at = in.at(rootNodeKey);
-            if (at.isObject()) {
+            JsonNode at = null;
+            if (StringUtils.isEmpty(rootNodeKey)) {
+                at = in;
+            }else {
+                at = in.at(rootNodeKey);
+            }
+            if (at != null && at.isObject()) {
                 ((ObjectNode) at).set(aimField, waifForReplace.path(key));
             }
         }

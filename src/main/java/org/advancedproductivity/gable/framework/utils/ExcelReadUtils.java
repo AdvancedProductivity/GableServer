@@ -25,6 +25,11 @@ public class ExcelReadUtils {
         }
     }
     public static void main(String[] args) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode jsonNode = objectMapper.createObjectNode();
+        System.out.println(jsonNode.isEmpty());
+        jsonNode = objectMapper.createObjectNode().put("a", 10);
+        System.out.println(jsonNode.isEmpty());
 
 //        String s = "{\n\t\"operationDir\": \"/config/Persistence\"\n}";
 //        JsonNode node = null;

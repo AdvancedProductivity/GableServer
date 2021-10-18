@@ -29,4 +29,6 @@ public interface CaseService {
     void handleCase(JsonNode in, ObjectNode caseDetail);
 
     void saveToExcel(ServletOutputStream out, JsonNode allCase);
+
+    JsonNode generateDemoCase();
 }
