@@ -13,6 +13,7 @@ import org.advancedproductivity.gable.framework.config.GableConfig;
 import org.advancedproductivity.gable.framework.config.HttpResponseField;
 import org.advancedproductivity.gable.framework.core.TestType;
 import org.advancedproductivity.gable.framework.utils.GableFileUtils;
+import org.advancedproductivity.gable.framework.utils.jsonschema.ConstFeature;
 import org.advancedproductivity.gable.web.entity.Result;
 import org.advancedproductivity.gable.web.service.UserService;
 import org.apache.commons.lang3.StringUtils;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Set;
 
@@ -31,13 +31,15 @@ import java.util.Set;
 @RequestMapping("/api/jsonSchema")
 public class JsonSchemaController {
     private static final String JSON_SCHEMA_FILE_NAME = "jsonSchemaRecord.json";
-    private static final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
+    public static final JsonSchemaInferrer inferrer = JsonSchemaInferrer.newBuilder()
             .setSpecVersion(SpecVersion.DRAFT_07)
             // Requires commons-validator
             .setAdditionalPropertiesPolicy(AdditionalPropertiesPolicies.notAllowed())
             .setRequiredPolicy(RequiredPolicies.nonNullCommonFields())
             .setArrayLengthFeatures(EnumSet.allOf(ArrayLengthFeature.class))
-            .addEnumExtractors(EnumExtractors.validEnum(java.time.Month.class),EnumExtractors.validEnum(java.time.DayOfWeek.class))
+            .addGenericSchemaFeatures(new ConstFeature(new ObjectMapper()))
+            .addEnumExtractors(EnumExtractors.validEnum(java.time.Month.class),
+                    EnumExtractors.validEnum(java.time.DayOfWeek.class))
             .build();
 
     @PostMapping

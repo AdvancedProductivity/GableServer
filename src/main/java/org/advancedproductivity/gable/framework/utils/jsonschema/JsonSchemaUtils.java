@@ -1,4 +1,4 @@
-package org.advancedproductivity.gable.framework.utils;
+package org.advancedproductivity.gable.framework.utils.jsonschema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.saasquatch.jsonschemainferrer.*;
