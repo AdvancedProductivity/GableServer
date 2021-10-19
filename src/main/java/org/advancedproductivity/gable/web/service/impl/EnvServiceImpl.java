@@ -132,7 +132,7 @@ public class EnvServiceImpl implements EnvService {
         if (!(in instanceof ObjectNode) || !(envConfig instanceof ObjectNode)) {
             return;
         }
-        JsonDiffUtils.doDiffHandle(in, envConfig);
+        JsonDiffUtils.doDiffHandle(in.path(ConfigField.DETAIL), envConfig);
         ((ObjectNode)in).put(ConfigField.IS_UNMODIFY, true);
     }
 
