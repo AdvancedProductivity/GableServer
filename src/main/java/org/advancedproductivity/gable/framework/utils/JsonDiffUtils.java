@@ -1,19 +1,20 @@
 package org.advancedproductivity.gable.framework.utils;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.advancedproductivity.gable.framework.config.CaseField;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 /**
  * @author zzq
  */
 public class JsonDiffUtils {
-
-
 
     public static void doDiffHandle(JsonNode in, JsonNode diffDefine) {
         JsonNode waifForReplace = diffDefine.path(CaseField.DIFF_REPLACE);
@@ -24,13 +25,61 @@ public class JsonDiffUtils {
         if (waifForAadd.isObject()) {
             doAdd(in, waifForAadd);
         }
-        JsonNode waifForRemove = diffDefine.path(CaseField.DIFF_REMOVE);
-        if (waifForRemove.isObject()) {
-            doRemove(in, waifForRemove);
+        JsonNode waifForRemoveOfObj = diffDefine.path(CaseField.DIFF_REMOVE);
+        if (waifForRemoveOfObj.isObject()) {
+            doRemoveOfObj(in, waifForRemoveOfObj);
+        }
+        JsonNode waifForRemoveOfArray = diffDefine.path(CaseField.DIFF_REMOVE_BY_INDEX);
+        if (waifForRemoveOfArray.isObject()) {
+            doRemoveOfArray(in, waifForRemoveOfArray);
         }
     }
 
-    private static void doRemove(JsonNode in, JsonNode waifForRemove) {
+    /**
+     * "removeByIndex" :  {
+     *     "/field/arrayField": [
+     *          0,
+     *          1,
+     *          2
+     *     ]
+     * }
+     *
+     * */
+    private static void doRemoveOfArray(JsonNode in, JsonNode waifForRemoveOfArray) {
+        if (!waifForRemoveOfArray.isObject()) {
+            return;
+        }
+        ArrayNode tmpArray = ((ObjectNode) waifForRemoveOfArray).arrayNode();
+        Iterator<String> fieldNames = waifForRemoveOfArray.fieldNames();
+        while (fieldNames.hasNext()) {
+            String key = fieldNames.next();
+            JsonNode array = in.at(key);
+            JsonNode removeArrayIndex = waifForRemoveOfArray.path(key);
+            if (!removeArrayIndex.isArray() || !array.isArray()) {
+                continue;
+            }
+            Set<Integer> waitForRemoveIndex = new HashSet<>();
+            for (JsonNode arrayIndex : removeArrayIndex) {
+                if (arrayIndex.isInt()) {
+                    waitForRemoveIndex.add(arrayIndex.asInt());
+                }
+            }
+            tmpArray.removeAll();
+            ArrayNode newArray = (ArrayNode) array;
+            for (int i = 0; i < newArray.size(); i++) {
+                if (waitForRemoveIndex.contains(i)) {
+                    continue;
+                }
+                tmpArray.add(newArray.get(i));
+            }
+            newArray.removeAll();
+            for (int i = 0; i < tmpArray.size(); i++) {
+                newArray.add(tmpArray.get(i));
+            }
+        }
+    }
+
+    private static void doRemoveOfObj(JsonNode in, JsonNode waifForRemove) {
         Iterator<String> fieldNames = waifForRemove.fieldNames();
         while (fieldNames.hasNext()) {
             String key = fieldNames.next();

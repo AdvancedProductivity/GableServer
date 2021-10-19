@@ -16,4 +16,5 @@ public interface CaseField {
     String DIFF_REPLACE = "replace";
     String DIFF_ADD = "add";
     String DIFF_REMOVE = "remove";
+    String DIFF_REMOVE_BY_INDEX = "removeByIndex";
 }
