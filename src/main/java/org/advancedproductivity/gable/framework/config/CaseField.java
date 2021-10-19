@@ -17,4 +17,6 @@ public interface CaseField {
     String DIFF_ADD = "add";
     String DIFF_REMOVE = "remove";
     String DIFF_REMOVE_BY_INDEX = "removeByIndex";
+    String ARRAY_ADD_FIRST = "addFirst";
+    String ARRAY_ADD_LAST = "addLast";
 }

@@ -18,19 +18,19 @@ public class JsonDiffUtils {
 
     public static void doDiffHandle(JsonNode in, JsonNode diffDefine) {
         JsonNode waifForReplace = diffDefine.path(CaseField.DIFF_REPLACE);
-        if (waifForReplace.isObject()) {
+        if (waifForReplace.isObject() && !waifForReplace.isEmpty()) {
             doReplace(in, waifForReplace);
         }
-        JsonNode waifForAadd = diffDefine.path(CaseField.DIFF_ADD);
-        if (waifForAadd.isObject()) {
-            doAdd(in, waifForAadd);
+        JsonNode waifForAdd = diffDefine.path(CaseField.DIFF_ADD);
+        if (waifForAdd.isObject() && !waifForAdd.isEmpty()) {
+            doAdd(in, waifForAdd);
         }
         JsonNode waifForRemoveOfObj = diffDefine.path(CaseField.DIFF_REMOVE);
-        if (waifForRemoveOfObj.isObject()) {
+        if (waifForRemoveOfObj.isObject() && !waifForRemoveOfObj.isEmpty()) {
             doRemoveOfObj(in, waifForRemoveOfObj);
         }
         JsonNode waifForRemoveOfArray = diffDefine.path(CaseField.DIFF_REMOVE_BY_INDEX);
-        if (waifForRemoveOfArray.isObject()) {
+        if (waifForRemoveOfArray.isObject() && !waifForRemoveOfArray.isEmpty()) {
             doRemoveOfArray(in, waifForRemoveOfArray);
         }
     }
@@ -130,6 +130,31 @@ public class JsonDiffUtils {
             } else if (at.isObject()) {
                 ((ObjectNode) at).set(aimField, waifForADD.path(key));
             } else if (at.isArray()) {
+                if (StringUtils.equals(aimField, CaseField.ARRAY_ADD_FIRST)) {
+                    JsonNode theArray = waifForADD.path(key);
+                    if (theArray.isArray() && theArray.size() > 0) {
+                        ArrayNode array = (ArrayNode) at;
+                        ArrayNode newArray = at.deepCopy();
+                        array.removeAll();
+                        for (int i = 0; i < theArray.size(); i++) {
+                            array.add(theArray.path(i));
+                        }
+                        for (int i = 0; i < newArray.size(); i++) {
+                            array.add(newArray.path(i));
+                        }
+                    }
+                    continue;
+                }
+                if (StringUtils.equals(aimField, CaseField.ARRAY_ADD_LAST)) {
+                    JsonNode waitForAdd = waifForADD.path(key);
+                    if (waitForAdd.isArray() && waitForAdd.size() > 0) {
+                        ArrayNode array = (ArrayNode) at;
+                        for (int i = 0; i < waitForAdd.size(); i++) {
+                            array.add(waifForADD.path(i));
+                        }
+                    }
+                    continue;
+                }
                 if (StringUtils.isNumeric(aimField)) {
                     ((ArrayNode) at).set(Integer.parseInt(aimField), waifForADD.path(key));
                 } else {
