@@ -24,9 +24,12 @@ public interface ConfigField {
     String HTTP_AUTH = "auth";
     String HTTP_AUTH_TYPE = "type";
     String HTTP_AUTH_PARAM = "param";
+    String HTTP_FORM_FIELD = "file";
+    String HTTP_KEY_VALUE_TYPE = "type";
 
     String ENV_TYPE = "typeName";
     String ENV_NAME = "name";
 
     String IS_UNMODIFY = "isUnmodify";
+    String FILE_CENTER = "file_center";
 }

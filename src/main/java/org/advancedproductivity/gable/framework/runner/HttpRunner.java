@@ -9,12 +9,16 @@ import okhttp3.*;
 import org.advancedproductivity.gable.framework.auth.AuthHandler;
 import org.advancedproductivity.gable.framework.auth.AuthHolder;
 import org.advancedproductivity.gable.framework.config.ConfigField;
+import org.advancedproductivity.gable.framework.config.GableConfig;
 import org.advancedproductivity.gable.framework.config.HttpResponseField;
 import org.advancedproductivity.gable.framework.core.HttpBodyType;
 import org.advancedproductivity.gable.framework.core.HttpMethodType;
 import org.advancedproductivity.gable.framework.core.TestType;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import kotlin.Pair;
+
+import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Iterator;
@@ -143,8 +147,21 @@ public class HttpRunner implements TestAction {
                 JsonNode item = forms.get(i);
                 boolean disabled = item.path("disabled").asBoolean();
                 if (!disabled) {
-                    formDataBuilder.addFormDataPart(item.path("key").asText(),
-                            item.path("value").asText());
+                    String type = item.path(ConfigField.HTTP_KEY_VALUE_TYPE).asText();
+                    if (StringUtils.equals(type, ConfigField.HTTP_FORM_FIELD)) {
+                        String fileName = item.path("value").asText();
+                        File waitForAdd = FileUtils.getFile(GableConfig.getGablePath(), ConfigField.FILE_CENTER, fileName);
+                        String key = item.path("key").asText();
+                        if (waitForAdd.exists() && waitForAdd.isFile()) {
+                            formDataBuilder.addFormDataPart(key, fileName,
+                                    RequestBody.create(MediaType.parse("application/octet-stream"), waitForAdd));
+                        }else {
+                            log.error("post file: {} with key {} not find", fileName, key);
+                        }
+                    }else {
+                        formDataBuilder.addFormDataPart(item.path("key").asText(),
+                                item.path("value").asText());
+                    }
                 }
             }
             return formDataBuilder.build();
