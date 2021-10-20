@@ -17,4 +17,11 @@ public interface IntegrateService {
     boolean addTag(String tagName, String uuid);
 
     boolean updateIntegrate(ArrayNode records, String uuid);
+
+    /**
+     * remove integrate test
+     * @param uuid integrate’s uuid
+     * @return remove count
+     * */
+    int delete(String uuid);
 }

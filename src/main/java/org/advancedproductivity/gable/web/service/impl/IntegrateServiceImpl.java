@@ -92,6 +92,23 @@ public class IntegrateServiceImpl implements IntegrateService {
     }
 
     @Override
+    public int delete(String uuid) {
+        ArrayNode list = this.list();
+        ArrayNode newList = objectMapper.createArrayNode();
+        int count = 0;
+        for (JsonNode jsonNode : list) {
+            String itemUuid = jsonNode.path(IntegrateField.UUID).asText();
+            if (StringUtils.equals(uuid, itemUuid)) {
+                count++;
+                continue;
+            }
+            newList.add(jsonNode);
+        }
+        GableFileUtils.saveFile(newList.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, INTEGRATE_TEST_FILE);
+        return count;
+    }
+
+    @Override
     public JsonNode getOne(String uuid) {
         return GableFileUtils.readFileAsJson(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.INTEGRATE, uuid, "define.json");
     }

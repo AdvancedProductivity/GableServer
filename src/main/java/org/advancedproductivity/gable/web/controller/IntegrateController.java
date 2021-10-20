@@ -48,6 +48,12 @@ public class IntegrateController {
         return Result.success();
     }
 
+    @DeleteMapping
+    public Result deleteIntegrate(@RequestParam String uuid) {
+        int c = integrateService.delete(uuid);
+        return Result.success(String.valueOf(c));
+    }
+
     @PostMapping
     public Result updateIntegrate(@RequestBody ArrayNode records,@RequestParam String uuid) {
         integrateService.updateIntegrate(records, uuid);
