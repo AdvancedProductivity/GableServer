@@ -13,6 +13,7 @@
       "LANGUAGE": "语言",
       "HOST_SETTING": "主机地址",
       "GABLE_CONFIG": "服务端设置",
+      "FILE_CENTER": "文件中心",
       "ENV_CONFIG": "环境配置"
     },
     "PLAY_GROUND": {
@@ -52,6 +53,11 @@
   "IN": "输入",
   "SELECT_ENV": "选择环境配置",
   "OUT": "输出",
+  "UPLOAD_FILE": "上传",
+  "FILE_TAG": "文件标签",
+  "FILE_NAME": "文件名称",
+  "FILE_PATH": "文件路径",
+  "DOWNLOAD": "下载",
   "GROOVY_CODE": "Groovy代码",
   "EXPORT_CASE": "导出用例",
   "EXPORT_CASE_JSON": "以Json格式导出",
@@ -84,6 +90,7 @@
   "STEP_DELAY": "每步时延",
   "PUSH": "推送到Public",
   "REFRESH": "刷新",
+  "STOP": "停止",
   "UPDATE_TO_PUBLIC": "更新到Public",
   "ADD_STEP": "添加步骤",
   "CONFIRM": "确认",
