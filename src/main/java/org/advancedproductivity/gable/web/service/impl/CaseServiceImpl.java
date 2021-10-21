@@ -58,7 +58,11 @@ public class CaseServiceImpl implements CaseService {
         if (node != null && !node.isMissingNode()) {
             Iterator<String> fieldNames = node.fieldNames();
             while (fieldNames.hasNext()) {
-                headers.add(fieldNames.next());
+                String headerName = fieldNames.next();
+                if (StringUtils.equals(headerName, CaseField.CASE_TITLE)) {
+                    continue;
+                }
+                headers.add(headerName);
             }
         }
         return headers;
@@ -70,12 +74,26 @@ public class CaseServiceImpl implements CaseService {
         int version = 0;
         if (file.exists()) {
             String[] list = file.list();
-            if (list != null) {
-                version = list.length;
+            if (list != null && list.length > 0) {
+                version = list.length - 1;
             }
         }
+        ArrayNode newArr = cases.arrayNode();
         for (int i = 0; i < cases.size(); i++) {
-            ObjectNode item = (ObjectNode) cases.get(i);
+            JsonNode aCase = cases.get(i);
+            if (!aCase.isObject()) {
+                continue;
+            }
+            if (!aCase.has(CaseField.ID)) {
+                continue;
+            }
+            ObjectNode item = (ObjectNode) aCase;
+            if (item.has(CaseField.CHINESE_TITLE)) {
+                item.set(CaseField.CASE_TITLE, item.path(CaseField.CHINESE_TITLE));
+            }
+            if (item.has(CaseField.TITLE)) {
+                item.set(CaseField.CASE_TITLE, item.path(CaseField.TITLE));
+            }
             String id = item.path(CaseField.ID).asText();
             ObjectNode caseContent = objectMapper.createObjectNode();
             JsonNode diffNode = item.remove(CaseField.DIFF);
@@ -94,13 +112,14 @@ public class CaseServiceImpl implements CaseService {
             } else {
                 caseContent.set(CaseField.JSON_SCHEMA, jsonSchemaNodes);
             }
+            newArr.add(item);
             GableFileUtils.saveFile(caseContent.toPrettyString(), GableConfig.getGablePath(), nameSpace, UserDataType.UNIT, uuid,
                     UserDataType.CASE, version + "", id + ".json");
         }
         ObjectNode caseInfo = objectMapper.createObjectNode();
         ArrayNode headers = getHeaders(cases.get(0));
         caseInfo.set(CaseField.HEADERS, headers);
-        caseInfo.set(CaseField.RECORD, cases);
+        caseInfo.set(CaseField.RECORD, newArr);
         caseInfo.put(CaseField.VERSION, version);
         GableFileUtils.saveFile(caseInfo.toPrettyString(), GableConfig.getGablePath(), nameSpace, UserDataType.UNIT, uuid, CASE_FILE_NAME);
         return caseInfo;

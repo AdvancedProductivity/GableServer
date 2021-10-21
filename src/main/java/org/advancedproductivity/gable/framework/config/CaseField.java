@@ -11,6 +11,7 @@ public interface CaseField {
     String VERSION = "version";
     String ID = "id";
     String TITLE = "title";
+    String CHINESE_TITLE = "用例标题";
     String ALL_FIELD = "allField";
     String IN = "in";
     String DIFF_REPLACE = "replace";
@@ -19,4 +20,5 @@ public interface CaseField {
     String DIFF_REMOVE_BY_INDEX = "removeByIndex";
     String ARRAY_ADD_FIRST = "addFirst";
     String ARRAY_ADD_LAST = "addLast";
+    String CASE_TITLE = "gable_title";
 }

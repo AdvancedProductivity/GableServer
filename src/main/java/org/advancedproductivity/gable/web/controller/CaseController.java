@@ -7,10 +7,13 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.advancedproductivity.gable.framework.config.CaseField;
+import org.advancedproductivity.gable.framework.config.GableConfig;
+import org.advancedproductivity.gable.framework.config.UserDataType;
 import org.advancedproductivity.gable.framework.utils.ExcelReadUtils;
 import org.advancedproductivity.gable.web.entity.Result;
 import org.advancedproductivity.gable.web.service.CaseService;
 import org.advancedproductivity.gable.web.service.UserService;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +22,8 @@ import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -75,6 +80,7 @@ public class CaseController {
                     continue;
                 }
                 ObjectNode item = (ObjectNode) d;
+                item.remove(CaseField.CASE_TITLE);
                 String caseId = item.path(CaseField.ID).asText();
                 ObjectNode caseDetail = caseService.getCase(userId, uuid, version, caseId);
                 if (caseDetail == null) {
@@ -137,6 +143,7 @@ public class CaseController {
                     continue;
                 }
                 ObjectNode item = (ObjectNode) d;
+                item.remove(CaseField.CASE_TITLE);
                 String caseId = item.path(CaseField.ID).asText();
                 ObjectNode caseDetail = caseService.getCase(userId, uuid, version, caseId);
                 if (caseDetail == null) {
@@ -232,10 +239,13 @@ public class CaseController {
             String userId = userService.getUserId(isPublic, request);
             String type = file.getOriginalFilename();
             ArrayNode cases = null;
+            String fileName = System.currentTimeMillis() + "." + StringUtils.substringAfterLast(type, ".");
+            File dest = FileUtils.getFile(GableConfig.getGablePath(), userId, UserDataType.UNIT, uuid, UserDataType.FILE, fileName);
+            FileUtils.copyInputStreamToFile(file.getInputStream(), dest);
             if (StringUtils.endsWith(type, "xls") || StringUtils.endsWith(type, "xlsx")) {
-                cases = ExcelReadUtils.read(file.getOriginalFilename(), 0, file.getInputStream());
+                cases = ExcelReadUtils.read(file.getOriginalFilename(), 0, FileUtils.openInputStream(dest));
             } else if (StringUtils.endsWith(type, "json")) {
-                cases = (ArrayNode) objectMapper.readTree(file.getInputStream()).path(CaseField.RECORD);
+                cases = (ArrayNode) objectMapper.readTree(FileUtils.openInputStream(dest)).path(CaseField.RECORD);
             }
             if (cases == null) {
                 return Result.error("file type cannot analysis: " + type);
