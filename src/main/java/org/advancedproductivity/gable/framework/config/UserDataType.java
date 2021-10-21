@@ -11,5 +11,5 @@ public interface UserDataType {
     String ENV = "env";
     String CASE = "case";
     String INTEGRATE = "integrate";
-    String FILE = "file";
+    String FILE_CENTER = "file_center";
 }

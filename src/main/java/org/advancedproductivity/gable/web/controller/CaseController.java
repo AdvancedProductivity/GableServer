@@ -240,7 +240,7 @@ public class CaseController {
             String type = file.getOriginalFilename();
             ArrayNode cases = null;
             String fileName = System.currentTimeMillis() + "." + StringUtils.substringAfterLast(type, ".");
-            File dest = FileUtils.getFile(GableConfig.getGablePath(), userId, UserDataType.UNIT, uuid, UserDataType.FILE, fileName);
+            File dest = FileUtils.getFile(GableConfig.getGablePath(), userId, UserDataType.UNIT, uuid, UserDataType.FILE_CENTER, fileName);
             FileUtils.copyInputStreamToFile(file.getInputStream(), dest);
             if (StringUtils.endsWith(type, "xls") || StringUtils.endsWith(type, "xlsx")) {
                 cases = ExcelReadUtils.read(file.getOriginalFilename(), 0, FileUtils.openInputStream(dest));
