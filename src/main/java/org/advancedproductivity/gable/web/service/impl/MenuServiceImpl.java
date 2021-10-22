@@ -195,4 +195,23 @@ public class MenuServiceImpl implements MenuService {
             }
         }
     }
+
+    @Override
+    public void deleteUnitTest(ArrayNode userUnitMenus, String uuid, String nameSpace) {
+        for (JsonNode userUnitMenu : userUnitMenus) {
+            JsonNode units = userUnitMenu.path("units");
+            ArrayNode newArray = objectMapper.createArrayNode();
+            for (JsonNode unit : units) {
+                if (StringUtils.equals(uuid, unit.path("uuid").asText())) {
+                    continue;
+                }
+                newArray.add(unit);
+            }
+            File file = FileUtils.getFile(GableConfig.getGablePath(), nameSpace, UserDataType.UNIT, uuid);
+            if (file.exists()) {
+                FileUtils.deleteQuietly(file);
+            }
+            ((ObjectNode)userUnitMenu).set("units", newArray);
+        }
+    }
 }

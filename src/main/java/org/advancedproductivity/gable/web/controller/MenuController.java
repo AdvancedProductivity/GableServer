@@ -43,6 +43,17 @@ public class MenuController {
         return success.setData(jsonNodes);
     }
 
+    @DeleteMapping
+    public Result deleteUnit(@RequestParam String uuid){
+        String userId = userService.getUserId(request);
+        ArrayNode userUnitMenus = menuService.getUserUnitMenus(userId);
+        menuService.deleteUnitTest(userUnitMenus, uuid, userId);
+        Result success = Result.success();
+        ObjectNode jsonNodes = success.objectNode();
+        jsonNodes.set("user", userUnitMenus);
+        return success.setData(jsonNodes);
+    }
+
     @PostMapping("/group")
     public Result addGroup(@RequestBody String groupName, @RequestParam String type) {
         Result success = Result.success();

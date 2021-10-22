@@ -52,4 +52,6 @@ public interface MenuService {
     void updateUserMenu(ArrayNode newMenu,String nameSpace);
 
     void sync(String from, String to, String nameSpace);
+
+    void deleteUnitTest(ArrayNode userUnitMenus, String uuid, String nameSpace);
 }
