@@ -62,6 +62,11 @@ public class JsonSchemaController {
         return Result.success(inferrer.inferForSample(in));
     }
 
+    @PostMapping("just")
+    public Result justGenerate(@RequestBody JsonNode in) {
+        return Result.success(inferrer.inferForSample(in));
+    }
+
     @Resource
     private UserService userService;
 
