@@ -11,10 +11,13 @@ import com.networknt.schema.ValidationMessage;
 import com.saasquatch.jsonschemainferrer.*;
 import org.advancedproductivity.gable.framework.config.GableConfig;
 import org.advancedproductivity.gable.framework.config.HttpResponseField;
+import org.advancedproductivity.gable.framework.config.UserDataType;
+import org.advancedproductivity.gable.framework.config.ValidateField;
 import org.advancedproductivity.gable.framework.core.TestType;
 import org.advancedproductivity.gable.framework.utils.GableFileUtils;
 import org.advancedproductivity.gable.framework.utils.jsonschema.ConstFeature;
 import org.advancedproductivity.gable.web.entity.Result;
+import org.advancedproductivity.gable.web.service.HistoryService;
 import org.advancedproductivity.gable.web.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -90,7 +93,7 @@ public class JsonSchemaController {
             return Result.error("validate error");
         }
         if (!schema.isObject()) {
-            return Result.error("JsonSchema格式不正确");
+            return Result.error("JsonSchema format error");
         }
         if (json.isMissingNode()) {
             return Result.error("json格式不正确");
@@ -104,5 +107,58 @@ public class JsonSchemaController {
         }
         GableFileUtils.saveFile(jsonNode.toPrettyString(), GableConfig.getGablePath(), userId, JSON_SCHEMA_FILE_NAME);
         return Result.success(arrayNode);
+    }
+
+    @Resource
+    private HistoryService historyService;
+
+    @PostMapping("/run")
+    public Result run(@RequestBody JsonNode jsonNode, @RequestParam String uuid) {
+        JsonNode schema = jsonNode.path("schema");
+        JsonNode json = jsonNode.path("json");
+        ObjectNode resp = objectMapper.createObjectNode();
+        ArrayNode jsonSchemaError = objectMapper.createArrayNode();
+        ObjectNode validateResult = objectMapper.createObjectNode();
+        if (!schema.isObject()) {
+            jsonSchemaError.add("JsonSchema format error");
+            validateResult.put(ValidateField.RESULT, false);
+        }
+        if (json.isMissingNode()) {
+            jsonSchemaError.add("JsonSchema format error");
+            validateResult.put(ValidateField.RESULT, false);
+        }
+        if (jsonSchemaError.size() == 0) {
+            try {
+                JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersionDetector.detect(schema));
+                JsonSchema validator = factory.getSchema(schema);
+                Set<ValidationMessage> validate = validator.validate(json);
+                for (ValidationMessage validationMessage : validate) {
+                    jsonSchemaError.add(validationMessage.getMessage());
+                }
+                validateResult.put(ValidateField.RESULT, true);
+            } catch (Exception e) {
+                jsonSchemaError.add(e.getMessage());
+                validateResult.put(ValidateField.RESULT, false);
+            }
+        }
+        resp.set("json", json);
+        resp.set("schema", schema);
+        validateResult.set(ValidateField.JSON_SCHEMA, jsonSchemaError);
+        resp.set(ValidateField.VALIDATE, validateResult);
+        int historyId = historyService.recordJsonSchemaStep(GableConfig.PUBLIC_PATH, uuid, resp.toPrettyString());
+        resp.put("historyId", historyId);
+        return Result.success(resp);
+    }
+
+    @GetMapping("/history")
+    private Result getHistory(@RequestParam String uuid, @RequestParam Integer historyId,
+                              @RequestParam(required = false) Boolean isPublic) {
+        String userId = userId = userService.getUserId(isPublic, request);
+        JsonNode node = GableFileUtils.readFileAsJson(GableConfig.getGablePath(),
+                userId, UserDataType.JSON_SCHEMA_HIS,
+                uuid,
+                UserDataType.HISTORY,
+                historyId + ".json");
+        return Result.success().setData(node);
     }
 }

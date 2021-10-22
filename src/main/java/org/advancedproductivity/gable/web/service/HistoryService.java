@@ -13,6 +13,10 @@ public interface HistoryService {
      * @return log id
      * */
     public int recordUnitTest(String nameSpace, String uuid, String content);
+
     public int recordGroovy(String nameSpace, String uuid, String content);
+
+    public int recordJsonSchemaStep(String nameSpace, String uuid, String content);
+
     public int recordIntegrateTest(String nameSpace, String uuid, String content);
 }

@@ -7,6 +7,7 @@ public interface UserDataType {
     String GROOVY = "groovy";
     String UNIT = "unit";
     String GROOVY_HIS = "groovy_his";
+    String JSON_SCHEMA_HIS = "json_schema_his";
     String HISTORY = "history";
     String ENV = "env";
     String CASE = "case";

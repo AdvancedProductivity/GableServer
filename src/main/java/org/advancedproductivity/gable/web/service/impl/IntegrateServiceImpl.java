@@ -41,19 +41,7 @@ public class IntegrateServiceImpl implements IntegrateService {
     public String addIntegrate(ArrayNode records, String name) {
         String uuid = UUID.randomUUID().toString();
         for (JsonNode record : records) {
-            if (StringUtils.equals(record.path("type").asText(), "STEP")) {
-                JsonNode codeNode = record.path("code");
-                if (codeNode.isMissingNode() || codeNode.isNull()) {
-                    continue;
-                }
-                String code = codeNode.asText();
-                String stepUuid = record.path("uuid").asText();
-                if (StringUtils.isEmpty(stepUuid)) {
-                    stepUuid = "public_" + UUID.randomUUID().toString();
-                    ((ObjectNode) record).put("uuid", stepUuid);
-                }
-                GableFileUtils.saveFile(code, GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.GROOVY, stepUuid + ".groovy");
-            }
+            handleUuid(record);
         }
         GableFileUtils.saveFile(records.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.INTEGRATE, uuid, "define.json");
         JsonNode node = GableFileUtils.readFileAsJson(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, INTEGRATE_TEST_FILE);
@@ -70,22 +58,33 @@ public class IntegrateServiceImpl implements IntegrateService {
         return uuid;
     }
 
+    private void handleUuid(JsonNode record) {
+        String type = record.path(IntegrateField.TYPE).asText();
+        if (StringUtils.equals(type, IntegrateField.STEP_TYPE)) {
+            JsonNode codeNode = record.path(IntegrateField.CODE);
+            if (codeNode.isMissingNode() || codeNode.isNull()) {
+                return;
+            }
+            String code = codeNode.asText();
+            String stepUuid = record.path(IntegrateField.UUID).asText();
+            if (StringUtils.isEmpty(stepUuid)) {
+                stepUuid = "public_" + UUID.randomUUID().toString();
+                ((ObjectNode) record).put(IntegrateField.UUID, stepUuid);
+            }
+            GableFileUtils.saveFile(code, GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.GROOVY, stepUuid + ".groovy");
+        } else if (StringUtils.equals(type, IntegrateField.JSON_SCHEMA_TYPE)) {
+            String stepUuid = record.path(IntegrateField.UUID).asText();
+            if (StringUtils.isEmpty(stepUuid)) {
+                stepUuid = "public_" + UUID.randomUUID().toString();
+                ((ObjectNode) record).put(IntegrateField.UUID, stepUuid);
+            }
+        }
+    }
+
     @Override
     public boolean updateIntegrate(ArrayNode records, String uuid) {
         for (JsonNode record : records) {
-            if (StringUtils.equals(record.path("type").asText(), "STEP")) {
-                JsonNode codeNode = record.path("code");
-                if (codeNode.isMissingNode() || codeNode.isNull()) {
-                    continue;
-                }
-                String code = codeNode.asText();
-                String stepUuid = record.path("uuid").asText();
-                if (StringUtils.isEmpty(stepUuid)) {
-                    stepUuid = "public_" + UUID.randomUUID().toString();
-                    ((ObjectNode) record).put("uuid", stepUuid);
-                }
-                GableFileUtils.saveFile(code, GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.GROOVY, stepUuid + ".groovy");
-            }
+            handleUuid(record);
         }
         GableFileUtils.saveFile(records.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.INTEGRATE, uuid, "define.json");
         return true;
