@@ -229,6 +229,7 @@ public class UnitController {
         history.set("out", out);
         history.set("instance", instance);
         history.set("global", global);
+        history.put(ConfigField.TEST_TYPE, type);
         history.put("recordTime", System.currentTimeMillis());
         int historyId = historyService.recordUnitTest(userId, uuid, history.toPrettyString());
         out.put("historyId", historyId);
