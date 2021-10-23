@@ -150,7 +150,7 @@ public class JsonDiffUtils {
                     if (waitForAdd.isArray() && waitForAdd.size() > 0) {
                         ArrayNode array = (ArrayNode) at;
                         for (int i = 0; i < waitForAdd.size(); i++) {
-                            array.add(waifForADD.path(i));
+                            array.add(waitForAdd.path(i));
                         }
                     }
                     continue;
