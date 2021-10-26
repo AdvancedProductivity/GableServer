@@ -85,6 +85,7 @@
   "DELETE": "Delete",
   "DELETE_CONFIRM": "Really delete?",
   "ADD_STEP": "Add Step",
+  "ADD_JSON_SCHEMA": "Add JsonSchema",
   "YES": "yes",
   "NO": "no",
   "STOP": "Stop",
