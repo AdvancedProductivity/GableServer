@@ -140,7 +140,7 @@ public class JsonSchemaController {
                 for (ValidationMessage validationMessage : validate) {
                     jsonSchemaError.add(validationMessage.getMessage());
                 }
-                validateResult.put(ValidateField.RESULT, true);
+                validateResult.put(ValidateField.RESULT, jsonSchemaError.size() == 0);
             } catch (Exception e) {
                 jsonSchemaError.add(e.getMessage());
                 validateResult.put(ValidateField.RESULT, false);
