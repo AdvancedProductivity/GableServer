@@ -14,4 +14,6 @@ public enum TestType {
      * grooovy script code test
      * */
     GROOVY_SCRIPT,
+    STEP,
+    JSON_SCHEMA,
 }

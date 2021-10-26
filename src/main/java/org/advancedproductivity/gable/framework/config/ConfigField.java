@@ -32,4 +32,8 @@ public interface ConfigField {
 
     String IS_UNMODIFY = "isUnmodify";
     String FILE_CENTER = "file_center";
+
+    String STATUS = "status";
+    String START_TIME = "startTime";
+    String END_TIME = "endTime";
 }

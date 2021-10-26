@@ -22,7 +22,6 @@ import java.util.Date;
 @RestController
 @RequestMapping("/api/integrate")
 public class IntegrateController {
-    private static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyy-MM-dd hh:mm:ss");
 
     @Resource
     private ObjectMapper objectMapper;
@@ -64,14 +63,12 @@ public class IntegrateController {
     private HistoryService historyService;
 
     @PostMapping("/addHistory")
-    public Result saveIntegrate(@RequestBody ArrayNode records, @RequestParam String uuid) {
-        ObjectNode mapperObjectNode = objectMapper.createObjectNode();
-        mapperObjectNode.set("detail", records);
-        mapperObjectNode.put("createdAt", FORMAT.format(new Date()));
+    public Result saveIntegrate(@RequestBody ArrayNode records, @RequestParam String uuid,
+                                @RequestParam String server) {
+        ObjectNode mapperObjectNode = historyService.analysis(records, server);
         int i = historyService.recordIntegrateTest(GableConfig.PUBLIC_PATH, uuid, mapperObjectNode.toPrettyString());
         return Result.success();
     }
-
 
 
     @GetMapping("/history")

@@ -1,5 +1,8 @@
 package org.advancedproductivity.gable.web.service;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 /**
  * @author zzq
  */
@@ -19,4 +22,6 @@ public interface HistoryService {
     public int recordJsonSchemaStep(String nameSpace, String uuid, String content);
 
     public int recordIntegrateTest(String nameSpace, String uuid, String content);
+
+    ObjectNode analysis(ArrayNode records, String server);
 }

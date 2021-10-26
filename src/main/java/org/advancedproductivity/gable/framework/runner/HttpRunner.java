@@ -119,7 +119,7 @@ public class HttpRunner implements TestAction {
                 }
             }
         }
-        log.info("find content type: {}", bodyType.toString());
+        log.info("find content type in http response: {}", bodyType.toString());
         response.set(HttpResponseField.HEADERS, arrayNode);
     }
 
