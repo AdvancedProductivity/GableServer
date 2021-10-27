@@ -94,6 +94,7 @@
   "UPDATE_TO_PUBLIC": "更新到Public",
   "ADD_STEP": "添加步骤",
   "ADD_JSON_SCHEMA": "添加JsonSchema",
+  "SHOW_REPORT": "查看报告",
   "CONFIRM": "确认",
   "SELECT_GROUP": "选择分组推送",
   "DELETE": "删除",

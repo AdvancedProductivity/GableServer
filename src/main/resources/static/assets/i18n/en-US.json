@@ -88,6 +88,7 @@
   "ADD_JSON_SCHEMA": "Add JsonSchema",
   "YES": "yes",
   "NO": "no",
+  "SHOW_REPORT": "Show Report",
   "STOP": "Stop",
   "STEP_DELAY": "Step Delay",
   "GOTO_EDIT": "Go To Edit",
