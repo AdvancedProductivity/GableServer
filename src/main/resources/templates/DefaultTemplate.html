@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"  xmlns:shiro="www.thymeleaf.org/thymeleaf-extras-shiro">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="shortcut icon" th:href="${server  + 'favicon.ico'}"/>
+    <link rel="bookmark" th:href="${server+ 'favicon.ico'}" type="image/x-icon"　/>
+    <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ant-design-vue@1.7.8/dist/antd.min.css"/>
+    <!-- vue 版本需要注意，不是每一个版本都起作用的 -->
+    <script src="https://cdn.bootcss.com/vue/2.6.10/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ant-design-vue@1.7.8/dist/antd.min.js"></script>
+    <!-- 引入 moment.min.js -->
+    <script src="http://momentjs.cn/downloads/moment.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+</head>
+
+<body>
+<div id="app" style="margin-left: 30px">
+    <div>
+        <a-tabs default-active-key="1">
+            <a-tab-pane key="1" :tab="tip.overview">
+                <a-descriptions :column="4" :title="tip.general" bordered>
+                    <a-descriptions-item :span="5" :label="tip.result">
+                        <a-result v-if="!data.noError" status="warning"
+                                  :title="data.total + ' step, ' + data.successTotal + ' passed, ' + data.failedTotal + ' failed, ' + data.ignoreTotal + ' ignored'">
+
+                        </a-result>
+                        <a-result v-if="data.noError" status="success" :title="data.total + ' step, all passed '">
+                        </a-result>
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.startTime" :span="2">
+                        {{data.startAt}}
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.endTime" :span="3">
+                        {{data.endAt}}
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.totalTimeTakes" :span="2">
+                        <span style="color: green">{{data.timeTotal}}</span> ms
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.avgTimeTakes" :span="3">
+                        <span style="color: green">{{data.totalAvg}}</span> ms
+                    </a-descriptions-item>
+                </a-descriptions>
+                <a-descriptions style="margin-top: 20px" :column="4" :title="tip.testInfo" bordered>
+                    <a-descriptions-item :label="tip.totalTimeTakes" :span="2">
+                        <span style="color: green">{{data.testTimeTotal}}</span> ms
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.avgTimeTakes" :span="3">
+                        <span style="color: green">{{data.testAvg}}</span> ms
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.totalCount">
+                        {{data.testTotal}}
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.successCount">
+                        {{data.testSuccessCount}}
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.failedCount">
+                        <span style="color: red">{{data.testFailedCount}}</span>
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.ignoreCount">
+                        {{data.testIgnoreCount}}
+                    </a-descriptions-item>
+                </a-descriptions>
+                <a-descriptions style="margin-top: 20px" :column="4" :title="tip.stepInfo" bordered>
+                    <a-descriptions-item :label="tip.totalTimeTakes" :span="2">
+                        <span style="color: green">{{data.stepTimeTotal}}</span> ms
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.avgTimeTakes" :span="3">
+                        <span style="color: green">{{data.stepAvg}}</span> ms
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.totalCount">
+                        {{data.stepTotal}}
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.successCount">
+                        {{data.stepSuccessCount}}
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.failedCount">
+                        <span style="color: red">{{data.stepFailedCount}}</span>
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.ignoreCount">
+                        {{data.stepIgnoreCount}}
+                    </a-descriptions-item>
+                </a-descriptions>
+                <a-descriptions style="margin-top: 20px" :column="4" :title="tip.jsonSchemaInfo" bordered>
+                    <a-descriptions-item :label="tip.totalTimeTakes" :span="2">
+                        <span style="color: green">{{data.jsonSchemaTimeTotal}}</span> ms
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.avgTimeTakes" :span="3">
+                        <span style="color: green">{{data.jsonSchemaAvg}}</span> ms
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.totalCount">
+                        {{data.jsonSchemaTotal}}
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.successCount">
+                        {{data.jsonSchemaSuccessCount}}
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.failedCount">
+                        <span style="color: red">{{data.jsonSchemaFailedCount}}</span>
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.ignoreCount">
+                        {{data.jsonSchemaIgnoreCount}}
+                    </a-descriptions-item>
+                </a-descriptions>
+                <div style="height: 200px"></div>
+            </a-tab-pane>
+            <a-tab-pane key="2" :tab="tip.detail" force-render>
+                <div>
+                    <a-radio-group default-value="all" v-model="nodeType" @change="onNodeTypeChange"
+                                   button-style="solid">
+                        <a-radio-button value="all">
+                            {{tip.allNodes}}
+                        </a-radio-button>
+                        <a-radio-button value="error">
+                            {{tip.errorNodes}}
+                        </a-radio-button>
+                    </a-radio-group>
+                </div>
+                <a-row>
+                    <a-col :span="4">
+                        <a-menu style="width: 100%;height: 1300px;overflow-y:auto" :default-selected-keys="['1']"
+                                mode="inline">
+                            <a-menu-item
+                                    @click="showItem(i)"
+                                    style="height: 80px;border-bottom-style:solid;border-bottom-color: #bbb;border-bottom-width: 1px"
+                                    v-for="(item,i) in menuArray" :key="i+ '_#_' + item.uuid">
+                                <div>
+                                    <div>
+                                        <a-tag>{{i + 1}}</a-tag>
+                                        <div style="display: inline;padding-right: 8px;width: 28px;height: 35px">
+                                            <div v-if="item.status == 2" style="display: inline">
+                                                <a-badge status="success" :text="tip.success"/>
+                                            </div>
+                                            <div v-else-if="item.status == 3" style="display: inline">
+                                                <a-badge status="error" :text="tip.error"/>
+                                            </div>
+                                            <div v-else-if="item.status == 0" style="display: inline">
+                                                <a-badge status="processing" :text="tip.skip"/>
+                                            </div>
+                                            <div v-else style="display: inline">
+                                                <a-badge status="warning" :text="tip.unFinished"/>
+                                            </div>
+                                        </div>
+
+                                        <div style="display: inline;" v-if="item.type === 'STEP'">
+                                            <a-tag color="#87d068">
+                                                {{item.type}}
+                                            </a-tag>
+                                        </div>
+                                        <div style="display: inline;" v-else-if="item.type === 'JSON_SCHEMA'">
+                                            <a-tag color="purple">
+                                                {{item.type}}
+                                            </a-tag>
+                                        </div>
+                                        <div style="display: inline;" v-else>
+                                            <a-tag color="#2db7f5">
+                                                {{item.type}}
+                                            </a-tag>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        {{item.name}}
+                                    </div>
+                                </div>
+                            </a-menu-item>
+                        </a-menu>
+                    </a-col>
+                    <a-col :span="20">
+                        <a-row style="margin-left: 16px;margin-right: 16px">
+                            <a-col :span="24">
+                                <div style="height: 416px">
+                                    <div v-if="selectItem !== undefined">
+                                        <a-descriptions :column="4" :title="tip.nodeDetail" bordered>
+                                            <a-descriptions-item :span="3" :label="tip.name">
+                                                {{selectItem.name}}
+                                            </a-descriptions-item>
+                                            <a-descriptions-item :label="tip.result">
+                                                <div v-if="selectItem.status == 2" style="display: inline">
+                                                    <a-badge status="success" :text="tip.success"/>
+                                                </div>
+                                                <div v-else-if="selectItem.status == 3" style="display: inline">
+                                                    <a-badge status="error" :text="tip.error"/>
+                                                </div>
+                                                <div v-else-if="selectItem.status == 0" style="display: inline">
+                                                    <a-badge status="processing" :text="tip.skip"/>
+                                                </div>
+                                                <div v-else style="display: inline">
+                                                    <a-badge status="warning" :text="tip.unFinished"/>
+                                                </div>
+                                            </a-descriptions-item>
+                                            <a-descriptions-item :span="5" :label="tip.remark">
+                                                {{selectItem.remark}}
+                                            </a-descriptions-item>
+                                            <a-descriptions-item :label="tip.startTime">
+                                                {{selectItem.startTimeStr}}
+                                            </a-descriptions-item>
+                                            <a-descriptions-item :label="tip.endTime">
+                                                {{selectItem.endTimeStr}}
+                                            </a-descriptions-item>
+                                            <a-descriptions-item :label="tip.totalTimeTakes" :span="2">
+                                                <span style="color: green">{{selectItem.endTime - selectItem.startTime}}</span> ms
+                                            </a-descriptions-item>
+                                            <a-descriptions-item :label="tip.nodeType">
+                                                <div v-if="selectItem.type === 'STEP'">
+                                                    <a-tag color="#87d068">
+                                                        {{selectItem.type}}
+                                                    </a-tag>
+                                                </div>
+                                                <div v-else-if="selectItem.type === 'JSON_SCHEMA'">
+                                                    <a-tag color="purple">
+                                                        {{selectItem.type}}
+                                                    </a-tag>
+                                                </div>
+                                                <div v-else>
+                                                    <a-tag color="#2db7f5">
+                                                        {{selectItem.type}}
+                                                    </a-tag>
+                                                </div>
+                                            </a-descriptions-item>
+                                            <a-descriptions-item :label="tip.isCase" :span="3">
+                                                <div v-if="selectItem.tag == 'case'">
+                                                    {{tip.yes}}
+                                                    <a-tag color="pink">
+                                                        {{selectItem.caseId}}
+                                                    </a-tag>
+                                                    <a-button @click="showCaseDiff" type="primary">
+                                                        {{tip.caseDiff}}
+                                                    </a-button>
+                                                </div>
+                                                <div v-else>
+                                                    {{tip.no}}
+                                                </div>
+                                            </a-descriptions-item>
+                                            <a-descriptions-item :span="5" :label="tip.operation">
+                                                <div style="height: 80px" v-if="selectItem.status>1">
+                                                    <a-button type="primary" @click="getHistory">
+                                                        {{tip.refresh}}
+                                                    </a-button>
+                                                    <div v-if="selectItem.type=='STEP'" style="display: inline">
+                                                        <a-button type="primary"  @click="showStepDiff">
+                                                            {{tip.stepDiff}}
+                                                        </a-button>
+                                                    </div>
+                                                    <div v-else-if="selectItem.type=='JSON_SCHEMA'" style="display: inline">
+
+                                                    </div>
+                                                    <div v-else style="display: inline">
+                                                        <a-button type="primary" @click="reRunCurrent">
+                                                            {{tip.reRunOfHistoryIn}}
+                                                        </a-button>
+                                                        <a-select  v-model="selectedEnv" style="width: 120px">
+                                                            <a-select-option value="">
+                                                                {{tip.noEnvSelect}}
+                                                            </a-select-option>
+                                                            <a-select-option  v-for="(item,i) in envs" :key="item.uuid"
+                                                                              :value="item.uuid">
+                                                                {{item.name}}
+                                                            </a-select-option>
+
+                                                        </a-select>
+                                                        <a-button type="primary" @click="reRunSingly">
+                                                            {{tip.reRunWithoutContext}}
+                                                        </a-button>
+                                                        <div v-if="haveReRunFinished" style="display: inline">
+                                                            <a-button type="primary" @click="showReRunInDiff">
+                                                                {{tip.reRunInDiff}}
+                                                            </a-button>
+                                                            <a-button type="primary" @click="showReRunOutDiff">
+                                                                {{tip.reRunOutDiff}}
+                                                            </a-button>
+                                                            <a-button type="primary" @click="showReRunInstanceDiff">
+                                                                {{tip.reRunInstanceDiff}}
+                                                            </a-button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </a-descriptions-item>
+                                        </a-descriptions>
+                                    </div>
+                                    <div v-if="selectItem === undefined">
+                                        <a-empty />
+                                    </div>
+                                </div>
+                            </a-col>
+                        </a-row>
+                        <a-row style="margin-left: 16px;margin-right: 16px;padding-bottom: 200px">
+                            <a-spin :spinning="isLoadingData">
+                                <div>
+                                    <a-col :span="24">
+                                        <div>
+                                            <a-alert :message="validateEditorTip" type="info"/>
+                                        </div>
+                                        <div id="validateEditor" style="height: 150px; border: 1px solid grey"></div>
+                                    </a-col>
+                                    <a-col :span="12">
+                                        <div>
+                                            <a-alert :message="tipA" type="info"/>
+                                        </div>
+                                        <div id="aEditor" style="height: 600px; border: 1px solid grey"></div>
+                                    </a-col>
+                                    <a-col :span="12" style="padding-left: 16px;">
+                                        <div>
+                                            <a-alert :message="tipB" type="info"/>
+                                        </div>
+                                        <div id="bEditor" style="height: 600px; border: 1px solid grey"></div>
+                                    </a-col>
+                                    <a-col :span="12">
+                                        <div>
+                                            <a-alert :message="tipC" type="info"/>
+                                        </div>
+                                        <div id="cEditor" style="height: 600px; border: 1px solid grey"></div>
+                                    </a-col>
+                                    <a-col :span="12" style="padding-left: 16px;">
+                                        <div>
+                                            <a-alert :message="tipD" type="info"/>
+                                        </div>
+                                        <div id="dEditor" style="height: 600px; border: 1px solid grey"></div>
+                                    </a-col>
+                                </div>
+                            </a-spin>
+                        </a-row>
+                    </a-col>
+                </a-row>
+            </a-tab-pane>
+            <a-tab-pane key="3" :tab="tip.operation">
+                <a-input-search
+                        v-model="serverUrl"  :placeholder="tip.gableHost"
+                        style="display: inline;width: 220px"
+                        :enter-button="tip.reload"
+                        size="large"
+                        @search="reload"
+                />
+            </a-tab-pane>
+            <div slot="tabBarExtraContent">
+
+                <div style="display: inline" v-if="canSave">
+                    <a-button  type="danger" @click="saveToBeFile">
+                        {{tip.saveAsHtml}}
+                    </a-button>
+                </div>
+                <a-radio-group default-value="en" button-style="solid" @change="changeLang">
+                    <a-radio-button value="en">
+                        English
+                    </a-radio-button>
+                    <a-radio-button value="zh">
+                        中文
+                    </a-radio-button>
+                </a-radio-group>
+                <a-button @click="openInGable">
+                    {{tip.openTest}}
+                </a-button>
+            </div>
+        </a-tabs>
+    </div>
+    <a-modal width="80%" v-model="isShowDiffModal" :title="tip.diffModel" @cancel="closeDiffModal"  @ok="closeDiffModal">
+        <div id="diffEditor" style="height: 600px; border: 1px solid grey;"></div>
+    </a-modal>
+</div>
+<script src="https://cdn.bootcdn.net/ajax/libs/monaco-editor/0.26.1/min/vs/loader.min.js"></script>
+<script type="application/javascript"  th:inline="javascript">
+    var server = [[${server}]];
+    var canDownload = [[${canDownload}]];
+    // var historyId = '16';
+    // var uuid = '9d5f1e00-1f43-4267-8e6a-273ea0dbea70'
+    var historyId = [[${historyId}]];
+    var uuid = [[${uuid}]];
+    var a;
+    var b;
+    var c;
+    var d;
+    var validateEditor;
+    var diffEditor;
+    require.config({paths: {'vs': 'https://cdn.bootcdn.net/ajax/libs/monaco-editor/0.26.1/min/vs'}})
+    require([
+        'vs/editor/editor.main'], function () {
+        a = monaco.editor.create(document.getElementById('aEditor'), {
+            value: '{"asd": "asdsa", "number": 10}',
+            language: 'json',
+            minimap: {
+                enabled: false
+            },
+        });
+        b = monaco.editor.create(document.getElementById('bEditor'), {
+            value: '{"asd": "asdsa", "number": 10}',
+            language: 'json',
+            minimap: {
+                enabled: false
+            },
+        });
+        c = monaco.editor.create(document.getElementById('cEditor'), {
+            value: '{"asd": "asdsa", "number": 10}',
+            language: 'json',
+            minimap: {
+                enabled: false
+            },
+        });
+        d = monaco.editor.create(document.getElementById('dEditor'), {
+            value: '{"asd": "asdsa", "number": 10}',
+            language: 'json',
+            minimap: {
+                enabled: false
+            },
+        });
+        validateEditor = monaco.editor.create(document.getElementById('validateEditor'), {
+            value: '{"asd": "asdsa", "number": 10}',
+            language: 'json',
+            minimap: {
+                enabled: false
+            },
+        });
+    });
+
+    new Vue({
+        el: '#app',
+        data: {
+            envs: [],
+            rerunResult: {},
+            haveReRunFinished: false,
+            message: 'Hello Vue.js',
+            serverUrl: '',
+            nodeType: 'all',
+            d: 1,
+            canSave: false,
+            isShowDiffModal: false,
+            data: {},
+            errorNodes: [],
+            allNodes: [],
+            selectedEnv: '',
+            tip: {
+                overview: 'Overview'
+            },
+            tipA: 'instance',
+            tipB: 'In',
+            tipC: 'Out',
+            tipD: 'Global',
+            aStr: '',
+            bStr: '',
+            cStr: '',
+            dStr: '',
+            validateStr: '',
+            validateEditorTip: 'ValidateResult',
+            menuArray: [],
+            isLoadingData: true,
+            selectItem: undefined,
+            lang: {
+                en: {
+                    overview: 'Overview',
+                    openTest: 'Open In Gable',
+                    detail: 'Detail',
+                    general: 'General Info',
+                    startTime: 'Start Time'
+                    , endTime: 'End Time'
+                    , totalTimeTakes: 'Total Time Takes'
+                    , avgTimeTakes: 'Avg Time Takes'
+                    , result: 'Result'
+                    , testInfo: 'Test Info'
+                    , stepInfo: 'Step Info'
+                    , jsonSchemaInfo: 'JsonSchema Info'
+                    , totalCount: 'Total Count'
+                    , successCount: 'Success Count'
+                    , failedCount: 'Failed Count'
+                    , ignoreCount: 'Ignore Count'
+                    , allNodes: 'All Node'
+                    , stepDiff: 'Show Step Diff'
+                    , errorNodes: 'Error Node'
+                    , success: 'Success'
+                    , error: 'Error'
+                    , skip: 'Skip'
+                    , unFinished: 'UnFinished'
+                    , instance: 'Instance'
+                    , in: 'In'
+                    , out: 'Out'
+                    , global: 'Global'
+                    , validateResult: 'Validate Result'
+                    , nodeDetail: 'Node Detail'
+                    , name: 'Name'
+                    , remark: 'Remark'
+                    , nodeType: 'Type'
+                    , isCase: 'Is Case?'
+                    , yes: 'Yes'
+                    , no: 'No'
+                    , operation: 'Operation'
+                    , refresh: 'Refresh'
+                    , reRunOfHistoryIn: 'Re Run With Current In'
+                    , reRunWithoutContext: 'Re Run Singly'
+                    , caseDiff: 'Show Diff Of Case'
+                    , codeStr: 'Groovy Code'
+                    , diffModel: 'Show Diff'
+                    , jsonSchemaExp: 'JsonSchema Express'
+                    , reRunInDiff: 'Re Run In Diff'
+                    , reRunOutDiff: 'Re Run Out Diff'
+                    , reRunInstanceDiff: 'Re Run Instance Diff'
+                    , noEnvSelect: 'No Env'
+                    , saveAsHtml: 'Save As Html File'
+                    , gableHost: 'enter the gable host'
+                    , reload: 'Reload'
+                }, zh: {
+                    overview: '预览',
+                    openTest: '在Gable中打开',
+                    detail: '明细',
+                    general: '总体情况',
+                    startTime: '开始时间'
+                    , endTime: '结束时间'
+                    , totalTimeTakes: '总耗时'
+                    , avgTimeTakes: '平均耗时'
+                    , result: '结果'
+                    , testInfo: '测试结果概览'
+                    , stepInfo: 'Step结果概览'
+                    , jsonSchemaInfo: 'JsonSchema结果概览'
+                    , totalCount: '总数量'
+                    , successCount: '成功数量'
+                    , failedCount: '失败数量'
+                    , ignoreCount: '忽略数量'
+                    , allNodes: '所有节点'
+                    , errorNodes: '错误节点'
+                    , success: '成功'
+                    , error: '失败'
+                    , skip: '忽略'
+                    , unFinished: '未完成'
+                    , instance: '临时变量'
+                    , in: '输入'
+                    , out: '输出'
+                    , global: '全局变量'
+                    , validateResult: '校验结果'
+                    , nodeDetail: '用例详情'
+                    , name: '名称'
+                    , remark: '备注'
+                    , nodeType: '类型'
+                    , isCase: '是用例?'
+                    , yes: '是'
+                    , no: '否'
+                    , operation: '操作'
+                    , refresh: '刷新'
+                    , stepDiff: '查看步骤执行前后差异'
+                    , reRunOfHistoryIn: '以当前输入重新运行'
+                    , reRunWithoutContext: '单独运行'
+                    , caseDiff: '查看用例差异'
+                    , codeStr: 'Groovy 代码'
+                    , diffModel: '查看差异'
+                    , jsonSchemaExp: 'JsonSchema表达式'
+                    , reRunInDiff: '重新运行后 输入差异'
+                    , reRunOutDiff: '重新运行后 输出差异'
+                    , reRunInstanceDiff: '重新运行后 实例变量差异'
+                    , noEnvSelect: '不选环境'
+                    , saveAsHtml: '保存为Html文件'
+                    , gableHost: '请输入Gable的主机地址'
+                    , reload: '重新加载'
+                }
+            }
+        },
+        created: function () {
+            this.serverUrl = server;
+            this.canSave = canDownload;
+            this.getData();
+            this.getEnvs();
+            this.tip = this.lang.en;
+        },
+        methods: {
+            changeLang(e) {
+                if (e.target.value == 'en') {
+                    this.tip = this.lang.en;
+                } else if (e.target.value == 'zh') {
+                    this.tip = this.lang.zh;
+                }
+                this.resetEditorTip();
+            },
+            showItem(index){
+                this.selectItem = this.menuArray[index];
+                this.getHistory();
+            },
+            saveToBeFile(){
+                window.open(this.serverUrl + 'api/report?uuid=' + uuid + '&hisId=' + historyId + '&server=' + encodeURI(this.serverUrl), '_blank');
+            },
+            getHistory() {
+                this.haveReRunFinished = false;
+                if (this.selectItem === undefined) {
+                    return;
+                }
+                this.resetEditorTip();
+                if (this.selectItem.type === 'STEP') {
+                    this.isLoadingData = true;
+                    this.aStr = this.selectItem.code;
+                    this.updateEditorInfo(a, this.aStr, 'groovy', false);
+                    this.getGroovyHistory(this.selectItem.uuid, true, this.selectItem.historyId);
+                    return;
+                } else if (this.selectItem.type === 'JSON_SCHEMA') {
+                    this.isLoadingData = true;
+                    this.getJsonSchemaHistory(this.selectItem.uuid, true, this.selectItem.historyId);
+                    return;
+                } else if (this.selectItem.type === 'HTTP') {
+                    this.isLoadingData = true;
+                    this.getTestHistory(this.selectItem.uuid, true, this.selectItem.historyId);
+                    return;
+                }else {
+                    this.isLoadingData = true;
+                    this.getGroovyTestHistory(this.selectItem.uuid, true, this.selectItem.historyId);
+                    return;
+                }
+            },
+            getGroovyTestHistory(uuid, isPub, historyId){
+                fetch(this.serverUrl + 'api/unit/history?uuid=' + uuid + '&historyId=' + historyId+ '&isPublic=' + isPub,
+                    {
+                        method: 'GET',
+                        headers: new Headers({
+                            'Accept': 'application/json'
+                        })
+                    }).then((res) => {
+                    return res.json();
+                }).then((res) => {
+                    if (res.result) {
+                        this.aStr = JSON.stringify(res.data.instance, null, '\t');
+                        this.bStr = JSON.stringify(res.data.in, null, '\t');
+                        this.cStr = JSON.stringify(res.data.out, null, '\t');
+                        this.dStr = JSON.stringify(res.data.global, null, '\t');
+                        this.updateEditorInfo(a, this.aStr, 'json', false);
+                        this.updateEditorInfo(b, this.bStr, 'json', false);
+                        this.updateEditorInfo(c, this.cStr, 'json', true);
+                        this.updateEditorInfo(d, this.dStr, 'json', true);
+                    }
+                    this.isLoadingData = false;
+                });
+                fetch(this.serverUrl + 'api/groovyCode?uuid=' + uuid + '&isPublic=' + isPub,
+                    {
+                        method: 'GET',
+                        headers: new Headers({
+                            'Accept': 'text/plain'
+                        })
+                    }).then((res) => {
+                    return res.text();
+                }).then((res) => {
+                    this.validateStr = res;
+                    this.updateEditorInfo(validateEditor, this.validateStr, 'groovy', true);
+                    this.isLoadingData = false;
+                });
+            },
+            getTestHistory(uuid, isPub, historyId){
+                fetch(this.serverUrl + 'api/unit/history?uuid=' + uuid + '&historyId=' + historyId+ '&isPublic=' + isPub,
+                    {
+                        method: 'GET',
+                        headers: new Headers({
+                            'Accept': 'application/json'
+                        })
+                    }).then((res) => {
+                    return res.json();
+                }).then((res) => {
+                    if (res.result) {
+                        this.aStr = JSON.stringify(res.data.instance, null, '\t');
+                        this.bStr = JSON.stringify(res.data.in, null, '\t');
+                        this.cStr = JSON.stringify(res.data.out, null, '\t');
+                        this.dStr = JSON.stringify(res.data.global, null, '\t');
+                        this.validateStr = JSON.stringify(res.data.out.validate, null, '\t');
+                        this.updateEditorInfo(a, this.aStr, 'json', false);
+                        this.updateEditorInfo(b, this.bStr, 'json', false);
+                        this.updateEditorInfo(c, this.cStr, 'json', true);
+                        this.updateEditorInfo(d, this.dStr, 'json', true);
+                        this.updateEditorInfo(validateEditor, this.validateStr, 'json', true);
+                    }
+                    this.isLoadingData = false;
+                });
+            },
+            getJsonSchemaHistory(uuid, isPub, historyId){
+                fetch(this.serverUrl + 'api/jsonSchema/history?uuid=' + uuid + '&historyId=' + historyId+ '&isPublic=' + isPub,
+                    {
+                        method: 'GET',
+                        headers: new Headers({
+                            'Accept': 'application/json'
+                        })
+                    }).then((res) => {
+                    return res.json();
+                }).then((res) => {
+                    if (res.result) {
+                        this.aStr = JSON.stringify(res.data.json, null, '\t');
+                        this.bStr = JSON.stringify(res.data.schema, null, '\t');
+                        this.validateStr = JSON.stringify(res.data.validate, null, '\t');
+                        this.updateEditorInfo(a, this.aStr, 'json', false);
+                        this.updateEditorInfo(b, this.bStr, 'json', false);
+                        this.cStr = '';
+                        this.dStr = '';
+                        this.updateEditorInfo(c, this.cStr, 'json', true);
+                        this.updateEditorInfo(d, this.dStr, 'json', true);
+                        this.updateEditorInfo(validateEditor, this.validateStr, 'json', true);
+                    }
+                    this.isLoadingData = false;
+                });
+            },
+            getGroovyHistory(uuid, isPub, historyId){
+                fetch(this.serverUrl + 'api/groovyCode/history?uuid=' + uuid + '&historyId=' + historyId+ '&isPublic=' + isPub,
+                    {
+                        method: 'GET',
+                        headers: new Headers({
+                            'Accept': 'application/json'
+                        })
+                    }).then((res) => {
+                    return res.json();
+                }).then((res) => {
+                    if (res.result) {
+                        this.bStr  = JSON.stringify(res.data.before, null, '\t');
+                        this.cStr  = JSON.stringify(res.data.after, null, '\t');
+                        this.updateEditorInfo(b,  this.bStr, 'json', false);
+                        this.updateEditorInfo(c,  this.cStr, 'json', true);
+                        if (!res.data.validate.passed) {
+                            this.validateStr = res.data.validate.code;
+                            this.updateEditorInfo(validateEditor,  this.validateStr, 'text', true);
+                        } else {
+                            this.validateStr = 'no error';
+                            this.updateEditorInfo(validateEditor,  this.validateStr, 'text', true);
+                        }
+                        this.dStr = '';
+                        this.updateEditorInfo(d,  this.dStr, 'json', true);
+                    }
+                    this.isLoadingData = false;
+                });
+            },
+            updateEditorInfo(editor, content, lang, isReadOnly) {
+                if (editor === undefined) {
+                    return;
+                }
+                editor.setValue(content);
+                editor.updateOptions({language: lang, readOnly: isReadOnly});
+            },
+            reRunCurrent() {
+                this.isLoadingData = true;
+                var instanceVarStr = a.getValue();
+                var inVarStr = b.getValue();
+                try {
+                    var data = {
+                        config: JSON.parse(inVarStr),
+                        instance: JSON.parse(instanceVarStr),
+                    };
+                    fetch(this.serverUrl + 'api/unit/run?uuid=' + this.selectItem.uuid + '&type=' + this.selectItem.type
+                        + '&isPublic=' + true,
+                        {
+                            method: 'POST',
+                            body: JSON.stringify(data),
+                            headers: new Headers({
+                                'Accept': 'application/json',
+                                'Content-Type': 'application/json'
+                            })
+                        }).then((res) => {
+                        return res.json();
+                    }).then((res) => {
+                        if (res.result) {
+                            this.haveReRunFinished = true;
+                            this.rerunResult.reRunOut = JSON.stringify(res.data, null, '\t');
+                            this.rerunResult.reRunIn = inVarStr;
+                            this.rerunResult.reRunInstance = instanceVarStr;
+                        }
+                        this.isLoadingData = false;
+                    });
+                } catch (e){
+                    this.$message.info('json format error ' + e.getMessage(), {
+                        duration: 3
+                    });
+                }
+            },
+            reRunSingly() {
+                this.isLoadingData = true;
+                var caseID = undefined;
+                var caseVersion = undefined;
+                if (this.selectItem.caseId !== undefined && this.selectItem.caseId !== null) {
+                    caseID = this.selectItem.caseId;
+                }
+                if (this.selectItem.version !== undefined && this.selectItem.version !== null) {
+                    caseVersion = this.selectItem.version;
+                }
+                var param = '?uuid=' + this.selectItem.uuid + '&env=' + this.selectedEnv + '&isPublic=true';
+                if (caseID !== undefined && caseVersion !== undefined) {
+                    param += '&caseId=' + caseID + '&caseVersion=' + caseVersion
+                }
+                fetch(this.serverUrl + 'api/unit' + param,
+                    {
+                        method: 'GET',
+                        headers: new Headers({
+                            'Accept': 'application/json'
+                        })
+                    }).then((res) => {
+                    return res.json();
+                }).then((res) => {
+                    if (res.result) {
+                        this.rerunResult.reRunIn = JSON.stringify(res.data.config, null, '\t');
+                        this.rerunResult.reRunInstance = this.aStr;
+                        var instanceVarStr = this.aStr;
+                        try {
+                            var data = {
+                                config: res.data.config,
+                                instance: JSON.parse(instanceVarStr),
+                            };
+                            fetch(this.serverUrl + 'api/unit/run?uuid=' + this.selectItem.uuid + '&type=' + this.selectItem.type
+                                + '&isPublic=' + true,
+                                {
+                                    method: 'POST',
+                                    body: JSON.stringify(data),
+                                    headers: new Headers({
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json'
+                                    })
+                                }).then((res) => {
+                                return res.json();
+                            }).then((res) => {
+                                if (res.result) {
+                                    this.haveReRunFinished = true;
+                                    this.rerunResult.reRunOut = JSON.stringify(res.data, null, '\t');
+                                }
+                                this.isLoadingData = false;
+                            });
+                        } catch (e){
+                            this.$message.info('json format error ' + e.getMessage(), {
+                                duration: 3
+                            });
+                        }
+                    }
+                });
+            },
+            resetEditorTip() {
+                if (this.selectItem == undefined) {
+                    return;
+                }
+                if (this.selectItem.type === 'STEP') {
+                    this.tipA = this.tip.codeStr;
+                    this.tipB = this.tip.in;
+                    this.tipC = this.tip.out;
+                    this.tipD = this.tip.global;
+                    this.validateEditorTip = this.tip.validateResult;
+                    return;
+                } else if (this.selectItem.type === 'JSON_SCHEMA') {
+                    this.tipA = this.tip.in;
+                    this.tipB = this.tip.jsonSchemaExp;
+                    this.tipC = this.tip.instance;
+                    this.tipD = this.tip.global;
+                    this.validateEditorTip = this.tip.validateResult;
+                    return;
+                }else if (this.selectItem.type === 'GROOVY_SCRIPT') {
+                    this.tipA = this.tip.instance;
+                    this.tipB = this.tip.in;
+                    this.tipC = this.tip.out;
+                    this.tipD = this.tip.global;
+                    this.validateEditorTip = this.tip.codeStr;
+                    return;
+                } else {
+                    this.tipA = this.tip.instance;
+                    this.tipB = this.tip.in;
+                    this.tipC = this.tip.out;
+                    this.tipD = this.tip.global;
+                    this.validateEditorTip = this.tip.validateResult;
+                }
+            },
+            onNodeTypeChange() {
+                if (this.nodeType === 'all') {
+                    this.menuArray = this.allNodes;
+                } else {
+                    this.menuArray = this.errorNodes;
+                }
+            }
+            ,
+            openInGable() {
+                window.open(this.serverUrl + '#/integrate/run?uuid=' + uuid, '_blank');
+            }
+            ,
+            add() {
+                this.d++;
+            }
+            ,
+            showStepDiff(){
+                this.doDiffShow(this.bStr, this.cStr, 'json');
+            },
+            showReRunInDiff(){
+                this.doDiffShow(this.bStr, this.rerunResult.reRunIn, 'json');
+            },
+            showReRunOutDiff(){
+                this.doDiffShow(this.cStr, this.rerunResult.reRunOut, 'json');
+            },
+            showReRunInstanceDiff(){
+                this.doDiffShow(this.aStr, this.rerunResult.reRunInstance, 'json');
+            },
+            showCaseDiff(){
+                this.isLoadingData = true;
+                var caseID = undefined;
+                var caseVersion = undefined;
+                if (this.selectItem.caseId !== undefined && this.selectItem.caseId !== null) {
+                    caseID = this.selectItem.caseId;
+                }
+                if (this.selectItem.version !== undefined && this.selectItem.version !== null) {
+                    caseVersion = this.selectItem.version;
+                }
+                var param = '?uuid=' + this.selectItem.uuid + '&env=' + '&isPublic=true';
+                if (caseID !== undefined && caseVersion !== undefined) {
+                    param += '&caseId=' + caseID + '&caseVersion=' + caseVersion
+                }
+                fetch(this.serverUrl + 'api/unit/diff' + param,
+                    {
+                        method: 'GET',
+                        headers: new Headers({
+                            'Accept': 'application/json'
+                        })
+                    }).then((res) => {
+                    return res.json();
+                }).then((res) => {
+                    if (res.result) {
+                        var originalCode = JSON.stringify(res.data.before, null, '\t');
+                        var modifiedCode = JSON.stringify(res.data.after, null, '\t');
+                        this.doDiffShow(originalCode, modifiedCode, 'json');
+                    }
+                    this.isLoadingData = false;
+                });
+            },
+            doDiffShow(leftStr, rightStr, lang){
+                this.isShowDiffModal = true;
+                setTimeout(() => {
+                    if (diffEditor === undefined) {
+                        diffEditor = monaco.editor.createDiffEditor(document.getElementById('diffEditor'), {
+                        });
+                        diffEditor.setModel({
+                            original: monaco.editor.createModel(leftStr, lang),
+                            modified: monaco.editor.createModel(rightStr, lang)
+                        });
+                    }
+                }, 500);
+            },
+            closeDiffModal(){
+                if (diffEditor !== undefined) {
+                    diffEditor.dispose();
+                    diffEditor = undefined;
+                }
+                this.isShowDiffModal = false;
+            },
+            getEnvs(){
+                fetch(this.serverUrl + 'api/env',
+                    {
+                        method: 'GET',
+                        headers: new Headers({
+                            'Accept': 'application/json'
+                        })
+                    }).then((res) => {
+                    return res.json();
+                }).then((res) => {
+                    this.envs = res;
+                });
+            },
+            reload(){
+                this.getData();
+            },
+            getData() {
+                fetch(this.serverUrl + 'api/integrate/history?uuid=' + uuid + '&historyId=' + historyId,
+                    {
+                        method: 'GET',
+                        headers: new Headers({
+                            'Accept': 'application/json'
+                        })
+                    }).then((res) => {
+                    return res.json();
+                }).then((res) => {
+                    this.data = res.data;
+                    this.errorNodes = [];
+                    this.allNodes = res.data.detail;
+                    this.allNodes.forEach((item) => {
+                        if (item.status == 3) {
+                            this.errorNodes.push(item);
+                        }
+                    });
+                    this.onNodeTypeChange();
+                });
+            }
+        }
+    })
+    ;
+</script>
+</body>
+
+</html>

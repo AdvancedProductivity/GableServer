@@ -67,9 +67,9 @@ public class IntegrateController {
                                 @RequestParam String server) {
         ObjectNode mapperObjectNode = historyService.analysis(records, server, uuid);
         int i = historyService.recordIntegrateTest(GableConfig.PUBLIC_PATH, uuid, mapperObjectNode.toPrettyString());
-        return Result.success();
+        mapperObjectNode.put("hisId", i);
+        return Result.success(mapperObjectNode);
     }
-
 
     @GetMapping("/history")
     private Result getHistory(@RequestParam String uuid, @RequestParam Integer historyId,
