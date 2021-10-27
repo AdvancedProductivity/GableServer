@@ -65,7 +65,7 @@ public class IntegrateController {
     @PostMapping("/addHistory")
     public Result saveIntegrate(@RequestBody ArrayNode records, @RequestParam String uuid,
                                 @RequestParam String server) {
-        ObjectNode mapperObjectNode = historyService.analysis(records, server);
+        ObjectNode mapperObjectNode = historyService.analysis(records, server, uuid);
         int i = historyService.recordIntegrateTest(GableConfig.PUBLIC_PATH, uuid, mapperObjectNode.toPrettyString());
         return Result.success();
     }

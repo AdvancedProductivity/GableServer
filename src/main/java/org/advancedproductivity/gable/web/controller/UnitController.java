@@ -206,6 +206,7 @@ public class UnitController {
             return Result.error("unknown test type: " + type);
         }
         ObjectNode in = (ObjectNode) data.path("config");
+        ObjectNode originIn = in.deepCopy();
         if (testAction instanceof GroovyCodeRunner) {
             in.put("userId", userId);
         }
@@ -225,7 +226,7 @@ public class UnitController {
         }
         validateResult.set(ValidateField.JSON_SCHEMA, jsonSchemaError);
         out.set(ValidateField.VALIDATE, validateResult);
-        history.set("in", in);
+        history.set("in", originIn);
         history.set("out", out);
         history.set("instance", instance);
         history.set("global", global);

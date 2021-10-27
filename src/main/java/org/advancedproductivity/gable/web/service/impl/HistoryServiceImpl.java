@@ -126,8 +126,9 @@ public class HistoryServiceImpl implements HistoryService {
     }
 
     @Override
-    public ObjectNode analysis(ArrayNode records, String server) {
+    public ObjectNode analysis(ArrayNode records, String server, String uuid) {
         ObjectNode mapperObjectNode = objectMapper.createObjectNode();
+        mapperObjectNode.put("uuid", uuid);
         mapperObjectNode.put("server", server);
         boolean noError = true;
         int total = 0;
@@ -150,12 +151,32 @@ public class HistoryServiceImpl implements HistoryService {
         int jsonSchemaIgnoreCount = 0;
         int jsonSchemaTotal = 0;
         int jsonSchemaTimeTotal = 0;
+        String startTime = null;
+        long endTime = 0;
         for (int i = 0; i < records.size(); i++) {
             total++;
             JsonNode item = records.path(i);
             int result = item.path(ConfigField.STATUS).asInt();
             String type = item.path(ConfigField.TEST_TYPE).asText();
-            long timeTakes = item.path(ConfigField.END_TIME).asLong() - item.path(ConfigField.START_TIME).asLong();
+            long itemStart = item.path(ConfigField.START_TIME).asLong();
+            long itemEnd = item.path(ConfigField.END_TIME).asLong();
+            if (itemStart == 0) {
+                ((ObjectNode) item).put("startTimeStr", "");
+            }else {
+                ((ObjectNode) item).put("startTimeStr", FORMAT.format(new Date(itemStart)));
+            }
+            if (itemEnd == 0) {
+                ((ObjectNode) item).put("endTimeStr", "");
+            }else {
+                ((ObjectNode) item).put("endTimeStr", FORMAT.format(new Date(itemEnd)));
+            }
+            if (startTime == null && itemStart != 0) {
+                startTime = FORMAT.format(new Date(itemStart));
+            }
+            if (itemEnd != 0) {
+                endTime = itemEnd;
+            }
+            long timeTakes =  itemEnd - itemStart;
             timeTotal += timeTakes;
             if (result == IntegrateStepStatus.FAILED.getValue()) {
                 failedTotal++;
@@ -227,7 +248,8 @@ public class HistoryServiceImpl implements HistoryService {
         mapperObjectNode.put("jsonSchemaIgnoreCount", jsonSchemaIgnoreCount);
         mapperObjectNode.put("jsonSchemaTotal", jsonSchemaTotal);
         mapperObjectNode.put("jsonSchemaTimeTotal", jsonSchemaTimeTotal);
-
+        mapperObjectNode.put("startAt", startTime);
+        mapperObjectNode.put("endAt", FORMAT.format(new Date(endTime)));
 
         if (total != 0) {
             mapperObjectNode.put("totalAvg", DOUBLE_FORMAT.format( timeTotal / (double)total));
@@ -235,14 +257,14 @@ public class HistoryServiceImpl implements HistoryService {
             mapperObjectNode.put("totalAvg", 0);
         }
         if (stepTotal != 0) {
-            mapperObjectNode.put("testAvg", DOUBLE_FORMAT.format(stepTimeTotal / (double) stepTotal));
+            mapperObjectNode.put("stepAvg", DOUBLE_FORMAT.format(stepTimeTotal / (double) stepTotal));
         }else {
-            mapperObjectNode.put("totalAvg", 0);
+            mapperObjectNode.put("stepAvg", 0);
         }
         if (jsonSchemaTotal != 0) {
-            mapperObjectNode.put("testAvg", DOUBLE_FORMAT.format(jsonSchemaTimeTotal / (double) jsonSchemaTotal));
+            mapperObjectNode.put("jsonSchemaAvg", DOUBLE_FORMAT.format(jsonSchemaTimeTotal / (double) jsonSchemaTotal));
         }else {
-            mapperObjectNode.put("totalAvg", 0);
+            mapperObjectNode.put("jsonSchemaAvg", 0);
         }
         if (testTotal != 0) {
             mapperObjectNode.put("testAvg", DOUBLE_FORMAT.format(testTimeTotal / (double)testTotal));
