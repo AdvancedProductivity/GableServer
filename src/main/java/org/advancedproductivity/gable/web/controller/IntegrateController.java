@@ -60,6 +60,11 @@ public class IntegrateController {
         return Result.success(String.valueOf(c));
     }
 
+    @GetMapping("/entrust")
+    private Result entrustRun(@RequestParam String uuid) {
+        return integrateService.entrustRun(uuid);
+    }
+
     @PostMapping
     public Result updateIntegrate(@RequestBody ArrayNode records,@RequestParam String uuid) {
         integrateService.updateIntegrate(records, uuid);

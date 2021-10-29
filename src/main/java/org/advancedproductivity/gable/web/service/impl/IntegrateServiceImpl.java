@@ -14,7 +14,10 @@ import org.advancedproductivity.gable.framework.config.GableConfig;
 import org.advancedproductivity.gable.framework.config.IntegrateField;
 import org.advancedproductivity.gable.framework.config.IntegrateStepStatus;
 import org.advancedproductivity.gable.framework.config.UserDataType;
+import org.advancedproductivity.gable.framework.thread.IntegrateEnTrustRun;
+import org.advancedproductivity.gable.framework.thread.ThreadListener;
 import org.advancedproductivity.gable.framework.utils.GableFileUtils;
+import org.advancedproductivity.gable.web.entity.Result;
 import org.advancedproductivity.gable.web.service.IntegrateService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,7 +25,10 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author zzq
@@ -32,7 +38,7 @@ import java.util.UUID;
 public class IntegrateServiceImpl implements IntegrateService {
     private static final String INTEGRATE_TEST_FILE = "integrate.json";
     private static final String MENU = "LIST";
-
+    private static final Map<String, IntegrateEnTrustRun> EN_TRUST_RUN_MAP = new ConcurrentHashMap<>();
     private static final Cache<String, JsonNode> CACHE = CacheBuilder.newBuilder()
             .maximumSize(1024)
             .removalListener(new RemovalListener<Object, Object>() {
@@ -183,6 +189,28 @@ public class IntegrateServiceImpl implements IntegrateService {
         }
         CACHE.put(uuid, NullNode.getInstance());
         return null;
+    }
+
+    @Override
+    public Result entrustRun(String uuid) {
+        ObjectNode item = this.getItem(uuid);
+        if (item == null) {
+            return Result.error("Test Not Exist");
+        }
+        if (EN_TRUST_RUN_MAP.containsKey(uuid)) {
+            return Result.error("Test Is Running");
+        }
+        IntegrateEnTrustRun runner = new IntegrateEnTrustRun(item, new ThreadListener() {
+            @Override
+            public void onFinished(ObjectNode item) {
+                String uuid = item.path(IntegrateField.UUID).asText();
+                log.info("remove entrust runner thread: {}", uuid);
+                EN_TRUST_RUN_MAP.remove(uuid);
+            }
+        });
+        EN_TRUST_RUN_MAP.put(uuid, runner);
+        runner.start();
+        return Result.success();
     }
 
     private ArrayNode remove(ArrayNode list, String uuid) {

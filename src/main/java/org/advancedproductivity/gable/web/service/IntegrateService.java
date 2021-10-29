@@ -3,6 +3,7 @@ package org.advancedproductivity.gable.web.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.advancedproductivity.gable.web.entity.Result;
 
 /**
  * @author zzq
@@ -32,4 +33,6 @@ public interface IntegrateService {
      * @return the define name uuid and status
      * */
     ObjectNode getItem(String uuid);
+
+    Result entrustRun(String uuid);
 }
