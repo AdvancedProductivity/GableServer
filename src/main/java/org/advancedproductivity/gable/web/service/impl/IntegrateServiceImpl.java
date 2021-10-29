@@ -14,10 +14,12 @@ import org.advancedproductivity.gable.framework.config.GableConfig;
 import org.advancedproductivity.gable.framework.config.IntegrateField;
 import org.advancedproductivity.gable.framework.config.IntegrateStepStatus;
 import org.advancedproductivity.gable.framework.config.UserDataType;
+import org.advancedproductivity.gable.framework.thread.EnTrustHandle;
 import org.advancedproductivity.gable.framework.thread.IntegrateEnTrustRun;
 import org.advancedproductivity.gable.framework.thread.ThreadListener;
 import org.advancedproductivity.gable.framework.utils.GableFileUtils;
 import org.advancedproductivity.gable.web.entity.Result;
+import org.advancedproductivity.gable.web.service.HistoryService;
 import org.advancedproductivity.gable.web.service.IntegrateService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +53,9 @@ public class IntegrateServiceImpl implements IntegrateService {
 
     @Resource
     private ObjectMapper objectMapper;
+
+    @Resource
+    private HistoryService historyService;
 
     @Override
     public ArrayNode list() {
@@ -191,8 +196,11 @@ public class IntegrateServiceImpl implements IntegrateService {
         return null;
     }
 
+    @Resource(name = "DefaultEnTrustHandleImpl")
+    private EnTrustHandle handle;
+
     @Override
-    public Result entrustRun(String uuid) {
+    public Result entrustRun(String uuid, String env, String server) {
         ObjectNode item = this.getItem(uuid);
         if (item == null) {
             return Result.error("Test Not Exist");
@@ -207,7 +215,7 @@ public class IntegrateServiceImpl implements IntegrateService {
                 log.info("remove entrust runner thread: {}", uuid);
                 EN_TRUST_RUN_MAP.remove(uuid);
             }
-        });
+        }, handle, env, server);
         EN_TRUST_RUN_MAP.put(uuid, runner);
         runner.start();
         return Result.success();

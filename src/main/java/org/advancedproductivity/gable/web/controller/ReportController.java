@@ -1,6 +1,7 @@
 package org.advancedproductivity.gable.web.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.advancedproductivity.gable.framework.config.ConfigField;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -47,8 +48,8 @@ public class ReportController {
             Map<String, Object> variables = new HashMap<>();
             variables.put("server", server);
             variables.put("canDownload", false);
-            variables.put("historyId", hisId);
-            variables.put("uuid", uuid);
+            variables.put(ConfigField.HISTORY_ID, hisId);
+            variables.put(ConfigField.UUID, uuid);
             context.setVariables(variables);
             response.setStatus(200);
             response.setHeader("Content-type", "application/file");
@@ -76,8 +77,8 @@ public class ReportController {
                           Model view) {
         view.addAttribute("server", server);
         view.addAttribute("canDownload", true);
-        view.addAttribute("historyId", hisId);
-        view.addAttribute("uuid", uuid);
+        view.addAttribute(ConfigField.HISTORY_ID, hisId);
+        view.addAttribute(ConfigField.UUID, uuid);
         return "DefaultTemplate";
     }
 }

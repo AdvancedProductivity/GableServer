@@ -9,6 +9,7 @@ import groovy.util.ResourceException;
 import groovy.util.ScriptException;
 import lombok.extern.slf4j.Slf4j;
 import org.advancedproductivity.gable.framework.config.GableConfig;
+import org.advancedproductivity.gable.framework.config.IntegrateField;
 import org.advancedproductivity.gable.framework.config.UserDataType;
 import org.advancedproductivity.gable.framework.config.ValidateField;
 import org.apache.commons.io.FileUtils;
@@ -81,10 +82,10 @@ public class GroovyScriptUtils {
                 engineMap.put(namespace, engine);
             }
             Binding binding = new Binding();
-            binding.setVariable("nextIn", nextIn);
-            binding.setVariable("lastOut", lastOut);
-            binding.setVariable("instance", instance);
-            binding.setVariable("global", global);
+            binding.setVariable(IntegrateField.NEXT_IN, nextIn);
+            binding.setVariable(IntegrateField.LAST_OUT, lastOut);
+            binding.setVariable(IntegrateField.INSTANCE, instance);
+            binding.setVariable(IntegrateField.GLOBAL, global);
             engine.run(scriptUuid, binding);
             result.put(ValidateField.RESULT, true);
         } catch (Throwable e) {
