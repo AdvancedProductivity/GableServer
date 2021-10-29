@@ -126,6 +126,11 @@ public class HistoryServiceImpl implements HistoryService {
     }
 
     @Override
+    public boolean recordIntegrateTest(int historyId, String nameSpace, String uuid, String content) {
+        return  GableFileUtils.saveFile(content, GableConfig.getGablePath(), nameSpace, UserDataType.INTEGRATE, uuid, UserDataType.HISTORY, historyId + ".json");
+    }
+
+    @Override
     public ObjectNode analysis(ArrayNode records, String server, String uuid) {
         ObjectNode mapperObjectNode = objectMapper.createObjectNode();
         mapperObjectNode.put("uuid", uuid);
@@ -274,5 +279,10 @@ public class HistoryServiceImpl implements HistoryService {
         mapperObjectNode.set("detail", records);
         mapperObjectNode.put("createdAt", FORMAT.format(new Date()));
         return mapperObjectNode;
+    }
+
+    @Override
+    public void indexHistory(String uuid, int historyId, boolean noError, String origin) {
+        // todo implement this
     }
 }

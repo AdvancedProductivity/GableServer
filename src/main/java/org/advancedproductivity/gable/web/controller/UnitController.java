@@ -50,6 +50,9 @@ public class UnitController {
     @Resource
     private MenuService menuService;
 
+    @Resource
+    private UnitConfigService unitConfigService;
+
     @GetMapping("/history")
     private Result getHistory(@RequestParam String uuid, @RequestParam Integer historyId,
                               @RequestParam(required = false) Boolean isPublic) {
@@ -99,25 +102,9 @@ public class UnitController {
             isPublic = false;
         }
         String userId = userService.getUserId(isPublic, request);
-        JsonNode in = GableFileUtils.readFileAsJson(GableConfig.getGablePath(),
-                userId,
-                UserDataType.UNIT,
-                uuid,
-                ConfigField.CONFIG_DEFINE_FILE_NAME);
+        JsonNode in = unitConfigService.getConfig(userId, uuid, env, caseId, caseVersion);
         if (in == null) {
             return Result.error("not find");
-        }
-        if (!StringUtils.isEmpty(env)) {
-            JsonNode envConfig = envService.getEnv(env);
-            if (envConfig != null && !envConfig.isMissingNode()) {
-                envService.handleConfig(in, envConfig);
-            }
-        }
-        if (!StringUtils.isEmpty(caseId) && caseVersion != null) {
-            ObjectNode caseDetail = caseService.getCase(userId, uuid, caseVersion, caseId);
-            if (caseDetail != null) {
-                caseService.handleCase(in.path("config"), caseDetail);
-            }
         }
         return Result.success().setData(in);
     }
@@ -140,6 +127,7 @@ public class UnitController {
         if (in == null) {
             return Result.error("not find");
         }
+        in = in.deepCopy();
         if (!StringUtils.isEmpty(env)) {
             JsonNode envConfig = envService.getEnv(env);
             if (envConfig != null && !envConfig.isMissingNode()) {
@@ -193,7 +181,7 @@ public class UnitController {
 
 
     @Resource
-    private JsonSchemaService jsonSchemaService;
+    private ExecuteService executeService;
 
     @PostMapping("/run")
     private Result run(@RequestBody ObjectNode data,
@@ -205,35 +193,7 @@ public class UnitController {
         if (testAction == null) {
             return Result.error("unknown test type: " + type);
         }
-        ObjectNode in = (ObjectNode) data.path("config");
-        ObjectNode originIn = in.deepCopy();
-        if (testAction instanceof GroovyCodeRunner) {
-            in.put("userId", userId);
-        }
-        ObjectNode instance = (ObjectNode) data.path("instance");
-        ObjectNode global = GlobalVar.globalVar.deepCopy();
-        PreHandleUtils.preHandleInJson(in, instance, global);
-        ObjectNode history = objectMapper.createObjectNode();
-        ObjectNode out = objectMapper.createObjectNode();
-        testAction.execute(in, out, instance, global);
-        // validate json schema
-        ArrayNode jsonSchemaError = jsonSchemaService.validate(in, out, type, objectMapper);
-        ObjectNode validateResult = objectMapper.createObjectNode();
-        if (jsonSchemaError.size() == 0) {
-            validateResult.put(ValidateField.RESULT, true);
-        }else {
-            validateResult.put(ValidateField.RESULT, false);
-        }
-        validateResult.set(ValidateField.JSON_SCHEMA, jsonSchemaError);
-        out.set(ValidateField.VALIDATE, validateResult);
-        history.set("in", originIn);
-        history.set("out", out);
-        history.set("instance", instance);
-        history.set("global", global);
-        history.put(ConfigField.TEST_TYPE, type);
-        history.put("recordTime", System.currentTimeMillis());
-        int historyId = historyService.recordUnitTest(userId, uuid, history.toPrettyString());
-        out.put("historyId", historyId);
+        ObjectNode out = executeService.executeTest(userId, uuid, type, data);
         return Result.success().setData(out);
     }
 

@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.advancedproductivity.gable.framework.config.GableConfig;
+import org.advancedproductivity.gable.framework.config.IntegrateField;
 import org.advancedproductivity.gable.framework.config.UserDataType;
 import org.advancedproductivity.gable.framework.config.ValidateField;
 import org.advancedproductivity.gable.framework.core.GlobalVar;
 import org.advancedproductivity.gable.framework.groovy.GroovyScriptUtils;
 import org.advancedproductivity.gable.framework.utils.GableFileUtils;
 import org.advancedproductivity.gable.web.entity.Result;
+import org.advancedproductivity.gable.web.service.ExecuteService;
 import org.advancedproductivity.gable.web.service.HistoryService;
 import org.advancedproductivity.gable.web.service.UserService;
 import org.apache.commons.io.FileUtils;
@@ -36,10 +38,7 @@ public class GroovyCodeController {
     private UserService userService;
 
     @Resource
-    private ObjectMapper objectMapper;
-
-    @Resource
-    private HistoryService historyService;
+    private ExecuteService executeService;
 
     @GetMapping()
     public String getCode(@RequestParam String uuid,
@@ -60,29 +59,11 @@ public class GroovyCodeController {
     @PostMapping()
     public Result runStep(@RequestParam String uuid,
                           @RequestBody ObjectNode body) {
-        JsonNode nextIn = body.path("nextIn");
-        JsonNode lastOut = body.path("lastOut");
-        JsonNode instance = body.path("instance");
+        JsonNode nextIn = body.path(IntegrateField.NEXT_IN);
+        JsonNode lastOut = body.path(IntegrateField.LAST_OUT);
+        JsonNode instance = body.path(IntegrateField.INSTANCE);
         JsonNode global = GlobalVar.globalVar.deepCopy();
-        ObjectNode out = objectMapper.createObjectNode();
-        ObjectNode before = objectMapper.createObjectNode();
-        before.set("instance", instance.deepCopy());
-        before.set("global", global.deepCopy());
-        before.set("lastOut", lastOut.deepCopy());
-        before.set("nextIn", nextIn.deepCopy());
-        out.set("before", before);
-        String testFile = uuid + ".groovy";
-        ObjectNode validateResult = GroovyScriptUtils.runStep(GableConfig.PUBLIC_PATH, nextIn, lastOut, instance, global, testFile);
-        ObjectNode after = objectMapper.createObjectNode();
-        after.set("instance", instance);
-        after.set("global", global);
-        after.set("lastOut", lastOut);
-        after.set("nextIn", nextIn);
-        out.set("after", after);
-        out.set(ValidateField.VALIDATE, validateResult);
-        int historyId = historyService.recordGroovy(GableConfig.PUBLIC_PATH, uuid, out.toPrettyString());
-        out.put("historyId", historyId);
-        return Result.success(out);
+        return Result.success(executeService.executeStep(uuid, instance, global, nextIn, lastOut));
     }
 
     @GetMapping("/history")

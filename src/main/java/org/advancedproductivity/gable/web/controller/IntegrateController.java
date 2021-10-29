@@ -61,8 +61,10 @@ public class IntegrateController {
     }
 
     @GetMapping("/entrust")
-    private Result entrustRun(@RequestParam String uuid) {
-        return integrateService.entrustRun(uuid);
+    private Result entrustRun(@RequestParam String uuid,
+                              @RequestParam String env,
+                              @RequestParam String server) {
+        return integrateService.entrustRun(uuid, env, server);
     }
 
     @PostMapping
@@ -78,8 +80,11 @@ public class IntegrateController {
     public Result saveIntegrate(@RequestBody ArrayNode records, @RequestParam String uuid,
                                 @RequestParam String server) {
         ObjectNode mapperObjectNode = historyService.analysis(records, server, uuid);
+        mapperObjectNode.put("hisId", IntegrateField.PAGE_ORIGIN);
         int i = historyService.recordIntegrateTest(GableConfig.PUBLIC_PATH, uuid, mapperObjectNode.toPrettyString());
         mapperObjectNode.put("hisId", i);
+        historyService.indexHistory(uuid, i, mapperObjectNode.path("noError").asBoolean(),
+                IntegrateField.PAGE_ORIGIN);
         return Result.success(mapperObjectNode);
     }
 

@@ -23,5 +23,9 @@ public interface HistoryService {
 
     public int recordIntegrateTest(String nameSpace, String uuid, String content);
 
+    public boolean recordIntegrateTest(int historyId, String nameSpace, String uuid, String content);
+
     ObjectNode analysis(ArrayNode records, String server, String uuid);
+
+    void indexHistory(String uuid, int historyId, boolean noError, String origin);
 }

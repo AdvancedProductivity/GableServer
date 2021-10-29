@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.*;
 import lombok.extern.slf4j.Slf4j;
+import org.advancedproductivity.gable.framework.config.IntegrateField;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -125,7 +126,7 @@ public class PreHandleUtils {
                     return format;
                 }
             }
-        }else if (StringUtils.startsWith(var, "instance")) {
+        }else if (StringUtils.startsWith(var, IntegrateField.INSTANCE)) {
             if (matcher.find()) {
                 String r = matcher.group().replace("(", "").replace(")", "");
                 if (!StringUtils.startsWith(r, "/")) {

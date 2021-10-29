@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.advancedproductivity.gable.framework.config.GableConfig;
+import org.advancedproductivity.gable.framework.config.CodeField;
 import org.advancedproductivity.gable.framework.config.UserDataType;
 import org.advancedproductivity.gable.framework.core.TestType;
 import org.advancedproductivity.gable.framework.groovy.GroovyScriptUtils;
@@ -27,11 +28,11 @@ public class GroovyCodeRunner implements TestAction {
         if (StringUtils.isEmpty(userId)) {
             return;
         }
-        String groovyTestUuid = req.remove("groovyTestUuid").asText();
+        String groovyTestUuid = req.remove(CodeField.GROOVY_TEST_UUID).asText();
         if (StringUtils.isEmpty(groovyTestUuid)) {
             return;
         }
-        String groovyCode = req.remove("groovyCode").asText();
+        String groovyCode = req.remove(CodeField.GROOVY_TEST_CODE).asText();
         try {
             String testFile = groovyTestUuid + ".groovy";
             if (!StringUtils.isEmpty(groovyCode)) {

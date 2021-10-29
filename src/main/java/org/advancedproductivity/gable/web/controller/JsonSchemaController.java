@@ -9,14 +9,12 @@ import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersionDetector;
 import com.networknt.schema.ValidationMessage;
 import com.saasquatch.jsonschemainferrer.*;
-import org.advancedproductivity.gable.framework.config.GableConfig;
-import org.advancedproductivity.gable.framework.config.HttpResponseField;
-import org.advancedproductivity.gable.framework.config.UserDataType;
-import org.advancedproductivity.gable.framework.config.ValidateField;
+import org.advancedproductivity.gable.framework.config.*;
 import org.advancedproductivity.gable.framework.core.TestType;
 import org.advancedproductivity.gable.framework.utils.GableFileUtils;
 import org.advancedproductivity.gable.framework.utils.jsonschema.ConstFeature;
 import org.advancedproductivity.gable.web.entity.Result;
+import org.advancedproductivity.gable.web.service.ExecuteService;
 import org.advancedproductivity.gable.web.service.HistoryService;
 import org.advancedproductivity.gable.web.service.UserService;
 import org.apache.commons.lang3.StringUtils;
@@ -49,8 +47,8 @@ public class JsonSchemaController {
     public Result generate(@RequestBody JsonNode in, @RequestParam String type) {
         if (in.isObject()) {
             ObjectNode o = ((ObjectNode) in);
-            o.remove("validate");
-            o.remove("historyId");
+            o.remove(ValidateField.VALIDATE);
+            o.remove(ConfigField.HISTORY_ID);
         }
         if (StringUtils.equals(TestType.HTTP.name(), type)) {
             JsonNode body = in.path(HttpResponseField.CONTENT);
@@ -117,42 +115,14 @@ public class JsonSchemaController {
     @Resource
     private HistoryService historyService;
 
+    @Resource
+    private ExecuteService executeService;
+
     @PostMapping("/run")
     public Result run(@RequestBody JsonNode jsonNode, @RequestParam String uuid) {
         JsonNode schema = jsonNode.path("schema");
         JsonNode json = jsonNode.path("json");
-        ObjectNode resp = objectMapper.createObjectNode();
-        ArrayNode jsonSchemaError = objectMapper.createArrayNode();
-        ObjectNode validateResult = objectMapper.createObjectNode();
-        if (!schema.isObject()) {
-            jsonSchemaError.add("JsonSchema format error");
-            validateResult.put(ValidateField.RESULT, false);
-        }
-        if (json.isMissingNode()) {
-            jsonSchemaError.add("JsonSchema format error");
-            validateResult.put(ValidateField.RESULT, false);
-        }
-        if (jsonSchemaError.size() == 0) {
-            try {
-                JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersionDetector.detect(schema));
-                JsonSchema validator = factory.getSchema(schema);
-                Set<ValidationMessage> validate = validator.validate(json);
-                for (ValidationMessage validationMessage : validate) {
-                    jsonSchemaError.add(validationMessage.getMessage());
-                }
-                validateResult.put(ValidateField.RESULT, jsonSchemaError.size() == 0);
-            } catch (Exception e) {
-                jsonSchemaError.add(e.getMessage());
-                validateResult.put(ValidateField.RESULT, false);
-            }
-        }
-        resp.set("json", json);
-        resp.set("schema", schema);
-        validateResult.set(ValidateField.JSON_SCHEMA, jsonSchemaError);
-        resp.set(ValidateField.VALIDATE, validateResult);
-        int historyId = historyService.recordJsonSchemaStep(GableConfig.PUBLIC_PATH, uuid, resp.toPrettyString());
-        resp.put("historyId", historyId);
-        return Result.success(resp);
+        return Result.success(executeService.executeJsonSchema(uuid, schema, json));
     }
 
     @GetMapping("/history")

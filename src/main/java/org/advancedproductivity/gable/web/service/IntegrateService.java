@@ -34,5 +34,5 @@ public interface IntegrateService {
      * */
     ObjectNode getItem(String uuid);
 
-    Result entrustRun(String uuid);
+    Result entrustRun(String uuid, String env, String server);
 }

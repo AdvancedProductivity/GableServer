@@ -36,4 +36,5 @@ public interface ConfigField {
     String STATUS = "status";
     String START_TIME = "startTime";
     String END_TIME = "endTime";
+    String HISTORY_ID = "historyId";
 }
