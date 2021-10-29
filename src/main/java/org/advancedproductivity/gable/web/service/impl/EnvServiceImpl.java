@@ -43,6 +43,7 @@ public class EnvServiceImpl implements EnvService {
             demo.set(CaseField.DIFF_REPLACE, objectMapper.createObjectNode());
             demo.set(CaseField.DIFF_ADD, objectMapper.createObjectNode());
             demo.set(CaseField.DIFF_REMOVE, objectMapper.createObjectNode());
+            demo.set(CaseField.DIFF_REMOVE_BY_INDEX, objectMapper.createObjectNode());
             addEnv("demoGenerate", demo);
         }else {
             ENV_HOLDER.put(ALL_ENV, envs);
