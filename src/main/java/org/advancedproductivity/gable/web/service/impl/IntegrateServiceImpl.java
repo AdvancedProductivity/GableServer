@@ -205,9 +205,20 @@ public class IntegrateServiceImpl implements IntegrateService {
     @Override
     public boolean addTag(String tagName, String uuid) {
         JsonNode allTests = GableFileUtils.readFileAsJson(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, INTEGRATE_TEST_FILE);
-        if (allTests == null) {
+        if (allTests == null || !allTests.isArray()) {
             return false;
         }
+        JsonNode cacheMenu = CACHE.getIfPresent(MENU);
+        if (cacheMenu == null || !allTests.isArray()) {
+            return false;
+        }
+        addTag(allTests, uuid, tagName);
+        addTag(cacheMenu, uuid, tagName);
+        GableFileUtils.saveFile(allTests.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, INTEGRATE_TEST_FILE);
+        return true;
+    }
+
+    private void addTag(JsonNode allTests, String uuid, String tagName) {
         for (int i = 0; i < allTests.size(); i++) {
             JsonNode node = allTests.get(i);
             if (!node.isObject()) {
@@ -226,14 +237,12 @@ public class IntegrateServiceImpl implements IntegrateService {
                 ArrayNode newTags = (ArrayNode) tags;
                 for (JsonNode newTag : newTags) {
                     if (StringUtils.equals(newTag.asText(), tagName)) {
-                        return false;
+                        continue;
                     }
                 }
                 newTags.add(tagName);
             }
-            GableFileUtils.saveFile(allTests.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, INTEGRATE_TEST_FILE);
-            return true;
+
         }
-        return false;
     }
 }
