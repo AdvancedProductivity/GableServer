@@ -2,6 +2,7 @@ package org.advancedproductivity.gable.web.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * @author zzq
@@ -12,7 +13,7 @@ public interface IntegrateService {
 
     String addIntegrate(ArrayNode records,String name);
 
-    JsonNode getOne(String uuid);
+    JsonNode getIntegrateDefine(String uuid);
 
     boolean addTag(String tagName, String uuid);
 
@@ -24,4 +25,11 @@ public interface IntegrateService {
      * @return remove count
      * */
     int delete(String uuid);
+
+    /**
+     * get item of the integrate list
+     * @param uuid uuid of item
+     * @return the define name uuid and status
+     * */
+    ObjectNode getItem(String uuid);
 }

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.advancedproductivity.gable.framework.config.GableConfig;
+import org.advancedproductivity.gable.framework.config.IntegrateField;
+import org.advancedproductivity.gable.framework.config.IntegrateStepStatus;
 import org.advancedproductivity.gable.framework.config.UserDataType;
 import org.advancedproductivity.gable.framework.utils.GableFileUtils;
 import org.advancedproductivity.gable.web.entity.Result;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @author zzq
@@ -37,7 +40,7 @@ public class IntegrateController {
 
     @GetMapping("/detail")
     public Result getDetail(@RequestParam String uuid) {
-        JsonNode list = integrateService.getOne(uuid);
+        JsonNode list = integrateService.getIntegrateDefine(uuid);
         return Result.success().setData(list);
     }
 
@@ -49,6 +52,10 @@ public class IntegrateController {
 
     @DeleteMapping
     public Result deleteIntegrate(@RequestParam String uuid) {
+        ObjectNode item = integrateService.getItem(uuid);
+        if (item != null && Objects.equals(item.path(IntegrateField.STATUS).asInt(), IntegrateStepStatus.RUNNING.getValue())) {
+            return Result.error("Is Running");
+        }
         int c = integrateService.delete(uuid);
         return Result.success(String.valueOf(c));
     }

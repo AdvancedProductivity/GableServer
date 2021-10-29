@@ -11,4 +11,5 @@ public interface IntegrateField {
     String JSON_SCHEMA_TYPE = "JSON_SCHEMA";
     String TYPE = "type";
     String CODE = "code";
+    String STATUS = "status";
 }
