@@ -57,12 +57,12 @@ public class IntegrateEnTrustRun extends Thread {
 
     @Override
     public void run() {
-        // record running log take a historyId.for query while running
-        if (this.handle != null) {
-            this.historyId = handle.takeHistory(this.testUuid, define);
-        }
         try {
             initStatusData();
+            // record running log take a historyId.for query while running
+            if (this.handle != null) {
+                this.historyId = handle.takeHistory(this.testUuid, define);
+            }
             integrateItem.put(IntegrateField.STATUS, IntegrateStepStatus.RUNNING.getValue());
             executeIntegrateTest();
         } catch (Throwable e) {

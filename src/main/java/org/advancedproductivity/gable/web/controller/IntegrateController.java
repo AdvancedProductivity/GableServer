@@ -83,18 +83,26 @@ public class IntegrateController {
         mapperObjectNode.put("hisId", IntegrateField.PAGE_ORIGIN);
         int i = historyService.recordIntegrateTest(GableConfig.PUBLIC_PATH, uuid, mapperObjectNode.toPrettyString());
         mapperObjectNode.put("hisId", i);
+        String startAt = mapperObjectNode.path("startAt").asText();
+        String endAt = mapperObjectNode.path("endAt").asText();
         historyService.indexHistory(uuid, i, mapperObjectNode.path("noError").asBoolean(),
-                IntegrateField.PAGE_ORIGIN);
+                IntegrateField.PAGE_ORIGIN, startAt, endAt);
         return Result.success(mapperObjectNode);
     }
 
     @GetMapping("/history")
-    private Result getHistory(@RequestParam String uuid, @RequestParam Integer historyId,
+    private Result getHistoryDetail(@RequestParam String uuid, @RequestParam Integer historyId,
                               @RequestParam(required = false) Boolean isPublic) {
         JsonNode node = GableFileUtils.readFileAsJson(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.INTEGRATE,
                 uuid,
                 UserDataType.HISTORY,
                 historyId + ".json");
+        return Result.success().setData(node);
+    }
+
+    @GetMapping("/historyList")
+    private Result getHistoryList(@RequestParam String uuid) {
+        JsonNode node = historyService.readOverviewHistory(uuid);
         return Result.success().setData(node);
     }
 

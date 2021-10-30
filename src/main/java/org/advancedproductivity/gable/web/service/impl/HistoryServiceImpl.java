@@ -282,7 +282,33 @@ public class HistoryServiceImpl implements HistoryService {
     }
 
     @Override
-    public void indexHistory(String uuid, int historyId, boolean noError, String origin) {
-        // todo implement this
+    public void indexHistory(String uuid, int historyId, boolean noError, String origin, String startAt, String endAt) {
+        ObjectNode item = objectMapper.createObjectNode();
+        item.put("uuid", uuid);
+        item.put("id", historyId + "");
+        item.put("origin", origin);
+        item.put("noError", noError);
+        item.put("startAt", startAt);
+        item.put("endAt", endAt);
+        ArrayNode history = readOverviewHistory(uuid);
+        ArrayNode newArray = objectMapper.createArrayNode();
+        newArray.add(item);
+        for (JsonNode jsonNode : history) {
+            newArray.add(jsonNode);
+        }
+        GableFileUtils.saveFile(newArray.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.INTEGRATE,
+                uuid,
+                UserDataType.HISTORY + ".json");
+    }
+
+    @Override
+    public ArrayNode readOverviewHistory(String uuid) {
+        JsonNode arr = GableFileUtils.readFileAsJson(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.INTEGRATE,
+                uuid,
+                UserDataType.HISTORY + ".json");
+        if (arr == null) {
+            return objectMapper.createArrayNode();
+        }
+        return (ArrayNode) arr;
     }
 }

@@ -44,7 +44,10 @@ public class DefaultEnTrustHandleImpl implements EnTrustHandle {
         his.put("origin", IntegrateField.ENTRUST_ORIGIN);
         historyService.recordIntegrateTest(historyId, GableConfig.PUBLIC_PATH, uuid,
                 his.toPrettyString());
-        historyService.indexHistory(uuid, historyId, his.path("noError").asBoolean(), IntegrateField.ENTRUST_ORIGIN);
+        String startAt = his.path("startAt").asText();
+        String endAt = his.path("endAt").asText();
+        historyService.indexHistory(uuid, historyId, his.path("noError").asBoolean(),
+                IntegrateField.ENTRUST_ORIGIN, startAt, endAt);
     }
 
     @Override

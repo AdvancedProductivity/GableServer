@@ -1,5 +1,6 @@
 package org.advancedproductivity.gable.web.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -27,5 +28,7 @@ public interface HistoryService {
 
     ObjectNode analysis(ArrayNode records, String server, String uuid);
 
-    void indexHistory(String uuid, int historyId, boolean noError, String origin);
+    void indexHistory(String uuid, int historyId, boolean noError, String origin, String startAt, String endAt);
+
+    ArrayNode readOverviewHistory(String uuid);
 }
