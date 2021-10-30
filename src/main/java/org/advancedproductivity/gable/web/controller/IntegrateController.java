@@ -67,6 +67,11 @@ public class IntegrateController {
         return integrateService.entrustRun(uuid, env, server);
     }
 
+    @DeleteMapping("/entrust")
+    private Result stopEntrustRun(@RequestParam String uuid) {
+        return integrateService.stopEntrustRun(uuid);
+    }
+
     @PostMapping
     public Result updateIntegrate(@RequestBody ArrayNode records,@RequestParam String uuid) {
         integrateService.updateIntegrate(records, uuid);

@@ -221,6 +221,16 @@ public class IntegrateServiceImpl implements IntegrateService {
         return Result.success();
     }
 
+    @Override
+    public Result stopEntrustRun(String uuid) {
+        IntegrateEnTrustRun run = EN_TRUST_RUN_MAP.get(uuid);
+        if (run == null) {
+            return Result.error("Test Is Not Running");
+        }
+        run.makeStop();
+        return Result.success();
+    }
+
     private ArrayNode remove(ArrayNode list, String uuid) {
         ArrayNode newList = objectMapper.createArrayNode();
         for (JsonNode jsonNode : list) {

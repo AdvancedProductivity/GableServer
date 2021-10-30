@@ -82,7 +82,11 @@ public class IntegrateEnTrustRun extends Thread {
 
     private void executeIntegrateTest() {
         int TOTAL = define.size();
-        while (!isStop && runningIndex < TOTAL) {
+        while (runningIndex < TOTAL) {
+            if (isStop) {
+                log.info("receive stop command in the {} step", (runningIndex + 1));
+                break;
+            }
             ObjectNode item = (ObjectNode) define.path(runningIndex);
             String uuid = item.path(IntegrateField.UUID).asText();
             ObjectNode nextIn = this.getNextIn(runningIndex);
