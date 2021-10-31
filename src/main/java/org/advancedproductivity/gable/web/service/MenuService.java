@@ -44,6 +44,8 @@ public interface MenuService {
 
     String pushUnit(ArrayNode userUnitMenus, String unitName, String groupUuid, JsonNode config, String nameSpace, String originUuid);
 
+    String cloneUnit(ArrayNode userUnitMenus, String unitName, String groupUuid, JsonNode config, String nameSpace, String originUuid);
+
     /**
      * update user menu
      * @param newMenu menu wait for update
