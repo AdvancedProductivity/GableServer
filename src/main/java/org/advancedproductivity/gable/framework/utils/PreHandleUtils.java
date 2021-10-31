@@ -120,7 +120,9 @@ public class PreHandleUtils {
                 }
                 try {
                     SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
-                    return simpleDateFormat.format(new Date());
+                    String dateStr = simpleDateFormat.format(new Date());
+                    log.info("handle Date str: {}" , dateStr);
+                    return dateStr;
                 } catch (Exception e) {
                     e.printStackTrace();
                     return format;
