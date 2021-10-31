@@ -1,0 +1,10 @@
+{
+  "url": "Your Sql Url",
+  "driver": "com.mysql.cj.jdbc.Driver",
+  "userName": "xxxx",
+  "password": "xxxx",
+  "sql": "DELETE FROM USER WHERE USER_ID = ?",
+  "param": [
+    1
+  ]
+}
