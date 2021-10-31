@@ -224,6 +224,34 @@ public class UnitController {
         return Result.success(newUuid);
     }
 
+    @PostMapping("/clone")
+    public Result clone(@RequestBody ObjectNode info) {
+        String uuid = info.path("uuid").asText();
+        if (StringUtils.isEmpty(uuid)) {
+            return Result.error();
+        }
+        String groupUuid = info.path("toGroup").asText();
+        if (StringUtils.isEmpty(groupUuid)) {
+            return Result.error();
+        }
+        String testName = info.path("testName").asText();
+        if (StringUtils.isEmpty(testName)) {
+            return Result.error();
+        }
+        String userId = userService.getUserId(null, request);
+        JsonNode in = GableFileUtils.readFileAsJson(GableConfig.getGablePath(),
+                GableConfig.PUBLIC_PATH,
+                UserDataType.UNIT,
+                uuid,
+                ConfigField.CONFIG_DEFINE_FILE_NAME);
+        if (in == null) {
+            return Result.error();
+        }
+        ArrayNode userUnitMenus = menuService.getUserUnitMenus(userId);
+        String newUuid = menuService.cloneUnit(userUnitMenus, testName, groupUuid, in, userId, uuid);
+        return Result.success(newUuid);
+    }
+
     @PostMapping("/update")
     public Result update(@RequestBody ObjectNode info) {
         String from = info.path("from").asText();

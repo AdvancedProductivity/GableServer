@@ -155,25 +155,79 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
+    public String cloneUnit(ArrayNode userUnitMenus, String unitName, String groupUuid, JsonNode config, String nameSpace, String originUuid) {
+        for (JsonNode item : userUnitMenus) {
+            if (StringUtils.equals(item.path("uuid").asText(), groupUuid)) {
+                String uuid = UUID.randomUUID().toString();
+                log.info("clone to new Uuid: {}", uuid);
+                ((ObjectNode) config).put("uuid", uuid).put("from", originUuid);;
+                ObjectNode newUnit = objectMapper.createObjectNode();
+                newUnit.put("uuid", uuid);
+                newUnit.put("unitName", unitName);
+                String type = config.path("type").asText();
+                newUnit.put("type", type);
+                if (StringUtils.equals(TestType.GROOVY_SCRIPT.name(), type)) {
+                    File file = FileUtils.getFile(GableConfig.getGablePath(),
+                            GableConfig.PUBLIC_PATH, UserDataType.GROOVY, originUuid + ".groovy");
+                    if (file.exists()) {
+                        try {
+                            File destFile = FileUtils.getFile(GableConfig.getGablePath(), nameSpace,
+                                    UserDataType.GROOVY, uuid + ".groovy");
+                            FileOutputStream fileOutputStream = FileUtils.openOutputStream(destFile);
+                            FileUtils.copyFile(file, fileOutputStream);
+                            fileOutputStream.close();
+                        } catch (Exception e) {
+                            log.error("write file error", e);
+                        }
+                    }
+                }
+                ArrayNode units = (ArrayNode) item.path("units");
+                units.add(newUnit);
+                // generate default uuid config
+                GableFileUtils.saveFile(config.toPrettyString(),
+                        GableConfig.getGablePath(),
+                        nameSpace,
+                        UserDataType.UNIT,
+                        uuid,
+                        ConfigField.CONFIG_DEFINE_FILE_NAME);
+                GableFileUtils.saveFile(userUnitMenus.toPrettyString(),
+                        GableConfig.getGablePath(),
+                        nameSpace,
+                        UserDataType.UNIT,
+                        UnitMenuFileName);
+                return uuid;
+            }
+        }
+        return null;
+    }
+
+    @Override
     public void updateUserMenu(ArrayNode newMenu,String nameSpace) {
         GableFileUtils.saveFile(newMenu.toPrettyString(), GableConfig.getGablePath(), nameSpace, UserDataType.UNIT, UnitMenuFileName);
     }
 
     @Override
     public void sync(String from, String to, String userId) {
-        File fromConfigFile = FileUtils.getFile(GableConfig.getGablePath(), userId, UserDataType.UNIT,
+        JsonNode newConfig = GableFileUtils.readFileAsJson(GableConfig.getGablePath(), userId, UserDataType.UNIT,
                 from,
                 ConfigField.CONFIG_DEFINE_FILE_NAME);
-        File toConfigFile = FileUtils.getFile(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.UNIT,
+        JsonNode originConfig = GableFileUtils.readFileAsJson(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.UNIT,
                 to,
                 ConfigField.CONFIG_DEFINE_FILE_NAME);
-        if (!fromConfigFile.exists()) {
+        if (newConfig == null || !newConfig.isObject()) {
             log.info("from config file not find");
-        } else if (!toConfigFile.exists()) {
+        } else if (originConfig == null || !originConfig.isObject()) {
             log.info("to config file not find");
         } else {
             try {
-                FileUtils.copyFile(fromConfigFile, toConfigFile);
+                ObjectNode ori =  ((ObjectNode) originConfig);
+                ori.put(ConfigField.VERSION, ori.path(ConfigField.VERSION).asInt() + 1);
+                ori.set(ConfigField.DETAIL, ((ObjectNode) newConfig).path(ConfigField.DETAIL));
+                GableFileUtils.saveFile(originConfig.toPrettyString(), GableConfig.getGablePath(),
+                        GableConfig.PUBLIC_PATH,
+                        UserDataType.UNIT,
+                        to,
+                        ConfigField.CONFIG_DEFINE_FILE_NAME);
             } catch (Exception e) {
                 log.error("update file error", e);
             }
