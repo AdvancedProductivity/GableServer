@@ -100,6 +100,7 @@
   "RESULT": "Result",
   "APPEND_STEP": "Append Step",
   "CLONE": "Clone",
+  "NODE_COUNT": "Node Count",
   "APPEND_JSONSCHEMA": "Append JsonSchema",
   "START_TIME": "Start Time",
   "END_TIME": "End Time",
