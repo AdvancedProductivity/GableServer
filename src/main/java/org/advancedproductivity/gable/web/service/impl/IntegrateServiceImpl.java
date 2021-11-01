@@ -167,7 +167,8 @@ public class IntegrateServiceImpl implements IntegrateService {
             }
         }
         if (find) {
-            GableFileUtils.readFileAsJson(integrateList.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, INTEGRATE_TEST_FILE);
+            GableFileUtils.saveFile(integrateList.toPrettyString(), GableConfig.getGablePath(),
+                    GableConfig.PUBLIC_PATH, INTEGRATE_TEST_FILE);
         }else {
             log.error("not find the {}. can not set node count of integrate test", uuid);
         }
