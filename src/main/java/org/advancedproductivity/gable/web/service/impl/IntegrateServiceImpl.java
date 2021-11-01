@@ -86,14 +86,17 @@ public class IntegrateServiceImpl implements IntegrateService {
     @Override
     public String addIntegrate(ArrayNode records, String name) {
         String uuid = UUID.randomUUID().toString();
+        int count = 0;
         for (JsonNode record : records) {
             handleUuid(record);
+            count++;
         }
         GableFileUtils.saveFile(records.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.INTEGRATE, uuid, "define.json");
         JsonNode node = GableFileUtils.readFileAsJson(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, INTEGRATE_TEST_FILE);
         ObjectNode integrateItem = objectMapper.createObjectNode();
         integrateItem.put(IntegrateField.UUID, uuid);
         integrateItem.put(IntegrateField.NAME, name);
+        integrateItem.put("nodeCount", count);
         integrateItem.set(IntegrateField.TAG, objectMapper.createArrayNode());
         if (node == null) {
             node = objectMapper.createArrayNode().add(integrateItem);
@@ -139,11 +142,41 @@ public class IntegrateServiceImpl implements IntegrateService {
 
     @Override
     public boolean updateIntegrate(ArrayNode records, String uuid) {
+        int count = 0;
         for (JsonNode record : records) {
             handleUuid(record);
+            count++;
         }
+        saveIntegrateCount(count, uuid);
         GableFileUtils.saveFile(records.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, UserDataType.INTEGRATE, uuid, "define.json");
         return true;
+    }
+
+    private void saveIntegrateCount(int count, String uuid) {
+        JsonNode integrateList = GableFileUtils.readFileAsJson(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, INTEGRATE_TEST_FILE);
+        if (integrateList == null) {
+            integrateList = objectMapper.createArrayNode();
+        }
+        boolean find = false;
+        for (JsonNode menu : integrateList) {
+            String itemUuid = menu.path(IntegrateField.UUID).asText();
+            if (StringUtils.equals(itemUuid, uuid)) {
+                ((ObjectNode) menu).put("nodeCount", count);
+                find = true;
+                break;
+            }
+        }
+        if (find) {
+            GableFileUtils.readFileAsJson(integrateList.toPrettyString(), GableConfig.getGablePath(), GableConfig.PUBLIC_PATH, INTEGRATE_TEST_FILE);
+        }else {
+            log.error("not find the {}. can not set node count of integrate test", uuid);
+        }
+        ObjectNode item = getItem(uuid);
+        if (item == null) {
+            log.error("not find the {}. can not set node count of integrate test", uuid);
+            return;
+        }
+        item.put("nodeCount", count);
     }
 
     @Override
