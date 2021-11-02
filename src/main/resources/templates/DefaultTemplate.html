@@ -493,6 +493,7 @@
                     , saveAsHtml: 'Save As Html File'
                     , gableHost: 'enter the gable host'
                     , reload: 'Reload'
+                    , serverSetTip: 'Please Set The Host Path In [Setting] - [Host] Like http://localhost:2110/ Before Download'
                 }, zh: {
                     overview: '预览',
                     openTest: '在Gable中打开',
@@ -544,6 +545,7 @@
                     , saveAsHtml: '保存为Html文件'
                     , gableHost: '请输入Gable的主机地址'
                     , reload: '重新加载'
+                    , serverSetTip: '在保存文件前请在[设置] - [主机地址] 中配置后端地址,例如: http://localhost:2110/'
                 }
             }
         },
@@ -568,6 +570,20 @@
                 this.getHistory();
             },
             saveToBeFile(){
+                if (this.serverUrl == '/' || !this.serverUrl.startsWith('http')) {
+                    this.$confirm({
+                        title: 'Can not save to file?',
+                        content: this.tip.serverSetTip,
+                        onOk() {
+                            return new Promise((resolve, reject) => {
+                                setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
+                            }).catch(() => console.log('Oops errors!'));
+                        },
+                        onCancel() {},
+                    });
+
+                    return;
+                }
                 window.open(this.serverUrl + 'api/report?uuid=' + uuid + '&hisId=' + historyId + '&server=' + encodeURI(this.serverUrl), '_blank');
             },
             getHistory() {
