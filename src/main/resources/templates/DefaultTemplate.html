@@ -5,12 +5,12 @@
     <title>Title</title>
     <link rel="shortcut icon" th:href="${server  + 'favicon.ico'}"/>
     <link rel="bookmark" th:href="${server+ 'favicon.ico'}" type="image/x-icon"　/>
-    <link type="text/css" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ant-design-vue@1.7.8/dist/antd.min.css"/>
+    <link type="text/css" rel="stylesheet" th:href="${server + 'ant-design-vue@1.7.8/dist/antd.min.css'}"/>
     <!-- vue 版本需要注意，不是每一个版本都起作用的 -->
-    <script src="https://cdn.bootcss.com/vue/2.6.10/vue.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/ant-design-vue@1.7.8/dist/antd.min.js"></script>
+    <script th:src="${server + 'vue/2.6.10/vue.min.js'}"></script>
+    <script th:src="${server + 'ant-design-vue@1.7.8/dist/antd.min.js'}"></script>
     <!-- 引入 moment.min.js -->
-    <script src="http://momentjs.cn/downloads/moment.min.js"></script>
+    <script th:src="${server + 'moment/moment.min.js'}"></script>
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
 </head>
 
@@ -355,7 +355,7 @@
         <div id="diffEditor" style="height: 600px; border: 1px solid grey;"></div>
     </a-modal>
 </div>
-<script src="https://cdn.bootcdn.net/ajax/libs/monaco-editor/0.26.1/min/vs/loader.min.js"></script>
+<script th:src="${server + 'monaco-editor/0.26.1/min/vs/loader.min.js'}"></script>
 <script type="application/javascript"  th:inline="javascript">
     var server = [[${server}]];
     var canDownload = [[${canDownload}]];
@@ -369,7 +369,8 @@
     var d;
     var validateEditor;
     var diffEditor;
-    require.config({paths: {'vs': 'https://cdn.bootcdn.net/ajax/libs/monaco-editor/0.26.1/min/vs'}})
+    console.log('va config: ' + server + 'monaco-editor/0.26.1/min/vs')
+    require.config({paths: {'vs': server + 'monaco-editor/0.26.1/min/vs'}})
     require([
         'vs/editor/editor.main'], function () {
         a = monaco.editor.create(document.getElementById('aEditor'), {
