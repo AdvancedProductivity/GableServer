@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.advancedproductivity.gable.web.entity.Result;
 import org.advancedproductivity.gable.web.service.EnvService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -30,6 +31,17 @@ public class EnvController {
 
     @PostMapping()
     public Result add(@RequestParam String type, @RequestParam String name, @RequestBody ObjectNode config) {
+        name = StringUtils.trim(name);
+        JsonNode jsonNode = this.get();
+        boolean have = false;
+        for (int i = 0; i < jsonNode.size(); i++) {
+            if (StringUtils.equals(jsonNode.path(i).path("name").asText(), name)) {
+                have = true;
+            }
+        }
+        if (have) {
+            return Result.error("Env Name: " + name + " Have Exist");
+        }
         boolean b = envService.addEnv(name, config);
         return Result.success(envService.getEnvConfigMenu());
     }
