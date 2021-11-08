@@ -10,7 +10,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public interface EnTrustHandle {
     int takeHistory(String uuid, ArrayNode history);
 
-    void recordHistory(String server, int historyId, String uuid, ArrayNode define);
+    /**
+     * @return is no error (all succeed or ignored)
+     * */
+    boolean recordHistory(String server, int historyId, String uuid, ArrayNode define);
 
     ObjectNode getConfig(String nameSpace, String uuid, String env, String caseId, Integer caseVersion);
 

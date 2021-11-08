@@ -71,9 +71,15 @@ public class IntegrateEnTrustRun extends Thread {
             integrateItem.put(IntegrateField.STATUS, IntegrateStepStatus.FAILED.getValue());
         }finally {
             if (this.handle != null) {
-                handle.recordHistory(this.server, this.historyId, this.testUuid, define);
+                boolean isSucceed = handle.recordHistory(this.server, this.historyId, this.testUuid, define);
+                if (isSucceed) {
+                    integrateItem.put(IntegrateField.STATUS, IntegrateStepStatus.SUCCESS.getValue());
+                }else {
+                    integrateItem.put(IntegrateField.STATUS, IntegrateStepStatus.FAILED.getValue());
+                }
+            }else {
+                integrateItem.put(IntegrateField.STATUS, IntegrateStepStatus.SUCCESS.getValue());
             }
-            integrateItem.put(IntegrateField.STATUS, IntegrateStepStatus.SUCCESS.getValue());
             if (this.listener != null) {
                 this.listener.onFinished(integrateItem);
             }

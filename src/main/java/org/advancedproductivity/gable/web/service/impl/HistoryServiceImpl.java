@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.advancedproductivity.gable.framework.config.ConfigField;
-import org.advancedproductivity.gable.framework.config.GableConfig;
-import org.advancedproductivity.gable.framework.config.IntegrateStepStatus;
-import org.advancedproductivity.gable.framework.config.UserDataType;
+import org.advancedproductivity.gable.framework.config.*;
 import org.advancedproductivity.gable.framework.core.TestType;
 import org.advancedproductivity.gable.framework.utils.GableFileUtils;
 import org.advancedproductivity.gable.web.entity.Result;
@@ -232,7 +229,7 @@ public class HistoryServiceImpl implements HistoryService {
             }
         }
 
-        mapperObjectNode.put("noError", noError);
+        mapperObjectNode.put(IntegrateField.NO_ERROR, noError);
         mapperObjectNode.put("total", total);
         mapperObjectNode.put("successTotal", successTotal);
         mapperObjectNode.put("failedTotal", failedTotal);

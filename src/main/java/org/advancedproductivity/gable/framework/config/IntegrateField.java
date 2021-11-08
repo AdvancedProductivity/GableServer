@@ -25,4 +25,5 @@ public interface IntegrateField {
     String OUT = "out";
     String PAGE_ORIGIN = "From Web";
     String ENTRUST_ORIGIN = "From BackEnd";
+    String NO_ERROR = "noError";
 }

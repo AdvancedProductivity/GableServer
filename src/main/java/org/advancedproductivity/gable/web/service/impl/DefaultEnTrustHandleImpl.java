@@ -37,7 +37,7 @@ public class DefaultEnTrustHandleImpl implements EnTrustHandle {
     }
 
     @Override
-    public void recordHistory(String server, int historyId, String uuid, ArrayNode define) {
+    public boolean recordHistory(String server, int historyId, String uuid, ArrayNode define) {
         ObjectNode his = historyService.analysis(define, server, uuid);
 
         his.put("hisId", historyId);
@@ -48,6 +48,7 @@ public class DefaultEnTrustHandleImpl implements EnTrustHandle {
         String endAt = his.path("endAt").asText();
         historyService.indexHistory(uuid, historyId, his.path("noError").asBoolean(),
                 IntegrateField.ENTRUST_ORIGIN, startAt, endAt);
+        return his.path(IntegrateField.NO_ERROR).asBoolean();
     }
 
     @Override
