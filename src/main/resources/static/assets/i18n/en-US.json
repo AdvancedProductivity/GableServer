@@ -27,6 +27,9 @@
     "INTEGRATE": {
       "TITLE": "Integrate Test"
     },
+    "CLI": {
+      "TITLE": "Cli"
+    },
     "COMMON": {
       "CONFIG_MODIFY": "Confirm",
       "LANGS": {
@@ -124,5 +127,6 @@
   "GENERATE_JSON_SCHEMA": "Generate JsonSchema",
   "SHOW_ALL_FIELD": "All Field",
   "OPERATION": "Operation",
+  "CLI_DESIGN": "The design of CLI function can be discussed here",
   "ADD_ENV": "add env"
 }

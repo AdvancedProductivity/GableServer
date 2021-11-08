@@ -27,6 +27,9 @@
     "INTEGRATE": {
       "TITLE": "集成测试"
     },
+    "CLI": {
+      "TITLE": "Cli"
+    },
     "COMMON": {
       "CONFIG_MODIFY": "确认",
       "LANGS": {
@@ -124,5 +127,6 @@
   "GENERATE_JSON_SCHEMA": "生成 JsonSchema",
   "UPDATE": "更新",
   "OPERATION": "操作",
+  "CLI_DESIGN": "关于Cli功能的设计，可以在这里参与讨论",
   "ADD_ENV": "添加环境"
 }
