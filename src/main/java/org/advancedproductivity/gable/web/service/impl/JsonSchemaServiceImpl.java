@@ -12,6 +12,7 @@ import org.advancedproductivity.gable.framework.config.ConfigField;
 import org.advancedproductivity.gable.framework.config.HttpResponseField;
 import org.advancedproductivity.gable.framework.config.ValidateField;
 import org.advancedproductivity.gable.framework.core.TestType;
+import org.advancedproductivity.gable.framework.utils.jsonschema.JsonSchemaUtils;
 import org.advancedproductivity.gable.web.service.JsonSchemaService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -40,7 +41,7 @@ public class JsonSchemaServiceImpl implements JsonSchemaService {
             try {
                 JsonNode node = objectMapper.readTree(jsonSchemaNode.asText());
                 if (!node.isEmpty()) {
-                    JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersionDetector.detect(node));
+                    JsonSchemaFactory factory = JsonSchemaUtils.getInstance(SpecVersionDetector.detect(node));
                     schema = factory.getSchema(node);
                 }
             } catch (Exception e) {
@@ -48,7 +49,7 @@ public class JsonSchemaServiceImpl implements JsonSchemaService {
             }
         } else if (jsonSchemaNode.isObject() && !jsonSchemaNode.isEmpty()) {
             try {
-                JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersionDetector.detect(jsonSchemaNode));
+                JsonSchemaFactory factory = JsonSchemaUtils.getInstance(SpecVersionDetector.detect(jsonSchemaNode));
                 schema = factory.getSchema(jsonSchemaNode);
             } catch (Exception e) {
                 log.error("parser json schema error", e);

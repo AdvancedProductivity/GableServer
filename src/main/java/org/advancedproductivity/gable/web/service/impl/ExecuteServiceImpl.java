@@ -19,6 +19,7 @@ import org.advancedproductivity.gable.framework.runner.GroovyCodeRunner;
 import org.advancedproductivity.gable.framework.runner.RunnerHolder;
 import org.advancedproductivity.gable.framework.runner.TestAction;
 import org.advancedproductivity.gable.framework.utils.PreHandleUtils;
+import org.advancedproductivity.gable.framework.utils.jsonschema.JsonSchemaUtils;
 import org.advancedproductivity.gable.web.service.ExecuteService;
 import org.advancedproductivity.gable.web.service.HistoryService;
 import org.advancedproductivity.gable.web.service.JsonSchemaService;
@@ -77,7 +78,7 @@ public class ExecuteServiceImpl implements ExecuteService {
         }
         if (jsonSchemaError.size() == 0) {
             try {
-                JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersionDetector.detect(schema));
+                JsonSchemaFactory factory = JsonSchemaUtils.getInstance(SpecVersionDetector.detect(schema));
                 JsonSchema validator = factory.getSchema(schema);
                 Set<ValidationMessage> validate = validator.validate(json);
                 for (ValidationMessage validationMessage : validate) {

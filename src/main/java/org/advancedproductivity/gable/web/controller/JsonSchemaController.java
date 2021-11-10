@@ -13,6 +13,7 @@ import org.advancedproductivity.gable.framework.config.*;
 import org.advancedproductivity.gable.framework.core.TestType;
 import org.advancedproductivity.gable.framework.utils.GableFileUtils;
 import org.advancedproductivity.gable.framework.utils.jsonschema.ConstFeature;
+import org.advancedproductivity.gable.framework.utils.jsonschema.JsonSchemaUtils;
 import org.advancedproductivity.gable.web.entity.Result;
 import org.advancedproductivity.gable.web.service.ExecuteService;
 import org.advancedproductivity.gable.web.service.HistoryService;
@@ -101,7 +102,7 @@ public class JsonSchemaController {
         if (json.isMissingNode()) {
             return Result.error("json格式不正确");
         }
-        JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersionDetector.detect(schema));
+        JsonSchemaFactory factory = JsonSchemaUtils.getInstance(SpecVersionDetector.detect(schema));
         JsonSchema validator = factory.getSchema(schema);
         Set<ValidationMessage> validate = validator.validate(json);
         ArrayNode arrayNode = objectMapper.createArrayNode();

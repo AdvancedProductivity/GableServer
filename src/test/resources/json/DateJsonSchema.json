@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "dateLtSuccessDemo": {
+      "type": "string",
+      "dateGE": "2021-12-29_#_yyyy-MM-dd_#_yyyy-MM-dd HH:mm:ss",
+      "dateGT": "2021-01-01_#_yyyy-MM-dd_#_yyyy-MM-dd HH:mm:ss",
+      "dateLT": "2021-01-01_#_yyyy-MM-dd_#_yyyy-MM-dd HH:mm:ss",
+      "dateLE": "2021-12-29_#_yyyy-MM-dd_#_yyyy-MM-dd HH:mm:ss"
+    },
+    "dateLtErrorDemo": {
+      "type": "string",
+      "dateGE": "2021-12-29_#_yyyy-MM-dd_#_yyyy-MM-dd HH:mm:ss",
+      "dateGT": "2021-01-01_#_yyyy-MM-dd_#_yyyy-MM-dd HH:mm:ss",
+      "dateLT": "2021-01-01_#_yyyy-MM-dd_#_yyyy-MM-dd HH:mm:ss",
+      "dateLE": "2021-12-29_#_yyyy-MM-dd_#_yyyy-MM-dd HH:mm:ss"
+    }
+  },
+  "additionalProperties": true
+}
