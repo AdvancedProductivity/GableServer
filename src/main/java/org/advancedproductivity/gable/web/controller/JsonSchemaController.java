@@ -12,6 +12,7 @@ import com.saasquatch.jsonschemainferrer.*;
 import org.advancedproductivity.gable.framework.config.*;
 import org.advancedproductivity.gable.framework.core.TestType;
 import org.advancedproductivity.gable.framework.utils.GableFileUtils;
+import org.advancedproductivity.gable.framework.utils.PreHandleUtils;
 import org.advancedproductivity.gable.framework.utils.jsonschema.ConstFeature;
 import org.advancedproductivity.gable.framework.utils.jsonschema.JsonSchemaUtils;
 import org.advancedproductivity.gable.web.entity.Result;
@@ -136,5 +137,21 @@ public class JsonSchemaController {
                 UserDataType.HISTORY,
                 historyId + ".json");
         return Result.success().setData(node);
+    }
+
+    @PostMapping("/preHandle")
+    private Result preHandle(@RequestBody ObjectNode data) {
+        JsonNode instance = data.path("instance");
+        if (!instance.isObject()) {
+            return Result.error("instance must be a object json");
+
+        }
+        JsonNode global = data.path("global");
+        if (!global.isObject()) {
+            return Result.error("global must be a object json");
+        }
+        JsonNode express = data.path("express");
+        PreHandleUtils.preHandleInJson(express, (ObjectNode) instance, (ObjectNode) global);
+        return Result.success().setData(express);
     }
 }

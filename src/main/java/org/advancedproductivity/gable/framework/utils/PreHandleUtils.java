@@ -119,7 +119,10 @@ public class PreHandleUtils {
                     return System.currentTimeMillis() + "";
                 }
                 try {
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(format);
+                    SimpleDateFormat simpleDateFormat = DateFormatHolder.getInstance(format);
+                    if (simpleDateFormat == null) {
+                        return format;
+                    }
                     String dateStr = simpleDateFormat.format(new Date());
                     log.info("handle Date str: {}" , dateStr);
                     return dateStr;
