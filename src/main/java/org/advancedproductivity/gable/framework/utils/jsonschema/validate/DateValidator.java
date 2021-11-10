@@ -41,6 +41,10 @@ public abstract class DateValidator extends AbstractJsonValidator {
         if (param == null || param.length != 3) {
             return fail(CustomErrorMessageType.of(JsonSchemaErrorCode.PARAM_ERROR,
                     new MessageFormat("{0} the format define can not be empty")), at);
+        }else {
+            for (int i = 0; i < param.length; i++) {
+                param[i] = StringUtils.trim(param[i]);
+            }
         }
         SimpleDateFormat selfFormat = DateFormatHolder.getInstance(param[1]);
         SimpleDateFormat jsonFormat = DateFormatHolder.getInstance(param[2]);

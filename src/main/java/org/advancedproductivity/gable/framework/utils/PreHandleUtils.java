@@ -131,6 +131,40 @@ public class PreHandleUtils {
                     return format;
                 }
             }
+        }else if (StringUtils.startsWith(var, "dateCal")) {
+            if (matcher.find()) {
+                String format = matcher.group().replace("(", "").replace(")", "");
+                format = StringUtils.trim(format);
+                try {
+                    String[] param = StringUtils.split(format, ",");
+                    if (param != null) {
+                        for (int i = 0; i < param.length; i++) {
+                            param[i] = StringUtils.trim(param[i]);
+                        }
+                    }
+                    if (StringUtils.equals(param[0], "weekReset")) {
+                        int weekOffset = Integer.parseInt(param[1]);
+                        int dayOfWeek = Integer.parseInt(param[2]);
+                        SimpleDateFormat dateFormat = DateFormatHolder.getInstance(param[3]);
+                        return dateFormat.format(DateCalculationUtils.weekReset(weekOffset, dayOfWeek));
+                    }else if(StringUtils.equals(param[0], "weekCalculate")) {
+                        int weekOffset = Integer.parseInt(param[1]);
+                        SimpleDateFormat dateFormat = DateFormatHolder.getInstance(param[2]);
+                        return dateFormat.format(DateCalculationUtils.weekCalculate(weekOffset));
+                    }else if(StringUtils.equals(param[0], "dayCalculate")) {
+                        int dayOffset = Integer.parseInt(param[1]);
+                        SimpleDateFormat dateFormat = DateFormatHolder.getInstance(param[2]);
+                        return dateFormat.format(DateCalculationUtils.dayCalculate(dayOffset));
+                    }else if(StringUtils.equals(param[0], "monthCalculate")) {
+                        int monthOffset = Integer.parseInt(param[1]);
+                        SimpleDateFormat dateFormat = DateFormatHolder.getInstance(param[2]);
+                        return dateFormat.format(DateCalculationUtils.monthCalculate(monthOffset));
+                    }
+                } catch (Exception e) {
+                    log.error("handle date calculation error", e);
+                    return "error date";
+                }
+            }
         }else if (StringUtils.startsWith(var, IntegrateField.INSTANCE)) {
             if (matcher.find()) {
                 String r = matcher.group().replace("(", "").replace(")", "");
