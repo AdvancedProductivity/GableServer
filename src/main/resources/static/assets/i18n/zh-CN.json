@@ -19,6 +19,7 @@
     "PLAY_GROUND": {
       "TITLE": "演练场",
       "JSON_SCHEMA": "JsonSchema 校验",
+      "INTERPOLATION_EXPRESS": "插值表达式",
       "SAMPLE_GROOVY": "Groovy Demo代码"
     },
     "UNIT": {
@@ -47,7 +48,8 @@
     "GROUP": "组",
     "TYPE": "测试类型",
     "UNIT_NAME": "测试名称",
-    "ENV_NAME": "请输入环境名称"
+    "ENV_NAME": "请输入环境名称",
+    "RELOAD_EXPRESS": "重新加载默认的插值表达式,将会丢弃编辑区的变更"
   },
   "RUN": "运行",
   "CASE": "测试用例",
@@ -115,18 +117,25 @@
   "ENTRUST_RUN_STOP": "停止运行",
   "PAUSE": "暂停",
   "GOON": "继续",
+  "DOWNLOAD_PATH": "下载地址",
   "DELETE_SELECT": "删除选中",
   "DELETE_ALL": "删除全部",
   "GOTO_EDIT": "去编辑",
   "GOTO_RUN": "去运行",
   "YES": "是",
   "NO": "否",
+  "CALCULATION": "计算结果",
+  "AFTER_CALCULATION": "计算后结果",
+  "INTERPOLATION_EXPRESS_INFO": "表达式,实例变量,全局变量",
+  "INTERPOLATION_EXPRESS_TIP": "点击计算结果获取表达式经过计算后的结果",
+  "FORMAT_JSON": "格式化编辑区的Json文本",
   "DELETE_CONFIRM": "真的要删除吗",
   "ADD_INTEGRATE": "添加集成测试",
   "SHOW_ALL_FIELD": "所有字段",
   "GENERATE_JSON_SCHEMA": "生成 JsonSchema",
   "UPDATE": "更新",
   "OPERATION": "操作",
+  "RELOAD": "重新加载",
   "CLI_DESIGN": "关于Cli功能的设计，可以在这里参与讨论",
   "ADD_ENV": "添加环境"
 }
