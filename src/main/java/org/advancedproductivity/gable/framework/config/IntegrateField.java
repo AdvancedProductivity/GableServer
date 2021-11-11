@@ -22,6 +22,7 @@ public interface IntegrateField {
     String LAST_OUT = "lastOut";
     String NEXT_IN = "nextIn";
     String IN = "in";
+    String REAL_IN = "realIn";
     String OUT = "out";
     String PAGE_ORIGIN = "From Web";
     String ENTRUST_ORIGIN = "From BackEnd";

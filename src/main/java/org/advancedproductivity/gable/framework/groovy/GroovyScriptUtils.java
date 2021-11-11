@@ -95,4 +95,57 @@ public class GroovyScriptUtils {
         }
         return result;
     }
+
+    public static void runPreScript(String uuid, JsonNode in, ObjectNode param, JsonNode instance, JsonNode global) {
+        File file = FileUtils.getFile(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH,
+                UserDataType.GROOVY, uuid + ".groovy");
+        if (!file.exists()) {
+            return;
+        }
+        try {
+            GroovyScriptEngine engine = engineMap.get(GableConfig.PUBLIC_PATH);
+            if (engine == null) {
+                engine = new GroovyScriptEngine(file.getAbsolutePath());
+                engineMap.put(GableConfig.PUBLIC_PATH, engine);
+            }
+            Binding binding = new Binding();
+            binding.setVariable("in", in);
+            binding.setVariable("param", param);
+            binding.setVariable("instance", instance);
+            binding.setVariable("global", global);
+            engine.run(uuid + ".groovy", binding);
+        } catch (Throwable e) {
+            log.error("error happens while run sample groovy script", e);
+        }
+    }
+
+    public static void runPostScript(String uuid, JsonNode out, ObjectNode param, JsonNode instance, JsonNode global) {
+        File file = FileUtils.getFile(GableConfig.getGablePath(), GableConfig.PUBLIC_PATH,
+                UserDataType.GROOVY, uuid + ".groovy");
+        if (!file.exists()) {
+            return;
+        }
+        try {
+            GroovyScriptEngine engine = engineMap.get(GableConfig.PUBLIC_PATH);
+            if (engine == null) {
+                engine = new GroovyScriptEngine(file.getAbsolutePath());
+                engineMap.put(GableConfig.PUBLIC_PATH, engine);
+            }
+            Binding binding = new Binding();
+            binding.setVariable("out", out);
+            binding.setVariable("param", param);
+            binding.setVariable("instance", instance);
+            binding.setVariable("global", global);
+            engine.run(uuid + ".groovy", binding);
+        } catch (Throwable e) {
+            log.error("error happens while run sample groovy script", e);
+            JsonNode validateResult = out.path(ValidateField.VALIDATE);
+            if (validateResult.isMissingNode()) {
+                validateResult = mapper.createObjectNode();
+                ((ObjectNode) out).set(ValidateField.VALIDATE, validateResult);
+            }
+            ((ObjectNode) validateResult).put(ValidateField.POST_VALIDATE, e.getMessage())
+                    .put(ValidateField.RESULT, false);
+        }
+    }
 }

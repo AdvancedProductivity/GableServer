@@ -1,21 +1,15 @@
 package org.advancedproductivity.gable.web.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
-import org.advancedproductivity.gable.framework.config.GableConfig;
-import org.advancedproductivity.gable.framework.config.IntegrateField;
-import org.advancedproductivity.gable.framework.config.UserDataType;
-import org.advancedproductivity.gable.framework.config.ValidateField;
+import org.advancedproductivity.gable.framework.config.*;
 import org.advancedproductivity.gable.framework.core.GlobalVar;
-import org.advancedproductivity.gable.framework.groovy.GroovyScriptUtils;
 import org.advancedproductivity.gable.framework.utils.GableFileUtils;
 import org.advancedproductivity.gable.web.entity.Result;
 import org.advancedproductivity.gable.web.service.ExecuteService;
-import org.advancedproductivity.gable.web.service.HistoryService;
+import org.advancedproductivity.gable.web.service.GroovyScriptService;
 import org.advancedproductivity.gable.web.service.UserService;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,6 +33,9 @@ public class GroovyCodeController {
 
     @Resource
     private ExecuteService executeService;
+
+    @Resource
+    private GroovyScriptService groovyScriptService;
 
     @GetMapping()
     public String getCode(@RequestParam String uuid,
@@ -75,6 +72,121 @@ public class GroovyCodeController {
                 UserDataType.HISTORY,
                 historyId + ".json");
         return Result.success().setData(node);
+    }
+
+    @GetMapping("/preScriptList")
+    private Result getPreScriptList() {
+        return Result.success().setData(this.groovyScriptService.getScriptList(GroovyScriptType.PRE));
+    }
+
+    @GetMapping("/postScriptList")
+    private Result getPostScriptList() {
+        return Result.success().setData(this.groovyScriptService.getScriptList(GroovyScriptType.POST));
+    }
+
+    @PostMapping("/preScriptGroup")
+    private Result addPreScriptGroup(@RequestParam String groupName) {
+        groupName = StringUtils.trim(groupName);
+        if (StringUtils.isEmpty(groupName)) {
+            return Result.error("Group Name Can Not Be Empty");
+        }
+        return Result.success().setData(this.groovyScriptService.addGroup(GroovyScriptType.PRE, groupName));
+    }
+
+    @PostMapping("/postScriptGroup")
+    private Result addPostScriptGroup(@RequestParam String groupName) {
+        groupName = StringUtils.trim(groupName);
+        if (StringUtils.isEmpty(groupName)) {
+            return Result.error("Group Name Can Not Be Empty");
+        }
+        return Result.success().setData(this.groovyScriptService.addGroup(GroovyScriptType.POST, groupName));
+    }
+
+    @PostMapping("/preScript")
+    private Result addPreScriptItem(@RequestParam String scriptName,
+                                    @RequestParam String groupUuid,
+                                    @RequestBody String code) {
+        scriptName = StringUtils.trim(scriptName);
+        if (StringUtils.isEmpty(scriptName)) {
+            return Result.error("Group Name Can Not Be Empty");
+        }
+        if (this.groovyScriptService.haveExist(GroovyScriptType.PRE, scriptName)) {
+            return Result.error("Script Name Have Exist");
+        }
+        return Result.success().setData(this.groovyScriptService.addItem(GroovyScriptType.PRE, groupUuid,
+                scriptName, code));
+    }
+
+    @PostMapping("/postScript")
+    private Result addPostScriptItem(@RequestParam String scriptName,
+                                     @RequestParam String groupUuid,
+                                     @RequestBody String code) {
+        scriptName = StringUtils.trim(scriptName);
+        if (StringUtils.isEmpty(scriptName)) {
+            return Result.error("Script Name Can Not Be Empty");
+        }
+        if (this.groovyScriptService.haveExist(GroovyScriptType.POST, scriptName)) {
+            return Result.error("Script Name Have Exist");
+        }
+        return Result.success().setData(this.groovyScriptService.addItem(GroovyScriptType.POST, groupUuid,
+                scriptName, code));
+    }
+
+    @GetMapping("/readCode")
+    private Result readScriptCode(@RequestParam String uuid) {
+        return Result.success().setDataString(this.groovyScriptService.readCode(uuid));
+    }
+
+    @PutMapping("/updateScript")
+    private Result updateScript(@RequestParam String uuid, @RequestBody String code) {
+        this.groovyScriptService.updateScript(uuid, code);
+        return Result.success();
+    }
+
+    @PostMapping("/executePreScript")
+    private Result executePreScript( @RequestBody ObjectNode in) {
+        if (!in.path("in").isObject()) {
+            return Result.error("param not have in obj");
+        }
+        if (!in.path("instance").isObject()) {
+            return Result.error("param not have instance obj");
+        }
+        if (!in.path("global").isObject()) {
+            return Result.error("param not have global obj");
+        }
+        JsonNode code = in.remove("code");
+        if (!code.isTextual()) {
+            return Result.error("code not get");
+        }
+        if (!in.path("param").isObject()) {
+            return Result.error("param not have param obj");
+        }
+        String uuid = "PreScriptDemoCode";
+        this.groovyScriptService.updateScript(uuid, code.asText());
+        return Result.success().setData(this.groovyScriptService.executePreScript(uuid, in));
+    }
+
+    @PostMapping("/executePostScript")
+    private Result executePostScript(@RequestBody ObjectNode in) {
+        if (!in.path("out").isObject()) {
+            return Result.error("param not have in obj");
+        }
+        if (!in.path("instance").isObject()) {
+            return Result.error("param not have instance obj");
+        }
+        if (!in.path("global").isObject()) {
+            return Result.error("param not have global obj");
+        }
+        if (!in.path("param").isObject()) {
+            return Result.error("param not have param obj");
+        }
+        JsonNode code = in.remove("code");
+        if (!code.isTextual()) {
+            return Result.error("code not get");
+        }
+        String uuid = "PostScriptDemoCode";
+        this.groovyScriptService.updateScript(uuid, code.asText());
+        return Result.success().setData(this.groovyScriptService.executePostScript(uuid, in));
     }
 
 }

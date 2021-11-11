@@ -37,4 +37,6 @@ public interface ConfigField {
     String START_TIME = "startTime";
     String END_TIME = "endTime";
     String HISTORY_ID = "historyId";
+    String PRE_SCRIPT = "preScript";
+    String POST_SCRIPT = "postScript";
 }

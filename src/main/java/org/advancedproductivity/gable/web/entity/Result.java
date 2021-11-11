@@ -55,6 +55,11 @@ public class Result extends ObjectNode {
         return this;
     }
 
+    public Result setDataString(String data) {
+        this.put("data", data);
+        return this;
+    }
+
     public static Result error(String message) {
         Result result = new Result(mapper.getNodeFactory());
         result.success = false;
