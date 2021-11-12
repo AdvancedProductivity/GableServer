@@ -31,4 +31,6 @@ public interface CaseService {
     void saveToExcel(ServletOutputStream out, JsonNode allCase);
 
     JsonNode generateDemoCase();
+
+    ObjectNode genDefaultDiffJson();
 }

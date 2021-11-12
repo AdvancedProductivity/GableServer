@@ -62,6 +62,8 @@ public class CaseController {
         JsonNode allCase = caseService.getAllCase(userId, uuid);
         if (allCase == null) {
             allCase = caseService.generateDemoCase();
+        }else {
+            allCase = allCase.deepCopy();
         }
         JsonNode header = allCase.path(CaseField.HEADERS);
         if (header.isArray()) {
@@ -85,7 +87,7 @@ public class CaseController {
                 ObjectNode caseDetail = caseService.getCase(userId, uuid, version, caseId);
                 if (caseDetail == null) {
                     log.error("case not find {} {} {} {}", userId, uuid, version, caseId);
-                    item.set(CaseField.DIFF, objectMapper.createObjectNode());
+                    item.set(CaseField.DIFF, caseService.genDefaultDiffJson());
                     item.set(CaseField.JSON_SCHEMA, objectMapper.createObjectNode());
                     continue;
                 }
@@ -125,6 +127,8 @@ public class CaseController {
         JsonNode allCase = caseService.getAllCase(userId, uuid);
         if (allCase == null) {
             allCase = caseService.generateDemoCase();
+        }else {
+            allCase = allCase.deepCopy();
         }
         JsonNode header = allCase.path(CaseField.HEADERS);
         if (header.isArray()) {
@@ -148,7 +152,7 @@ public class CaseController {
                 ObjectNode caseDetail = caseService.getCase(userId, uuid, version, caseId);
                 if (caseDetail == null) {
                     log.error("case not find {} {} {} {}", userId, uuid, version, caseId);
-                    item.set(CaseField.DIFF, objectMapper.createObjectNode());
+                    item.set(CaseField.DIFF, caseService.genDefaultDiffJson());
                     item.set(CaseField.JSON_SCHEMA, objectMapper.createObjectNode());
                     continue;
                 }
@@ -208,6 +212,10 @@ public class CaseController {
                       @RequestParam(required = false) Boolean isPublic) {
         String userId = userService.getUserId(isPublic, request);
         ObjectNode data = caseService.getCase(userId, uuid, version, caseId);
+        JsonNode diffNode = data.path(CaseField.DIFF);
+        if (!diffNode.isObject() || diffNode.isEmpty()) {
+            data.set(CaseField.DIFF,  caseService.genDefaultDiffJson());
+        }
         return Result.success().setData(data);
     }
 

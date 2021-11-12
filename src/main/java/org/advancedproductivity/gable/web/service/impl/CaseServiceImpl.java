@@ -1,5 +1,6 @@
 package org.advancedproductivity.gable.web.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -47,10 +48,22 @@ public class CaseServiceImpl implements CaseService {
         ObjectNode root = objectMapper.createObjectNode();
         root.set(CaseField.HEADERS, objectMapper.createArrayNode().add("id").add("title"));
         root.set(CaseField.RECORD, objectMapper.createArrayNode()
-                .add(objectMapper.createObjectNode().put("id", "case_1").put("title", "title_A"))
-                .add(objectMapper.createObjectNode().put("id", "case_2").put("title", "title_B"))
+                .add(objectMapper.createObjectNode().put("id", "case_1")
+                        .put("title", "title_A"))
+                .add(objectMapper.createObjectNode().put("id", "case_2")
+                        .put("title", "title_B"))
         );
         return root;
+    }
+
+    @Override
+    public ObjectNode genDefaultDiffJson() {
+        ObjectNode mapperObjectNode = objectMapper.createObjectNode();
+        mapperObjectNode.set(CaseField.DIFF_REPLACE, objectMapper.createObjectNode());
+        mapperObjectNode.set(CaseField.DIFF_ADD, objectMapper.createObjectNode());
+        mapperObjectNode.set(CaseField.DIFF_REMOVE, objectMapper.createObjectNode());
+        mapperObjectNode.set(CaseField.DIFF_REMOVE_BY_INDEX, objectMapper.createObjectNode());
+        return mapperObjectNode;
     }
 
     public ArrayNode getHeaders(JsonNode node) {
@@ -100,9 +113,13 @@ public class CaseServiceImpl implements CaseService {
             if (diffNode != null && diffNode.isTextual()) {
                 String diffStr = diffNode.asText();
                 diffStr = StringUtils.remove(diffStr, " ");
-                caseContent.put(CaseField.DIFF, diffStr);
+                caseContent.set(CaseField.DIFF, getDiffByString(diffStr));
             } else {
-                caseContent.set(CaseField.DIFF, diffNode);
+                if (diffNode.isObject() && !diffNode.isEmpty()) {
+                    caseContent.set(CaseField.DIFF, diffNode);
+                }else {
+                    caseContent.set(CaseField.DIFF, genDefaultDiffJson());
+                }
             }
             JsonNode jsonSchemaNodes = item.remove(CaseField.JSON_SCHEMA);
             if (jsonSchemaNodes != null && jsonSchemaNodes.isTextual()) {
@@ -123,6 +140,19 @@ public class CaseServiceImpl implements CaseService {
         caseInfo.put(CaseField.VERSION, version);
         GableFileUtils.saveFile(caseInfo.toPrettyString(), GableConfig.getGablePath(), nameSpace, UserDataType.UNIT, uuid, CASE_FILE_NAME);
         return caseInfo;
+    }
+
+    private JsonNode getDiffByString(String diffStr) {
+        try {
+            JsonNode diffJson = objectMapper.readTree(diffStr);
+            if (diffJson.isObject() && !diffJson.isEmpty()) {
+                return diffJson;
+            }else {
+                return genDefaultDiffJson();
+            }
+        } catch (JsonProcessingException e) {
+            return genDefaultDiffJson();
+        }
     }
 
     @Override
