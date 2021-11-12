@@ -110,7 +110,9 @@ public class CaseServiceImpl implements CaseService {
             String id = item.path(CaseField.ID).asText();
             ObjectNode caseContent = objectMapper.createObjectNode();
             JsonNode diffNode = item.remove(CaseField.DIFF);
-            if (diffNode != null && diffNode.isTextual()) {
+            if (diffNode == null){
+                caseContent.set(CaseField.DIFF, genDefaultDiffJson());
+            }else if (diffNode.isTextual()) {
                 String diffStr = diffNode.asText();
                 diffStr = StringUtils.remove(diffStr, " ");
                 caseContent.set(CaseField.DIFF, getDiffByString(diffStr));
