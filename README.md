@@ -72,9 +72,9 @@ mvn spring-boot:run
 浏览器打开: `http://localhost:2110/`
 
 ## 用户操作指南
-请查看 [这里](https://github.com/AdvancedProductivity/GableServer/wiki)
+wiki文档请查看 [这里](https://github.com/AdvancedProductivity/GableServer/wiki)
 
-如果访问github有困难,可以查看 [这里](https://www.yuque.com/zhaoziqiang/wlnb68)
+如果访问github有困难，[这里](https://www.yuque.com/zhaoziqiang/wlnb68) 还有一份语雀的文档，可以点击查看
 
 ## 前端项目地址
 
