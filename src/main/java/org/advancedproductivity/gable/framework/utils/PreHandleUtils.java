@@ -141,24 +141,26 @@ public class PreHandleUtils {
                         for (int i = 0; i < param.length; i++) {
                             param[i] = StringUtils.trim(param[i]);
                         }
+                    }else {
+                        return "";
                     }
                     if (StringUtils.equals(param[0], "weekReset")) {
                         int weekOffset = Integer.parseInt(param[1]);
                         int dayOfWeek = Integer.parseInt(param[2]);
                         SimpleDateFormat dateFormat = DateFormatHolder.getInstance(param[3]);
-                        return dateFormat.format(DateCalculationUtils.weekReset(weekOffset, dayOfWeek));
+                        return formatDate(dateFormat, DateCalculationUtils.weekReset(weekOffset, dayOfWeek));
                     }else if(StringUtils.equals(param[0], "weekCalculate")) {
                         int weekOffset = Integer.parseInt(param[1]);
                         SimpleDateFormat dateFormat = DateFormatHolder.getInstance(param[2]);
-                        return dateFormat.format(DateCalculationUtils.weekCalculate(weekOffset));
+                        return formatDate(dateFormat, DateCalculationUtils.weekCalculate(weekOffset));
                     }else if(StringUtils.equals(param[0], "dayCalculate")) {
                         int dayOffset = Integer.parseInt(param[1]);
                         SimpleDateFormat dateFormat = DateFormatHolder.getInstance(param[2]);
-                        return dateFormat.format(DateCalculationUtils.dayCalculate(dayOffset));
+                        return formatDate(dateFormat, DateCalculationUtils.dayCalculate(dayOffset));
                     }else if(StringUtils.equals(param[0], "monthCalculate")) {
                         int monthOffset = Integer.parseInt(param[1]);
                         SimpleDateFormat dateFormat = DateFormatHolder.getInstance(param[2]);
-                        return dateFormat.format(DateCalculationUtils.monthCalculate(monthOffset));
+                        return formatDate(dateFormat, DateCalculationUtils.monthCalculate(monthOffset));
                     }
                 } catch (Exception e) {
                     log.error("handle date calculation error", e);
@@ -228,5 +230,12 @@ public class PreHandleUtils {
             }
         }
         return originVar;
+    }
+
+    private static String formatDate(SimpleDateFormat dateFormat, Date date) {
+        if (dateFormat == null) {
+            return "";
+        }
+        return dateFormat.format(date);
     }
 }
