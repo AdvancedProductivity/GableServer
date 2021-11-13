@@ -1,9 +1,27 @@
+/*
+ *  Copyright (c) 2021 AdvancedProductivity
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 package org.advancedproductivity.gable.framework.runner;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import kotlin.Pair;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.advancedproductivity.gable.framework.auth.AuthHandler;
@@ -16,7 +34,6 @@ import org.advancedproductivity.gable.framework.core.HttpMethodType;
 import org.advancedproductivity.gable.framework.core.TestType;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import kotlin.Pair;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,12 +47,13 @@ import java.util.Iterator;
 public class HttpRunner implements TestAction {
     private static final int DEFAULT_HTTP_PORT = 80;
     private static final ObjectMapper mapper = new ObjectMapper();
+
     @Override
     public void execute(JsonNode in, JsonNode out, ObjectNode instance, ObjectNode global) {
         // handle auth
         AuthHandler authHandler = AuthHolder.HOLDER.get(
                 in.path(ConfigField.HTTP_AUTH)
-                .path(ConfigField.HTTP_AUTH_TYPE).asText());
+                        .path(ConfigField.HTTP_AUTH_TYPE).asText());
         if (authHandler != null) {
             authHandler.handle(in, instance, global);
         }
@@ -171,7 +189,6 @@ public class HttpRunner implements TestAction {
         }
         return null;
     }
-
 
 
     private void setRequestHeader(JsonNode in, Request.Builder builder) {

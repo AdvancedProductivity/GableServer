@@ -1,16 +1,33 @@
+/*
+ *  Copyright (c) 2021 AdvancedProductivity
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
 package org.advancedproductivity.gable.web.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.advancedproductivity.gable.framework.config.*;
-import org.advancedproductivity.gable.framework.core.GlobalVar;
-import org.advancedproductivity.gable.framework.runner.GroovyCodeRunner;
+import org.advancedproductivity.gable.framework.config.CaseField;
+import org.advancedproductivity.gable.framework.config.ConfigField;
+import org.advancedproductivity.gable.framework.config.GableConfig;
+import org.advancedproductivity.gable.framework.config.UserDataType;
 import org.advancedproductivity.gable.framework.runner.RunnerHolder;
 import org.advancedproductivity.gable.framework.runner.TestAction;
 import org.advancedproductivity.gable.framework.utils.GableFileUtils;
-import org.advancedproductivity.gable.framework.utils.PreHandleUtils;
 import org.advancedproductivity.gable.web.entity.Result;
 import org.advancedproductivity.gable.web.service.*;
 import org.apache.commons.lang3.StringUtils;
@@ -111,10 +128,10 @@ public class UnitController {
 
     @GetMapping("/diff")
     private Result getDiff(@RequestParam String uuid,
-                       @RequestParam(required = false) String caseId,
-                       @RequestParam(required = false) Integer caseVersion,
-                       @RequestParam(required = false) Boolean isPublic,
-                       @RequestParam(required = false) String env) {
+                           @RequestParam(required = false) String caseId,
+                           @RequestParam(required = false) Integer caseVersion,
+                           @RequestParam(required = false) Boolean isPublic,
+                           @RequestParam(required = false) String env) {
         if (isPublic == null) {
             isPublic = false;
         }
@@ -151,9 +168,9 @@ public class UnitController {
 
     @GetMapping("/allField")
     private Result allField(@RequestParam String uuid,
-                       @RequestParam(required = false) String caseId,
-                       @RequestParam(required = false) Boolean isPublic,
-                       @RequestParam(required = false) String env) {
+                            @RequestParam(required = false) String caseId,
+                            @RequestParam(required = false) Boolean isPublic,
+                            @RequestParam(required = false) String env) {
         if (isPublic == null) {
             isPublic = false;
         }
@@ -196,7 +213,6 @@ public class UnitController {
         ObjectNode out = executeService.executeTest(userId, uuid, type, data);
         return Result.success().setData(out);
     }
-
 
 
     @PostMapping("/push")
