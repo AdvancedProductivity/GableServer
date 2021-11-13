@@ -38,13 +38,25 @@ public interface HistoryService {
 
     public int recordJsonSchemaStep(String nameSpace, String uuid, String content);
 
+    /**
+     * save the history detail
+     *
+     * @param nameSpace public path
+     * @param uuid      test's uuid
+     * @param content   history detail
+     * @return history Id
+     */
     public int recordIntegrateTest(String nameSpace, String uuid, String content);
 
     public boolean recordIntegrateTest(int historyId, String nameSpace, String uuid, String content);
 
     ObjectNode analysis(ArrayNode records, String server, String uuid);
 
-    void indexHistory(String uuid, int historyId, boolean noError, String origin, String startAt, String endAt);
+    /**
+     * add the history detail to the history record
+     */
+    void indexHistory(String uuid, int historyId, boolean noError, String origin, String startAt, String endAt,
+                      String envName);
 
     ArrayNode readOverviewHistory(String uuid);
 }

@@ -250,7 +250,7 @@ public class IntegrateServiceImpl implements IntegrateService {
     private EnTrustHandle handle;
 
     @Override
-    public Result entrustRun(String uuid, String env, String server) {
+    public Result entrustRun(String uuid, String envUuid, String envName, String server) {
         ObjectNode item = this.getItem(uuid);
         if (item == null) {
             return Result.error("Test Not Exist");
@@ -265,7 +265,7 @@ public class IntegrateServiceImpl implements IntegrateService {
                 log.info("remove entrust runner thread: {}", uuid);
                 EN_TRUST_RUN_MAP.remove(uuid);
             }
-        }, handle, env, server);
+        }, handle, envUuid, envName, server);
         EN_TRUST_RUN_MAP.put(uuid, runner);
         runner.start();
         return Result.success();

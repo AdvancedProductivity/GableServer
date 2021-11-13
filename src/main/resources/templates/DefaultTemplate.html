@@ -1,10 +1,27 @@
+<!--
+  ~  Copyright (c) 2021 AdvancedProductivity
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  ~
+  -->
+
 <!DOCTYPE html>
-<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"  xmlns:shiro="www.thymeleaf.org/thymeleaf-extras-shiro">
+<html lang="en-US" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
     <link rel="shortcut icon" th:href="${server  + 'favicon.ico'}"/>
-    <link rel="bookmark" th:href="${server+ 'favicon.ico'}" type="image/x-icon"　/>
+    <link rel="bookmark" th:href="${server+ 'favicon.ico'}" type="image/x-icon" 　/>
     <link type="text/css" rel="stylesheet" th:href="${server + 'ant-design-vue@1.7.8/dist/antd.min.css'}"/>
     <!-- vue 版本需要注意，不是每一个版本都起作用的 -->
     <script th:src="${server + 'vue/2.6.10/vue.min.js'}"></script>
@@ -34,11 +51,14 @@
                     <a-descriptions-item :label="tip.endTime" :span="3">
                         {{data.endAt}}
                     </a-descriptions-item>
-                    <a-descriptions-item :label="tip.totalTimeTakes" :span="2">
+                    <a-descriptions-item :label="tip.totalTimeTakes">
                         <span style="color: green">{{data.timeTotal}}</span> ms
                     </a-descriptions-item>
-                    <a-descriptions-item :label="tip.avgTimeTakes" :span="3">
+                    <a-descriptions-item :label="tip.avgTimeTakes">
                         <span style="color: green">{{data.totalAvg}}</span> ms
+                    </a-descriptions-item>
+                    <a-descriptions-item :label="tip.env">
+                        <span>{{data.envName}}</span>
                     </a-descriptions-item>
                 </a-descriptions>
                 <a-descriptions style="margin-top: 20px" :column="4" :title="tip.testInfo" bordered>
@@ -247,6 +267,7 @@
                                                         <a-button type="primary" @click="reRunCurrent">
                                                             {{tip.reRunOfHistoryIn}}
                                                         </a-button>
+                                                        {{tip.env}}
                                                         <a-select  v-model="selectedEnv" style="width: 120px">
                                                             <a-select-option value="">
                                                                 {{tip.noEnvSelect}}
@@ -449,16 +470,28 @@
                     detail: 'Detail',
                     general: 'General Info',
                     startTime: 'Start Time'
-                    , endTime: 'End Time'
-                    , totalTimeTakes: 'Total Time Takes'
-                    , avgTimeTakes: 'Avg Time Takes'
-                    , result: 'Result'
-                    , testInfo: 'Test Info'
-                    , stepInfo: 'Step Info'
-                    , jsonSchemaInfo: 'JsonSchema Info'
-                    , totalCount: 'Total Count'
-                    , successCount: 'Success Count'
-                    , failedCount: 'Failed Count'
+                    ,
+                    env: 'Environment'
+                    ,
+                    endTime: 'End Time'
+                    ,
+                    totalTimeTakes: 'Total Time Takes'
+                    ,
+                    avgTimeTakes: 'Avg Time Takes'
+                    ,
+                    result: 'Result'
+                    ,
+                    testInfo: 'Test Info'
+                    ,
+                    stepInfo: 'Step Info'
+                    ,
+                    jsonSchemaInfo: 'JsonSchema Info'
+                    ,
+                    totalCount: 'Total Count'
+                    ,
+                    successCount: 'Success Count'
+                    ,
+                    failedCount: 'Failed Count'
                     , ignoreCount: 'Ignore Count'
                     , allNodes: 'All Node'
                     , stepDiff: 'Show Step Diff'
@@ -501,6 +534,7 @@
                     detail: '明细',
                     general: '总体情况',
                     startTime: '开始时间'
+                    , env: '运行环境'
                     , endTime: '结束时间'
                     , totalTimeTakes: '总耗时'
                     , avgTimeTakes: '平均耗时'
@@ -568,6 +602,7 @@
             },
             showItem(index){
                 this.selectItem = this.menuArray[index];
+                this.selectedEnv = (this.data.envUuid === undefined ? '' : this.data.envUuid);
                 this.getHistory();
             },
             saveToBeFile(){

@@ -38,6 +38,8 @@ public interface EnvService {
 
     /**
      * handle unit test config json by env config
-     * */
+     */
     void handleConfig(JsonNode in, JsonNode envConfig);
+
+    String getEnvNameByUuid(String envUuid);
 }

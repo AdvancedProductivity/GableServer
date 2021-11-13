@@ -131,6 +131,7 @@
   "REFRESH": "Refresh",
   "PAUSE": "Pause",
   "GOON": "Go On",
+  "ENV": "Environment",
   "DELETE_ALL": "Delete All",
   "DIFF": "diff",
   "CONFIRM": "Confirm",

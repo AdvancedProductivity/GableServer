@@ -293,7 +293,8 @@ public class HistoryServiceImpl implements HistoryService {
     }
 
     @Override
-    public void indexHistory(String uuid, int historyId, boolean noError, String origin, String startAt, String endAt) {
+    public void indexHistory(String uuid, int historyId, boolean noError, String origin, String startAt, String endAt,
+                             String envName) {
         ObjectNode item = objectMapper.createObjectNode();
         item.put("uuid", uuid);
         item.put("id", historyId + "");
@@ -301,6 +302,7 @@ public class HistoryServiceImpl implements HistoryService {
         item.put("noError", noError);
         item.put("startAt", startAt);
         item.put("endAt", endAt);
+        item.put("env", envName);
         ArrayNode history = readOverviewHistory(uuid);
         ArrayNode newArray = objectMapper.createArrayNode();
         newArray.add(item);

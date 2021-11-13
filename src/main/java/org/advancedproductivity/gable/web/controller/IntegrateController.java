@@ -27,8 +27,10 @@ import org.advancedproductivity.gable.framework.config.IntegrateStepStatus;
 import org.advancedproductivity.gable.framework.config.UserDataType;
 import org.advancedproductivity.gable.framework.utils.GableFileUtils;
 import org.advancedproductivity.gable.web.entity.Result;
+import org.advancedproductivity.gable.web.service.EnvService;
 import org.advancedproductivity.gable.web.service.HistoryService;
 import org.advancedproductivity.gable.web.service.IntegrateService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -46,6 +48,9 @@ public class IntegrateController {
 
     @Resource
     private IntegrateService integrateService;
+
+    @Resource
+    private EnvService envService;
 
     @GetMapping
     public Result get() {
@@ -77,9 +82,17 @@ public class IntegrateController {
 
     @GetMapping("/entrust")
     private Result entrustRun(@RequestParam String uuid,
-                              @RequestParam String env,
+                              @RequestParam(value = "env", required = false) String envUuid,
                               @RequestParam String server) {
-        return integrateService.entrustRun(uuid, env, server);
+        if (StringUtils.isEmpty(envUuid)) {
+            return integrateService.entrustRun(uuid, "", "No Env", server);
+        } else {
+            String envName = this.envService.getEnvNameByUuid(envUuid);
+            if (StringUtils.isEmpty(envName)) {
+                return Result.error("env not exist");
+            }
+            return integrateService.entrustRun(uuid, envUuid, envName, server);
+        }
     }
 
     @DeleteMapping("/entrust")
@@ -97,16 +110,27 @@ public class IntegrateController {
     private HistoryService historyService;
 
     @PostMapping("/addHistory")
-    public Result saveIntegrate(@RequestBody ArrayNode records, @RequestParam String uuid,
+    public Result saveIntegrate(@RequestBody ArrayNode records,
+                                @RequestParam String uuid,
+                                @RequestParam(value = "env", required = false) String envUuid,
                                 @RequestParam String server) {
         ObjectNode mapperObjectNode = historyService.analysis(records, server, uuid);
-        mapperObjectNode.put("hisId", IntegrateField.PAGE_ORIGIN);
+        String envName = "No Env";
+        if (StringUtils.isEmpty(envUuid)) {
+            mapperObjectNode.put("envUuid", envName);
+            mapperObjectNode.put("envName", "");
+        } else {
+            envName = this.envService.getEnvNameByUuid(envUuid);
+            mapperObjectNode.put("envUuid", envUuid);
+            mapperObjectNode.put("envName", envName);
+        }
+        mapperObjectNode.put("origin", IntegrateField.PAGE_ORIGIN);
         int i = historyService.recordIntegrateTest(GableConfig.PUBLIC_PATH, uuid, mapperObjectNode.toPrettyString());
         mapperObjectNode.put("hisId", i);
         String startAt = mapperObjectNode.path("startAt").asText();
         String endAt = mapperObjectNode.path("endAt").asText();
         historyService.indexHistory(uuid, i, mapperObjectNode.path("noError").asBoolean(),
-                IntegrateField.PAGE_ORIGIN, startAt, endAt);
+                IntegrateField.PAGE_ORIGIN, startAt, endAt, envName);
         return Result.success(mapperObjectNode);
     }
 

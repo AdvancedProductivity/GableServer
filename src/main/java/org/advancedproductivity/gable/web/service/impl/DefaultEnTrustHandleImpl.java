@@ -54,17 +54,20 @@ public class DefaultEnTrustHandleImpl implements EnTrustHandle {
     }
 
     @Override
-    public boolean recordHistory(String server, int historyId, String uuid, ArrayNode define) {
+    public boolean recordHistory(String server, int historyId, String uuid, ArrayNode define,
+                                 String envUuid, String envName) {
         ObjectNode his = historyService.analysis(define, server, uuid);
 
         his.put("hisId", historyId);
         his.put("origin", IntegrateField.ENTRUST_ORIGIN);
+        his.put("envUuid", envUuid);
+        his.put("envName", envName);
         historyService.recordIntegrateTest(historyId, GableConfig.PUBLIC_PATH, uuid,
                 his.toPrettyString());
         String startAt = his.path("startAt").asText();
         String endAt = his.path("endAt").asText();
         historyService.indexHistory(uuid, historyId, his.path("noError").asBoolean(),
-                IntegrateField.ENTRUST_ORIGIN, startAt, endAt);
+                IntegrateField.ENTRUST_ORIGIN, startAt, endAt, envName);
         return his.path(IntegrateField.NO_ERROR).asBoolean();
     }
 

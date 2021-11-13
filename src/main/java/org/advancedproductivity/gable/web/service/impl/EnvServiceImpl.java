@@ -150,7 +150,18 @@ public class EnvServiceImpl implements EnvService {
             return;
         }
         JsonDiffUtils.doDiffHandle(in.path(ConfigField.DETAIL), envConfig);
-        ((ObjectNode)in).put(ConfigField.IS_UNMODIFY, true);
+        ((ObjectNode) in).put(ConfigField.IS_UNMODIFY, true);
+    }
+
+    @Override
+    public String getEnvNameByUuid(String envUuid) {
+        ArrayNode configs = (ArrayNode) getEnvConfigMenu();
+        for (JsonNode config : configs) {
+            if (StringUtils.equals(config.path(ConfigField.UUID).asText(), envUuid)) {
+                return config.path(ConfigField.ENV_NAME).asText();
+            }
+        }
+        return null;
     }
 
     private void handleAsHttp(JsonNode detailConfig, ObjectNode env) {

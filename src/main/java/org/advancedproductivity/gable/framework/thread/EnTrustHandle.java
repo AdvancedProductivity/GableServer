@@ -29,8 +29,8 @@ public interface EnTrustHandle {
 
     /**
      * @return is no error (all succeed or ignored)
-     * */
-    boolean recordHistory(String server, int historyId, String uuid, ArrayNode define);
+     */
+    boolean recordHistory(String server, int historyId, String uuid, ArrayNode define, String envUuid, String envName);
 
     ObjectNode getConfig(String nameSpace, String uuid, String env, String caseId, Integer caseVersion);
 

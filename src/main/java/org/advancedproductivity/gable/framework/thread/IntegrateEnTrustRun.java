@@ -51,6 +51,7 @@ public class IntegrateEnTrustRun extends Thread {
     private ObjectNode global;
     private Map<Integer, ObjectNode> ins = new HashMap<>();
     private String env = null;
+    private String envName = null;
     private EnTrustHandle handle = null;
     private ArrayList<Integer> testIndexArr;
     private String lastType = null;
@@ -58,13 +59,13 @@ public class IntegrateEnTrustRun extends Thread {
     private String server = "/";
 
     public IntegrateEnTrustRun(ObjectNode item, ThreadListener listener,
-                               EnTrustHandle handle,
-                               String env, String server) {
+                               EnTrustHandle handle, String envUuid, String envName, String server) {
         this.server = server;
         this.integrateItem = item;
         this.testUuid = item.path(IntegrateField.UUID).asText();
         this.listener = listener;
-        this.env = env;
+        this.env = envUuid;
+        this.envName = envName;
         this.handle = handle;
     }
 
@@ -88,10 +89,11 @@ public class IntegrateEnTrustRun extends Thread {
             integrateItem.put(IntegrateField.STATUS, IntegrateStepStatus.FAILED.getValue());
         }finally {
             if (this.handle != null) {
-                boolean isSucceed = handle.recordHistory(this.server, this.historyId, this.testUuid, define);
+                boolean isSucceed = handle.recordHistory(this.server, this.historyId, this.testUuid, define,
+                        this.env, this.envName);
                 if (isSucceed) {
                     integrateItem.put(IntegrateField.STATUS, IntegrateStepStatus.SUCCESS.getValue());
-                }else {
+                } else {
                     integrateItem.put(IntegrateField.STATUS, IntegrateStepStatus.FAILED.getValue());
                 }
             }else {
