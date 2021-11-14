@@ -17,6 +17,7 @@
 
 package org.advancedproductivity.gable.web.controller.test;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -29,6 +30,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -36,6 +38,7 @@ import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.UUID;
 
 
@@ -53,6 +56,11 @@ public class ApiTestController {
 
     @Resource
     private ObjectMapper objectMapper;
+
+    @GetMapping("/greet")
+    private Result greet(@RequestParam String name) {
+        return Result.success().setDataString(name + ", How are you?");
+    }
 
     @PostMapping("/add")
     private Double add(@RequestParam Double a, @RequestParam Double b) {
@@ -85,11 +93,40 @@ public class ApiTestController {
     }
 
     @PostMapping("/PostJson")
-    public ObjectNode postJson(@RequestBody ObjectNode json) {
-        ObjectNode result = json.objectNode();
+    public ObjectNode postJson(@RequestBody JsonNode json) {
+        ObjectNode result = Result.success();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         result.put("nowIs", dateFormat.format(new Date()));
         result.set("receive", json);
+        return result;
+    }
+
+    @PostMapping("/PostForm")
+    public ObjectNode postForm(@RequestParam HashMap<String, Object> json) {
+        ObjectNode result = Result.success();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        result.put("nowIs", dateFormat.format(new Date()));
+        result.set("receive", objectMapper.convertValue(json, ObjectNode.class));
+        return result;
+    }
+
+    @PostMapping("/PostUrlEncode")
+    public ObjectNode postUrlEncode(@RequestParam HashMap<String, Object> json) {
+        ObjectNode result = Result.success();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        result.put("nowIs", dateFormat.format(new Date()));
+        result.set("receive", objectMapper.convertValue(json, ObjectNode.class));
+        return result;
+    }
+
+    @PostMapping("/PostFile")
+    public ObjectNode postFile(@RequestParam(value = "file") MultipartFile file) {
+        ObjectNode result = Result.success();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        result.put("nowIs", dateFormat.format(new Date()));
+        result.put("fileName", file.getName());
+        result.put("originalFilename", file.getOriginalFilename());
+        result.put("fileSize", file.getSize());
         return result;
     }
 

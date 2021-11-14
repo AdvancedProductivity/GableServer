@@ -20,7 +20,6 @@ package org.advancedproductivity.gable.framework.utils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.advancedproductivity.gable.framework.config.ConfigField;
-import org.advancedproductivity.gable.framework.core.HttpAuthType;
 import org.advancedproductivity.gable.framework.core.HttpBodyType;
 import org.advancedproductivity.gable.framework.core.HttpMethodType;
 import org.advancedproductivity.gable.framework.core.TestType;
@@ -45,9 +44,9 @@ public class TestConfigGenerate {
         );
         detail.set(ConfigField.HTTP_HEADER, objectMapper.createArrayNode());
         detail.set(ConfigField.HTTP_HEADER, objectMapper.createArrayNode());
-        detail.set(ConfigField.HTTP_AUTH, objectMapper.createObjectNode()
-                .put(ConfigField.HTTP_AUTH_TYPE, HttpAuthType.NONE.name())
-        );
+//        detail.set(ConfigField.HTTP_AUTH, objectMapper.createObjectNode()
+//                .put(ConfigField.HTTP_AUTH_TYPE, HttpAuthType.NONE.name())
+//        );
         ObjectNode config = mapperObjectNode.put(ConfigField.UUID, uuid)
                 .put(ConfigField.TEST_TYPE, TestType.HTTP.name())
                 .put(ConfigField.VERSION, 1)

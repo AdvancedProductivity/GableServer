@@ -184,7 +184,7 @@ public class HttpRunner implements TestAction {
             }
             return formDataBuilder.build();
         } else if (StringUtils.equals(bodyType, HttpBodyType.URLENCODED.name())) {
-            String urlEncodedContent = parserToUrlPath(in.path(ConfigField.URLENCIDED));
+            String urlEncodedContent = mapKeyValue(in.path(ConfigField.URLENCIDED));
             return RequestBody.create(MediaType.parse("application/x-www-form-urlencoded"), urlEncodedContent);
         }
         return null;
