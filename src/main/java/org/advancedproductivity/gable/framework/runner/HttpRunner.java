@@ -24,8 +24,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import kotlin.Pair;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
-import org.advancedproductivity.gable.framework.auth.AuthHandler;
-import org.advancedproductivity.gable.framework.auth.AuthHolder;
 import org.advancedproductivity.gable.framework.config.ConfigField;
 import org.advancedproductivity.gable.framework.config.GableConfig;
 import org.advancedproductivity.gable.framework.config.HttpResponseField;
@@ -50,13 +48,6 @@ public class HttpRunner implements TestAction {
 
     @Override
     public void execute(JsonNode in, JsonNode out, ObjectNode instance, ObjectNode global) {
-        // handle auth
-        AuthHandler authHandler = AuthHolder.HOLDER.get(
-                in.path(ConfigField.HTTP_AUTH)
-                        .path(ConfigField.HTTP_AUTH_TYPE).asText());
-        if (authHandler != null) {
-            authHandler.handle(in, instance, global);
-        }
         ObjectNode response = (ObjectNode) out;
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .readTimeout(Duration.ZERO)
