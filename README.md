@@ -84,14 +84,42 @@ wiki文档请查看 [这里](https://github.com/AdvancedProductivity/GableServer
 
 请查看 [这里](https://github.com/AdvancedProductivity/GableClient)
 
+## UI预览 【一览为快】
+
+####   
+
+![单元测试界面](imgForPreivew/UnitTest.png)
+
+<p align="center">单元测试</p>
+
+![单元测试界面](imgForPreivew/CaseManage.png)
+
+<p align="center">用例管理</p>
+
+![单元测试界面](imgForPreivew/CaseDiff.png)
+
+<p align="center">用例差异</p>
+
+![单元测试界面](imgForPreivew/IntegrateTest.png)
+
+<p align="center">集成测试</p>
+
+![单元测试界面](imgForPreivew/IntegrateHistory.png)
+
+<p align="center">集成测试历史</p>
+
+![单元测试界面](imgForPreivew/TestReport.png)
+
+<p align="center">测试报告</p>
+
 ## ⌨️ 项目架构
 
 为了帮助感兴趣的人快速掌握关键信息，写下这一节。
 
 该项目是一个前后端分离的项目，既可以做为CS架构，也可以作为BS架构。
 
-该项目的后端就是一个普通的简单的`SpringBoot`的项目,没有使用数据库(一切持久化基于文件的读写)，
-没有使用`redis`这样的中间件(内存中维持了一个`Guava`的`Cache`做缓存),项目的`resource/static`
+该项目的后端就是一个普通的简单的`SpringBoot`的项目,没有使用数据库(一切持久化基于文件的读写)， 没有使用`redis`这样的中间件(内存中维持了一个`Guava`的`Cache`做缓存)
+,项目的`resource/static`
 目录下存放了前端打包后的文件，所以可以后端的jar文件在部署后可以直接通过`http://localhost:2110/` 的形式访问
 
 该项目的前端是普通的`Angular`项目,该项目基于模板[angular-electron](https://github.com/maximegris/angular-electron)
