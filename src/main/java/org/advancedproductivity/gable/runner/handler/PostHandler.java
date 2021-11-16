@@ -15,16 +15,26 @@
  *
  */
 
-package org.advancedproductivity.gable.framework.config;
+package org.advancedproductivity.gable.runner.handler;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * @author zzq
  */
-public interface GroovyScriptField {
-    String GROUP_NAME = "groupName";
-    String UUID = "uuid";
-    String ITEM = "item";
-    String NAME = "name";
-    String IS_USE = "isUse";
-    String PARAM = "param";
+public class PostHandler {
+
+    /**
+     * write post Handle code here have code prompt
+     */
+    void handle(JsonNode out, ObjectNode param, JsonNode instance, JsonNode global) throws Exception {
+        int i = Integer.parseInt("");
+        Set<String> set = new HashSet<>();
+
+    }
 }

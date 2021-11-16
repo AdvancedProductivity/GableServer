@@ -55,6 +55,7 @@ public class DatabaseUtils {
             DatabaseHolder holder = getConnection(in, SELECT);
             connection = holder.getConnection();
             String sqlWaitForExecute = holder.getSql();
+            log.info("execute sql: {}", sqlWaitForExecute);
             statement = connection.prepareStatement(sqlWaitForExecute);
             JsonNode param = in.path("param");
             setSqlParam(param, statement);
@@ -66,7 +67,7 @@ public class DatabaseUtils {
                 ResultSetMetaData metaData = resultSet.getMetaData();
                 int columnCount = metaData.getColumnCount();
                 for (int j = 0; j < columnCount; j++) {
-                    String columnName = metaData.getColumnName(j + 1);
+                    String columnName = metaData.getColumnLabel(j + 1);
                     Object columnValue = resultSet.getObject(columnName);
                     String value = columnValue == null ? "null" : columnValue.toString();
                     tmpResponse.put(columnName, value);

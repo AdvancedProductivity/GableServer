@@ -163,6 +163,10 @@ public class ExecuteServiceImpl implements ExecuteService {
             return;
         }
         for (JsonNode postScript : postScripts) {
+            JsonNode isUse = postScript.path(GroovyScriptField.IS_USE);
+            if (isUse.isBoolean() && !isUse.asBoolean()) {
+                continue;
+            }
             String preScriptName = postScript.path(GroovyScriptField.NAME).asText();
             if (!StringUtils.isEmpty(preScriptName)) {
                 String scriptUuid = this.groovyScriptService.getUuidByName(preScriptName, GroovyScriptType.POST);
@@ -179,23 +183,26 @@ public class ExecuteServiceImpl implements ExecuteService {
     }
 
     public void executePreScriptAndPreHandle(ObjectNode in, ObjectNode instance, ObjectNode global) {
-        PreHandleUtils.preHandleInJson(in, instance, global);
         JsonNode preScripts = in.path(ConfigField.PRE_SCRIPT);
-        if (!preScripts.isArray()) {
-            return;
-        }
-        for (JsonNode preScript : preScripts) {
-            String preScriptName = preScript.path(GroovyScriptField.NAME).asText();
-            if (!StringUtils.isEmpty(preScriptName)) {
-                String scriptUuid = this.groovyScriptService.getUuidByName(preScriptName, GroovyScriptType.PRE);
-                if (!StringUtils.isEmpty(scriptUuid)) {
-                    JsonNode param = preScript.path(GroovyScriptField.PARAM);
-                    if (!param.isObject()) {
-                        param = objectMapper.createObjectNode();
+        if (preScripts.isArray()) {
+            for (JsonNode preScript : preScripts) {
+                JsonNode isUse = preScript.path(GroovyScriptField.IS_USE);
+                if (isUse.isBoolean() && !isUse.asBoolean()) {
+                    continue;
+                }
+                String preScriptName = preScript.path(GroovyScriptField.NAME).asText();
+                if (!StringUtils.isEmpty(preScriptName)) {
+                    String scriptUuid = this.groovyScriptService.getUuidByName(preScriptName, GroovyScriptType.PRE);
+                    if (!StringUtils.isEmpty(scriptUuid)) {
+                        JsonNode param = preScript.path(GroovyScriptField.PARAM);
+                        if (!param.isObject()) {
+                            param = objectMapper.createObjectNode();
+                        }
+                        GroovyScriptUtils.runPreScript(scriptUuid, in, (ObjectNode) param, instance, global);
                     }
-                    GroovyScriptUtils.runPreScript(scriptUuid, in, (ObjectNode)param, instance, global);
                 }
             }
         }
+        PreHandleUtils.preHandleInJson(in, instance, global);
     }
 }
