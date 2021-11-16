@@ -22,6 +22,7 @@ import com.networknt.schema.AbstractJsonValidator;
 import com.networknt.schema.CustomErrorMessageType;
 import com.networknt.schema.ValidationMessage;
 import org.advancedproductivity.gable.framework.utils.DateFormatHolder;
+import org.advancedproductivity.gable.framework.utils.PreHandleUtils;
 import org.advancedproductivity.gable.framework.utils.jsonschema.JsonSchemaErrorCode;
 import org.apache.commons.lang3.StringUtils;
 
@@ -43,32 +44,64 @@ public abstract class DateValidator extends AbstractJsonValidator {
 
     @Override
     public Set<ValidationMessage> validate(JsonNode node, JsonNode rootNode, String at) {
-        if (!node.isTextual()) {
+        if (!node.isTextual() && !node.isLong()) {
             return pass();
         }
-        String jsonDateStr = node.asText();
+        String jsonDateStr = "";
         if (StringUtils.isEmpty(this.schemaExpress)) {
             return fail(CustomErrorMessageType.of(JsonSchemaErrorCode.EXPRESS_EMPTY,
                     new MessageFormat("{0} the format define can not be empty")), at);
-        }
-        if (StringUtils.isEmpty(jsonDateStr)) {
-            return fail(CustomErrorMessageType.of(JsonSchemaErrorCode.JSON_VALUE_EMPTY,
-                    new MessageFormat("{0} the json value is empty")), at);
         }
         String[] param = StringUtils.split(this.schemaExpress, "_#_");
         if (param == null || param.length != 3) {
             return fail(CustomErrorMessageType.of(JsonSchemaErrorCode.PARAM_ERROR,
                     new MessageFormat("{0} the format define can not be empty")), at);
-        }else {
+        } else {
             for (int i = 0; i < param.length; i++) {
                 param[i] = StringUtils.trim(param[i]);
             }
         }
-        SimpleDateFormat selfFormat = DateFormatHolder.getInstance(param[1]);
-        SimpleDateFormat jsonFormat = DateFormatHolder.getInstance(param[2]);
+        Date defineDate = null;
+        Date jsonDate = null;
         try {
-            Date defineDate = selfFormat.parse(param[0]);
-            Date jsonDate = jsonFormat.parse(jsonDateStr);
+            if (StringUtils.equals(param[1], PreHandleUtils.TIMESTAMP)) {
+                try {
+                    Long l = Long.parseLong(param[0]);
+                    defineDate = new Date(l);
+                } catch (Exception e) {
+                    return fail(CustomErrorMessageType.of(JsonSchemaErrorCode.EXPRESS_EMPTY,
+                            new MessageFormat("{0} the format define can not parser to long number")), at);
+                }
+            } else {
+                SimpleDateFormat selfFormat = DateFormatHolder.getInstance(param[1]);
+                defineDate = selfFormat.parse(param[0]);
+            }
+            if (StringUtils.equals(param[2], PreHandleUtils.TIMESTAMP)) {
+                if (node.isLong()) {
+                    long dateTime = node.asLong();
+                    jsonDateStr = dateTime + "";
+                    jsonDate = new Date(dateTime);
+                } else if (node.isTextual()) {
+                    try {
+                        Long l = Long.parseLong(node.asText());
+                        jsonDate = new Date(l);
+                    } catch (Exception e) {
+                        return fail(CustomErrorMessageType.of(JsonSchemaErrorCode.JSON_VALUE_EMPTY,
+                                new MessageFormat("{0} the json value's type can not cast to long number")), at);
+                    }
+                } else {
+                    return fail(CustomErrorMessageType.of(JsonSchemaErrorCode.JSON_VALUE_EMPTY,
+                            new MessageFormat("{0} the json value's type is not long number")), at);
+                }
+            } else {
+                jsonDateStr = node.asText();
+                if (StringUtils.isEmpty(jsonDateStr)) {
+                    return fail(CustomErrorMessageType.of(JsonSchemaErrorCode.JSON_VALUE_EMPTY,
+                            new MessageFormat("{0} the json value is empty")), at);
+                }
+                SimpleDateFormat jsonFormat = DateFormatHolder.getInstance(param[2]);
+                jsonDate = jsonFormat.parse(jsonDateStr);
+            }
             return validateTwoDate(defineDate, jsonDate, at, param[0], jsonDateStr);
         } catch (Exception e) {
             return fail(CustomErrorMessageType.of(JsonSchemaErrorCode.DATE_PARSER_ERROR,

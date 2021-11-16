@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class PreHandleUtils {
     public static Pattern ASSERT_JSON_PATTERN = Pattern.compile("\\((.*?)\\)");
+    public static final String TIMESTAMP = "timestamp";
 
     public static void main(String[] args) {
         String s1 = "{\n" +
@@ -132,7 +133,7 @@ public class PreHandleUtils {
             if (matcher.find()) {
                 String format = matcher.group().replace("(", "").replace(")", "");
                 format = StringUtils.trim(format);
-                if (StringUtils.equals(format, "timestamp")) {
+                if (StringUtils.equals(format, TIMESTAMP)) {
                     return System.currentTimeMillis() + "";
                 }
                 try {
