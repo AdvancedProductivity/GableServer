@@ -32,7 +32,6 @@ import org.advancedproductivity.gable.framework.utils.JsonDiffUtils;
 import org.advancedproductivity.gable.web.service.CaseService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.springframework.stereotype.Service;
@@ -197,7 +196,7 @@ public class CaseServiceImpl implements CaseService {
         Sheet wbSheet = wb.createSheet();
         wbSheet.setDefaultColumnWidth(20);
         CellStyle cellStyle = wb.createCellStyle();
-        cellStyle.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);
         cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
         Font fontStyle = wb.createFont();
         fontStyle.setBold(true);
