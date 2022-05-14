@@ -26,10 +26,25 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 @SpringBootApplication
 public class GableServerApplication {
+    public static class B{
+        public static B b0 = new B();
+        {
+            System.out.println("构造块");
+        }
+        static {
+            System.out.println("静态");
+        }
+        public static B b1 = new B();
 
+        public static void main(String[] args) {
+            System.out.println("xas");
+            B b = new B();
+        }
+    }
     public static void main(String[] args) {
-        SpringApplication.run(GableServerApplication.class, args);
-        GableConfig.initConfig();
+
+//        SpringApplication.run(GableServerApplication.class, args);
+//        GableConfig.initConfig();
     }
 
 }
