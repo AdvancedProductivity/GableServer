@@ -58,7 +58,8 @@ public class GableConfig {
     private static void checkNecessaryFile() {
         File persistenceFilePath = new File(getGablePath());
         if (!persistenceFilePath.exists()) {
-            persistenceFilePath.mkdirs();
+            final boolean mkdirs = persistenceFilePath.mkdirs();
+            log.info("persistenceFilePath mk dir result {}", mkdirs);
         }
         File publicPath = FileUtils.getFile(getGablePath(), PUBLIC_PATH, UserDataType.UNIT);
         if (!publicPath.exists()) {
