@@ -62,7 +62,8 @@ public class GableConfig {
         }
         File publicPath = FileUtils.getFile(getGablePath(), PUBLIC_PATH, UserDataType.UNIT);
         if (!publicPath.exists()) {
-            publicPath.mkdirs();
+            final boolean mkdirs = publicPath.mkdirs();
+            log.info("mk dir result {}", mkdirs);
         }
         File publicUnitMenu = FileUtils.getFile(getGablePath(), PUBLIC_PATH, UserDataType.UNIT, MenuService.UnitMenuFileName);
         if (!publicUnitMenu.exists()) {
